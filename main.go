@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/graph-uk/CombatServer/server"
+	"github.com/graph-uk/combat-server/server"
 )
 
 func main() {

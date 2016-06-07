@@ -6,8 +6,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/graph-uk/CombatServer/server/config"
-	"github.com/graph-uk/CombatServer/server/mutexedDB"
+	"github.com/graph-uk/combat-server/server/config"
+	"github.com/graph-uk/combat-server/server/mutexedDB"
 )
 
 type CombatServer struct {
