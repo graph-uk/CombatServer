@@ -6,8 +6,16 @@ import (
 	//"io/ioutil"
 	"net/http"
 	//"time"
-	"strconv"
+	//"strconv"
+	"encoding/json"
 )
+
+type SessionStatus struct {
+	Finished           bool
+	TotalCasesCount    int
+	FinishedCasesCount int
+	FailReports        []string
+}
 
 func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
@@ -98,32 +106,20 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 		}
 		rows.Close()
 
+		var sessionStatus SessionStatus
+		sessionStatus.TotalCasesCount = totalCasesCount
+		sessionStatus.FinishedCasesCount = finishedCasesCount
 		if totalCasesCount == finishedCasesCount && totalCasesCount != 0 {
-			w.Header().Set("Finished", "True")
-			if failedCasesCount == 0 {
-				w.Write([]byte("Success. All tests passed"))
-			} else {
-				w.Write([]byte("Finished. Errors: " + strconv.Itoa(failedCasesCount) + "\r\n"))
-				for _, curCase := range errorCases {
-					w.Write([]byte("    " + curCase + "\r\n"))
-				}
-			}
+			sessionStatus.Finished = true
 		} else {
-			w.Header().Set("Finished", "False")
-			if totalCasesCount != 0 {
-				if failedCasesCount != 0 {
-					w.Write([]byte("Running (" + strconv.Itoa(finishedCasesCount) + "/" + strconv.Itoa(totalCasesCount) + ") Errors: " + strconv.Itoa(failedCasesCount) + "\r\n"))
-					for _, curCase := range errorCases {
-						w.Write([]byte("    " + curCase + "\r\n"))
-					}
-				} else {
-					w.Write([]byte("Running (" + strconv.Itoa(finishedCasesCount) + "/" + strconv.Itoa(totalCasesCount) + ")"))
-				}
-			} else {
-				w.Write([]byte("Cases exploring"))
-			}
+			sessionStatus.Finished = false
 		}
 
+		for _, curCase := range errorCases {
+			sessionStatus.FailReports = append(sessionStatus.FailReports, curCase)
+		}
+		sessionStatusJSON, _ := json.Marshal(sessionStatus)
+		w.Write(sessionStatusJSON)
 		fmt.Println(r.Host + " Get session status: for session: " + sessionID)
 	}
 }
