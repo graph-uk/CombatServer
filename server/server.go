@@ -5,14 +5,16 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/graph-uk/combat-server/server/config"
 	"github.com/graph-uk/combat-server/server/mutexedDB"
 )
 
 type CombatServer struct {
-	config *config.Config
-	mdb    mutexedDB.MutexedDB
+	config    *config.Config
+	startPath string
+	mdb       mutexedDB.MutexedDB
 }
 
 func checkFolder(folderName string) error {
@@ -54,6 +56,7 @@ func checkFolders() error {
 func NewCombatServer() (*CombatServer, error) {
 	var result CombatServer
 	var err error
+	result.startPath, err = os.Getwd()
 	result.config, err = config.LoadConfig()
 	if err != nil {
 		return &result, err
@@ -76,11 +79,22 @@ func (t *CombatServer) Serve() error {
 	go t.TimeoutWatcher()
 	http.HandleFunc("/createSession", t.createSessionHandler)
 	http.HandleFunc("/getJob", t.getJobHandler)
-	http.HandleFunc("/setSessionCases", t.setSessionCasesHandler)
+	//http.HandleFunc("/setSessionCases", t.setSessionCasesHandler)
 	http.HandleFunc("/setCaseResult", t.setCaseResultHandler)
 	http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
 	//http.ListenAndServe(":9090", nil)
 
 	err := http.ListenAndServe(":"+strconv.Itoa(t.config.Port), nil)
 	return err
+}
+
+func (t *CombatServer) addToGOPath(pathExtention string) []string {
+	result := os.Environ()
+	for curVarIndex, curVarValue := range result {
+		if strings.HasPrefix(curVarValue, "GOPATH=") {
+			result[curVarIndex] = result[curVarIndex] + string(os.PathListSeparator) + pathExtention
+			return result
+		}
+	}
+	return result
 }
