@@ -150,6 +150,11 @@ type CaseTry struct {
 	STDOut string
 }
 
+type PS_testSession struct {
+	ID    string
+	Cases []*PS_testCase
+}
+
 type PS_testCase struct { // testCase struct for
 	ID         int
 	CMDLine    string
@@ -159,8 +164,12 @@ type PS_testCase struct { // testCase struct for
 	Tries      []*CaseTry
 }
 
-func (t *Session) GetCasesArray() ([]*PS_testCase, error) {
-	var result []*PS_testCase
+func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
+	var result PS_testSession
+
+	var result_cases []*PS_testCase
+
+	result.ID = t.ID
 
 	req, err := t.mdb.DB.Prepare(`SELECT id,cmdLine,inProgress,finished,passed FROM Cases WHERE sessionID=?`)
 	if err != nil {
@@ -182,12 +191,12 @@ func (t *Session) GetCasesArray() ([]*PS_testCase, error) {
 			fmt.Println(err.Error())
 			return nil, err
 		}
-		result = append(result, &curCase)
+		result_cases = append(result_cases, &curCase)
 	}
 	rows.Close()
 
 	// load failed tries for each case to result
-	for curCaseIndex, curCase := range result {
+	for curCaseIndex, curCase := range result_cases {
 		req, err := t.mdb.DB.Prepare(`SELECT id,stdOut FROM Tries WHERE caseID=? AND exitStatus<>'0'`)
 		if err != nil {
 			fmt.Println(err.Error())
@@ -207,10 +216,11 @@ func (t *Session) GetCasesArray() ([]*PS_testCase, error) {
 				return nil, err
 			}
 
-			result[curCaseIndex].Tries = append(result[curCaseIndex].Tries, &curTry)
+			result_cases[curCaseIndex].Tries = append(result_cases[curCaseIndex].Tries, &curTry)
 		}
 		rows.Close()
 	}
 
-	return result, nil
+	result.Cases = result_cases
+	return &result, nil
 }
