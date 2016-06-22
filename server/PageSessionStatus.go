@@ -126,52 +126,40 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
             </div>
         </div>
         <div class="rTableBody">
-            <div class="rTableRow">
-                <div class="rTableStatusCell rTableStatusRed"></div>
-                <div class="rTableCell">GuestOpenHomepage -HostName=http://somehost.co.uk
-                    <div class="rTableRow">
-                        <div class="rTableCell">Try ###</div>
-                    </div>
-                    <div class="rTableRow">
-                        <div class="rTableCell">Try ###</div>
-                    </div>
-                </div>
-            </div>
-            <div class="rTableRow">
-                <div class="rTableStatusCell  rTableStatusGreen"></div>
-                <div class="rTableCell">GuestOpenHomepage -HostName=http://somehost.co.uk
-                    <div class="smallfont"><input type="button" value="Try###" ; class="input-button" onclick="Spoil('Try_120398123')" />
-                    </div>
-                    <div class="alt2">
-                        <div id="Try_120398123" style="display: none;">
-                            InsideText
-                        </div>
-                    </div>
-
-                    <div class="smallfont"><input type="button" value="Try###" ; class="input-button" onclick="Spoil('Try_120398124')" />
-                    </div>
-                    <div class="alt2">
-                        <div id="Try_120398124" style="display: none;">
-                            InsideText
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="rTableRow">
-            <div class="rTableStatusCell rTableStatusProgress"></div>
-            <div class="rTableCell">GuestOpenHomepage -HostName=http://somehost.co.uk</div>
-        </div>
-        <div class="rTableRow">
-            <div class="rTableStatusCell"></div>
-            <div class="rTableCell">GuestOpenHomepage -HostName=http://somehost.co.uk</div>
-        </div>
+		
+		{{range .Cases}}
+			<div class="rTableRow">
+				{{if eq .InProgress true}}
+				    <div class="rTableStatusCell rTableStatusProgress"></div>
+				{{else}}
+					{{if eq .Finished true}}
+						{{if eq .Passed true}}
+							<div class="rTableStatusCell rTableStatusGreen"></div>
+						{{else}}
+							<div class="rTableStatusCell rTableStatusRed"></div>
+						{{end}}
+					{{else}}
+						<div class="rTableStatusCell"></div>
+					{{end}}	
+				{{end}}
+				
+				
+		        <div class="rTableCell">
+					{{.CMDLine}}
+					{{range .Tries}}
+						<div class="smallfont"><input type="button" value="Try" ; class="input-button" onclick="Spoil('{{.ID}}')" />
+	                    </div>
+	                    <div class="alt2">
+	                        <div id="{{.ID}}" style="display: none;">
+	                            {{.STDOut}}
+	                        </div>
+	                    </div>
+					{{end}}
+				</div>
+			</div>
+        {{end}}
     </div>
     </div>
-	
-            {{range .Cases}}
-	                {{.CMDLine}}<br>
-            {{end}}
 </body>
 
 </html>	
