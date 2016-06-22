@@ -19,6 +19,7 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println(err)
 			return
 		}
+
 		if rows.Next() {
 			err = rows.Scan(&caseID, &caseCMD, &sessionID)
 			if err != nil {
