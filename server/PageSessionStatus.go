@@ -104,6 +104,9 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
         .alt2 {}
     </style>
 
+
+	<link rel="stylesheet" href="/tries/unslider/dist/css/unslider.css">
+
     <script type="text/javascript">
         function Spoil(tryID) {
             if (document.getElementById(tryID).style.display != '') {
@@ -113,7 +116,7 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
             }
         }
     </script>
-
+	
 </head>
 
 <body>
@@ -147,11 +150,22 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 		        <div class="rTableCell">
 					{{.CMDLine}}
 					{{range .Tries}}
+						{{$tryID := .ID}}
 						<div class="smallfont"><input type="button" value="Try" ; class="input-button" onclick="Spoil('{{.ID}}')" />
 	                    </div>
 	                    <div class="alt2">
 	                        <div id="{{.ID}}" style="display: none;">
-	                            {{.STDOut}}
+								<div class="ScreenSlider">
+									<ul>
+										{{range .Screens}}
+											<li><img src="/tries/{{html $tryID}}/out/{{.}}.png"></li>
+										{{end}}
+									</ul>
+								</div>
+
+								{{range .STDOut}}
+									{{.}}<br>
+	                            {{end}}
 	                        </div>
 	                    </div>
 					{{end}}
@@ -160,6 +174,13 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
         {{end}}
     </div>
     </div>
+	<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src="/tries/unslider/src/js/unslider.js"></script>
+		<script>
+		jQuery(document).ready(function($) {
+			$('.ScreenSlider').unslider();
+		});
+	</script>
 </body>
 
 </html>	
@@ -181,7 +202,7 @@ func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.R
 		}
 
 		// Get session status
-		Page_session, err := session.NewAssignedSession(sessionID, &t.mdb)
+		Page_session, err := session.NewAssignedSession(sessionID, &t.mdb, t.startPath)
 		if err != nil {
 			w.Write([]byte("Error: " + err.Error() + "<br>\n"))
 			return
@@ -210,30 +231,5 @@ func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.R
 		}
 
 		w.Write(pageBuffer.Bytes())
-
-		//		json, err := json.Marshal(casesArray)
-		//		if err != nil {
-		//			w.Write([]byte("Error: " + err.Error() +sessionStruct "<br>\n"))
-		//			return
-		//		}
-
-		//		w.Write(json)
-
-		//		sessionStatus, err := session.GetStatus()
-		//		if err != nil {
-		//			w.Write([]byte("Error: " + err.Error() + "<br>\n"))
-		//			return
-		//		}
-
-		//		// Print session status as HTML
-		//		finishedStr := "False"
-		//		if sessionStatus.Finished {
-		//			finishedStr = "True"
-		//		}
-
-		//		w.Write([]byte("Finished: " + finishedStr + "<br>\n"))
-		//		w.Write([]byte("Params: " + sessionStatus.Params + "<br>\n"))
-		//		w.Write([]byte("TotalCases: " + strconv.Itoa(sessionStatus.TotalCasesCount) + "<br>\n"))
-		//		w.Write([]byte("FinishedCases: " + strconv.Itoa(sessionStatus.FinishedCasesCount) + "<br>\n"))
 	}
 }

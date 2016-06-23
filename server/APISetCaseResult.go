@@ -48,6 +48,10 @@ func (t *CombatServer) markCaseNotInProgress(caseID string) {
 	}
 }
 
+//func (t *CombatServer) unpackTryOutput() {
+
+//}
+
 func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 
@@ -135,8 +139,11 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 			fmt.Println(err)
 			return
 		}
-		defer f.Close()
+		//defer f.Close()
 		io.Copy(f, file)
+		f.Close()
+
+		go unzip("./tries/"+tryID+"/out_archived.zip", "./tries/"+tryID)
 
 		fmt.Println(r.Host + " Provide result for case: " + caseID + ". Status=" + exitStatus)
 	}

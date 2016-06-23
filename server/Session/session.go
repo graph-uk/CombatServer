@@ -1,17 +1,23 @@
 package session
 
 import (
+	"strings"
 	//"errors"
 	"fmt"
-	//"strconv"
+	"strconv"
+	//"strings"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/graph-uk/combat-server/server/mutexedDB"
 	"github.com/graph-uk/combat-server/server/session/testCase"
 )
 
 type Session struct {
-	ID  string
-	mdb *mutexedDB.MutexedDB
+	ID       string
+	mdb      *mutexedDB.MutexedDB
+	RootPath string
 }
 
 type SessionStatus struct {
@@ -24,10 +30,11 @@ type SessionStatus struct {
 	FailedCases        []*string
 }
 
-func NewAssignedSession(id string, mdb *mutexedDB.MutexedDB) (*Session, error) {
+func NewAssignedSession(id string, mdb *mutexedDB.MutexedDB, RootPath string) (*Session, error) {
 	var result Session
 	result.mdb = mdb
 	result.ID = id
+	result.RootPath = RootPath
 	return &result, nil
 }
 
@@ -63,6 +70,26 @@ func NewAssignedSession(id string, mdb *mutexedDB.MutexedDB) (*Session, error) {
 //		}
 //	}
 //}
+
+func (t *Session) GetTryScreenshots(tryID int) []string {
+	slash := string(os.PathSeparator)
+	files, err := ioutil.ReadDir(t.RootPath + slash + "tries" + slash + strconv.Itoa(tryID) + slash + "out")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	result := []string{}
+	for _, file := range files {
+		//fmt.Println(strings.TrimRight(filepath.Base(file.Name()), filepath.Ext(file.Name())))
+		if strings.Contains(file.Name(), ".png") {
+			curScreenID := strings.TrimRight(filepath.Base(file.Name()), filepath.Ext(file.Name()))
+			curScreenID = strings.TrimSpace(curScreenID)
+			if curScreenID != "" {
+				result = append(result, curScreenID)
+			}
+		}
+	}
+	return result
+}
 
 func (t *Session) GetStatus() (*SessionStatus, error) {
 	var result SessionStatus
@@ -146,8 +173,9 @@ func (t *Session) GetStatus() (*SessionStatus, error) {
 }
 
 type CaseTry struct {
-	ID     int
-	STDOut string
+	ID      int
+	STDOut  []string
+	Screens []string
 }
 
 type PS_testSession struct {
@@ -210,13 +238,19 @@ func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
 
 		for rows.Next() {
 			var curTry CaseTry
-			err = rows.Scan(&curTry.ID, &curTry.STDOut)
+			var stdOutRaw string
+			err = rows.Scan(&curTry.ID, &stdOutRaw)
 			if err != nil {
 				fmt.Println(err.Error())
 				return nil, err
 			}
+			nl := `
+`
+			curTry.STDOut = strings.Split(stdOutRaw, nl)
 
+			curTry.Screens = t.GetTryScreenshots(curTry.ID)
 			result_cases[curCaseIndex].Tries = append(result_cases[curCaseIndex].Tries, &curTry)
+
 		}
 		rows.Close()
 	}
