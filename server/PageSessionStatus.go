@@ -158,7 +158,11 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 								<div class="rTableCell" style="width: 650px">
 									<div class="slider2" style="float: left;">
 									{{range .Screens}}
-										<div class="slide"><img src="/tries/{{html $tryID}}/out/{{.}}.png"></div>
+										<div class="slide">
+											<span><a href="/tries/{{html $tryID}}/out/{{.ID}}.html">PageSource</a></span><br>
+											<span>URL: {{.URL}}</span>
+											<img src="/tries/{{html $tryID}}/out/{{.ID}}.png">
+										</div>
 									{{end}}
 									</div>		
 								

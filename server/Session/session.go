@@ -172,10 +172,15 @@ func (t *Session) GetStatus() (*SessionStatus, error) {
 	return &result, nil
 }
 
+type Screen struct {
+	ID  string
+	URL string
+}
+
 type CaseTry struct {
 	ID      int
 	STDOut  []string
-	Screens []string
+	Screens []Screen
 }
 
 type PS_testSession struct {
@@ -193,6 +198,7 @@ type PS_testCase struct { // testCase struct for
 }
 
 func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
+	slash := string(os.PathSeparator)
 	var result PS_testSession
 
 	var result_cases []*PS_testCase
@@ -248,7 +254,15 @@ func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
 `
 			curTry.STDOut = strings.Split(stdOutRaw, nl)
 
-			curTry.Screens = t.GetTryScreenshots(curTry.ID)
+			AllScreenIDs := t.GetTryScreenshots(curTry.ID)
+			for _, curScreenID := range AllScreenIDs {
+				var curScreen Screen
+				curScreen.ID = curScreenID
+				URL, _ := ioutil.ReadFile(t.RootPath + slash + "tries" + slash + strconv.Itoa(curTry.ID) + slash + "out" + slash + curScreenID + ".txt")
+				curScreen.URL = string(URL)
+				curTry.Screens = append(curTry.Screens, curScreen)
+			}
+
 			result_cases[curCaseIndex].Tries = append(result_cases[curCaseIndex].Tries, &curTry)
 
 		}
