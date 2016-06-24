@@ -25,7 +25,7 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 
 <head>
     <title>Session: {{.ID}}</title>
-    <link rel="stylesheet" href="html.css">
+    <link href="/tries/jquery.bxslider/jquery.bxslider.css" rel="stylesheet">
     <style>
         .rTable {
             display: table;
@@ -102,10 +102,9 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
         .smallfont {}
         
         .alt2 {}
+		
     </style>
-
-
-	<link rel="stylesheet" href="/tries/unslider/dist/css/unslider.css">
+	<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
 
     <script type="text/javascript">
         function Spoil(tryID) {
@@ -154,18 +153,25 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 						<div class="smallfont"><input type="button" value="Try" ; class="input-button" onclick="Spoil('{{.ID}}')" />
 	                    </div>
 	                    <div class="alt2">
-	                        <div id="{{.ID}}" style="display: none;">
-								<div class="ScreenSlider">
-									<ul>
-										{{range .Screens}}
-											<li><img src="/tries/{{html $tryID}}/out/{{.}}.png"></li>
-										{{end}}
-									</ul>
+	                        <div id="{{.ID}}" style="">
+							<div class="rTableRow">
+								<div class="rTableCell" style="width: 650px">
+									<div class="slider2" style="float: left;">
+									{{range .Screens}}
+										<div class="slide"><img src="/tries/{{html $tryID}}/out/{{.}}.png"></div>
+									{{end}}
+									</div>		
+								
+								 
 								</div>
-
-								{{range .STDOut}}
-									{{.}}<br>
-	                            {{end}}
+								<div class="rTableCell" style="vertical-align:top;">
+									<span>
+									{{range .STDOut}}
+										{{.}}<br>
+	                            	{{end}}
+									</span>
+								</div>
+							</div>
 	                        </div>
 	                    </div>
 					{{end}}
@@ -174,13 +180,24 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
         {{end}}
     </div>
     </div>
-	<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
-	<script src="/tries/unslider/src/js/unslider.js"></script>
-		<script>
-		jQuery(document).ready(function($) {
-			$('.ScreenSlider').unslider();
-		});
-	</script>
+	
+	
+							
+
+	<script src="/tries/jquery.bxslider/jquery.bxslider.min.js"></script>
+	
+	
+<script type="text/javascript">
+$(document).ready(function(){
+  $('.slider2').bxSlider({
+    slideWidth: 650,
+    minSlides: 1,
+    maxSlides: 1
+  });
+
+setTimeout("$('.input-button').trigger('click');", 300);
+});
+</script>
 </body>
 
 </html>	
