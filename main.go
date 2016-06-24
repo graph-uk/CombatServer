@@ -4,10 +4,16 @@ import (
 	"fmt"
 	"os"
 
+	"net/http"
+
 	"github.com/graph-uk/combat-server/server"
 )
 
 func main() {
+	// serve static files for HTML pages (jquery, css, images, etc)
+	// to update static files - run packBinData.cmd
+	http.Handle("/bindata/", http.StripPrefix("/bindata/", http.FileServer(assetFS())))
+
 	combatServer, err := server.NewCombatServer()
 	if err != nil {
 		fmt.Println("Cannot init combat server")

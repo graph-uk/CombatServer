@@ -25,7 +25,7 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 
 <head>
     <title>Session: {{.ID}}</title>
-    <link href="/tries/jquery.bxslider/jquery.bxslider.css" rel="stylesheet">
+    <link href="/bindata/jquery.bxslider/jquery.bxslider.css" rel="stylesheet">
     <style>
         .rTable {
             display: table;
@@ -104,7 +104,7 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
         .alt2 {}
 		
     </style>
-	<script src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+	<script src="/bindata/jquery-2.1.4.min.js"></script>
 
     <script type="text/javascript">
         function Spoil(tryID) {
@@ -188,7 +188,7 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 	
 							
 
-	<script src="/tries/jquery.bxslider/jquery.bxslider.min.js"></script>
+	<script src="/bindata/jquery.bxslider/jquery.bxslider.min.js"></script>
 	
 	
 <script type="text/javascript">
