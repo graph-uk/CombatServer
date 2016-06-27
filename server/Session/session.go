@@ -1,14 +1,12 @@
 package session
 
 import (
-	"strings"
-	//"errors"
 	"fmt"
-	"strconv"
-	//"strings"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
+	"strings"
 
 	"github.com/graph-uk/combat-server/server/mutexedDB"
 	"github.com/graph-uk/combat-server/server/session/testCase"
@@ -37,39 +35,6 @@ func NewAssignedSession(id string, mdb *mutexedDB.MutexedDB, RootPath string) (*
 	result.RootPath = RootPath
 	return &result, nil
 }
-
-// Check is session exist.
-// Session exist when a record found in the "Sessions" with specified ID.
-//func (t *Session) CheckExist() (bool, error) {
-//	req, err := t.mdb.DB.Prepare(`SELECT Count()as count FROM sessions WHERE id=?`)
-//	if err != nil {
-//		fmt.Println()
-//		fmt.Println(err)
-//		return false, err
-//	}
-//	rows, err := req.Query(t.ID)
-//	if err != nil {
-//		fmt.Println(err)
-//		return false, err
-//	}
-//	var sessionsCount int
-//	rows.Next()
-//	err = rows.Scan(&sessionsCount)
-//	if err != nil {
-//		fmt.Println(err)
-//		return false, err
-//	}
-//	rows.Close()
-//	if sessionsCount == 1 {
-//		return true, nil
-//	} else {
-//		if sessionsCount == 0 {
-//			return false, nil
-//		} else {
-//			return false, errors.New("Two or more sessions with the same ID: " + t.ID)
-//		}
-//	}
-//}
 
 func (t *Session) GetTryScreenshots(tryID int) []string {
 	slash := string(os.PathSeparator)
@@ -115,7 +80,6 @@ func (t *Session) GetStatus() (*SessionStatus, error) {
 		return nil, err
 	}
 	rows.Close()
-	//fmt.Println("SessionParams=" + sessionParams)
 
 	// get all cases of the session
 	req, err = t.mdb.DB.Prepare(`SELECT id, cmdLine, inProgress, finished, passed FROM Cases WHERE sessionID=?`)

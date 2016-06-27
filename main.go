@@ -2,9 +2,8 @@ package main
 
 import (
 	"fmt"
-	"os"
-
 	"net/http"
+	"os"
 
 	"github.com/graph-uk/combat-server/server"
 )

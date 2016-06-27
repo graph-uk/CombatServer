@@ -1,22 +1,13 @@
 package server
 
 import (
-	"net/http"
-	//	"strconv"
-	//"encoding/json"
 	"bytes"
 	"html/template"
+	"net/http"
 	"strings"
 
 	"github.com/graph-uk/combat-server/server/session"
 )
-
-//type SessionStatus struct {
-//	Finished           bool
-//	//TotalCasesCount    int
-//	//FinishedCasesCount int
-//	//FailReports        []string
-//}
 
 func (t *CombatServer) getSessionStatusTemplate() *string {
 	template := `
@@ -206,8 +197,6 @@ setTimeout("$('.input-button').trigger('click');", 300);
 
 </html>	
 	`
-	//	template2 := `hello {{.UserName}}!`
-	//	return &template2
 
 	return &template
 }
