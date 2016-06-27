@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	//	"time"
 )
 
 func (t *CombatServer) markCaseFailed(caseID string) {
@@ -48,15 +47,10 @@ func (t *CombatServer) markCaseNotInProgress(caseID string) {
 	}
 }
 
-//func (t *CombatServer) unpackTryOutput() {
-
-//}
-
 func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 
 	} else {
-		//tryName := strconv.FormatInt(time.Now().UnixNano(), 10)
 		r.ParseMultipartForm(32 << 20)
 		file, _, err := r.FormFile("uploadfile")
 		if err != nil {
@@ -145,6 +139,6 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 
 		go unzip("./tries/"+tryID+"/out_archived.zip", "./tries/"+tryID)
 
-		fmt.Println(r.Host + " Provide result for case: " + caseID + ". Status=" + exitStatus)
+		fmt.Println(r.RemoteAddr + " Provide result for case: " + caseID + ". Status=" + exitStatus)
 	}
 }

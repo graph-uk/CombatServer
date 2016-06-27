@@ -51,7 +51,7 @@ func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	io.WriteString(w, sessionName)
-	fmt.Println(r.Host + " Create new session: " + sessionName + " " + sessionParams)
+	fmt.Println(r.RemoteAddr + " Create new session: " + sessionName + " " + sessionParams)
 
 	go t.doCasesExplore(sessionParams, sessionName)
 }

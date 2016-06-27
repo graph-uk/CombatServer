@@ -55,7 +55,7 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 				fmt.Println(err)
 				return
 			}
-			fmt.Println(r.Host + " Get a job (CasesRun) for case: " + caseCMD)
+			fmt.Println(r.RemoteAddr + " Get a job (CasesRun) for case: " + caseCMD)
 
 		} else { // when not found cases to run
 			rows.Close()
