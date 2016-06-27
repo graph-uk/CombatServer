@@ -10,12 +10,14 @@ import (
 type Config struct {
 	Port                 int
 	CountOfSavedSessions int
+	ServerHostname       string
 }
 
 func PrintConfigExample() {
 	var conf Config
 	conf.Port = 9090
 	conf.CountOfSavedSessions = 10
+	conf.ServerHostname = "http://localhost:9090"
 	confBytes, err := json.Marshal(conf)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -27,7 +29,9 @@ func PrintConfigExample() {
 func defaultConfig() string {
 	return `{
 	"port":9090, 
-	"countOfSavedSessionsFiles":10
+	"countOfSavedSessionsFiles":10,
+	"ServerHostname":"http://localhost:9090"
+	
 }`
 }
 

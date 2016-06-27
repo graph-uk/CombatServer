@@ -77,11 +77,6 @@ func NewCombatServer() (*CombatServer, error) {
 
 func (t *CombatServer) Serve() error {
 	go t.TimeoutWatcher()
-
-	//http.Handle("/tries/", http.FileServer(http.Dir(t.startPath+string(os.PathSeparator)+"tries")))
-
-	//http.Handle("/tries/", http.FileServer(http.Dir("./tries")))
-	//http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
 	http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
 
 	http.HandleFunc("/createSession", t.createSessionHandler)
