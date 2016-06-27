@@ -113,7 +113,6 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 			return
 		}
 		tryID := strconv.Itoa(int(tryID64))
-		//fmt.Println(strconv.Itoa(int(tryID)))
 
 		if triesCount > 2 && exitStatus != "0" {
 			t.markCaseFailed(caseID)
