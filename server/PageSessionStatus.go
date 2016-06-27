@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
@@ -183,21 +184,20 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 	
 	
 <script type="text/javascript">
-$(document).ready(function(){
-  $('.slider2').bxSlider({
-    slideWidth: 650,
-    minSlides: 1,
-    maxSlides: 1
-  });
-
-setTimeout("$('.input-button').trigger('click');", 300);
-});
+	$(document).ready(function(){
+	  $('.slider2').bxSlider({
+	    slideWidth: 650,
+	    minSlides: 1,
+	    maxSlides: 1
+	  });
+	
+	setTimeout("$('.input-button').trigger('click');", 300);
+	});
 </script>
 </body>
 
 </html>	
 	`
-
 	return &template
 }
 
@@ -232,7 +232,6 @@ func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.R
 			w.Write([]byte("Error: " + err.Error() + "<br>\n"))
 			return
 		}
-		//println(PS_session.ID)
 
 		err = tt.Execute(pageBuffer, PS_session)
 		if err != nil {
@@ -241,5 +240,7 @@ func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.R
 		}
 
 		w.Write(pageBuffer.Bytes())
+
+		fmt.Println(r.RemoteAddr + " Get session status page for session: " + sessionID)
 	}
 }

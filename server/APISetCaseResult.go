@@ -114,15 +114,27 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 		}
 		tryID := strconv.Itoa(int(tryID64))
 
-		if triesCount > 2 && exitStatus != "0" {
-			t.markCaseFailed(caseID)
-		} else {
-			if exitStatus == "0" {
+		if exitStatus == "0" {
+			if triesCount+2 <= 3 {
 				t.markCasePassed(caseID)
+			}
+		} else {
+			if triesCount+2 > 3 {
+				t.markCaseFailed(caseID)
 			} else {
 				t.markCaseNotInProgress(caseID)
 			}
 		}
+
+		//		if triesCount > 2 && exitStatus != "0" {
+		//			t.markCaseFailed(caseID)
+		//		} else {
+		//			if exitStatus == "0" {
+		//				t.markCasePassed(caseID)
+		//			} else {
+		//				t.markCaseNotInProgress(caseID)
+		//			}
+		//		}
 
 		t.mdb.Unlock()
 
