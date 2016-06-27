@@ -128,61 +128,61 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
             </div>
         </div>
         <div class="rTableBody">
-		
-		{{range .Cases}}
-			<div class="rTableRow">
-				{{if eq .InProgress true}}
-				    <div class="rTableStatusCell rTableStatusProgress"></div>
-				{{else}}
-					{{if eq .Finished true}}
-						{{if eq .Passed true}}
-							<div class="rTableStatusCell rTableStatusGreen"></div>
-						{{else}}
-							<div class="rTableStatusCell rTableStatusRed"></div>
-						{{end}}
+			{{range .Cases}}
+				<div class="rTableRow">
+					{{if eq .InProgress true}}
+					    <div class="rTableStatusCell rTableStatusProgress"></div>
 					{{else}}
-						<div class="rTableStatusCell"></div>
-					{{end}}	
-				{{end}}
-				
-				
-		        <div class="rTableCell">
-					{{.CMDLine}}
-					{{range .Tries}}
-						{{$tryID := .ID}}
-						<div class="smallfont"><input type="button" value="Try" ; class="input-button" onclick="Spoil('{{.ID}}')" />
-	                    </div>
-	                    <div class="alt2">
-	                        <div id="{{.ID}}" style="">
-							<div class="rTableRow">
-								<div class="rTableCell" style="width: 650px">
-									<div class="slider2" style="float: left;">
-									{{range .Screens}}
-										<div class="slide">
-											<span><a href="/tries/{{html $tryID}}/out/{{.ID}}.html">PageSource</a></span><br>
-											<span>URL: {{.URL}}</span>
-											<img src="/tries/{{html $tryID}}/out/{{.ID}}.png">
-										</div>
-									{{end}}
-									</div>		
-								
-								 
-								</div>
-								<div class="rTableCell" style="vertical-align:top;">
-									<span>
-									{{range .STDOut}}
-										{{.}}<br>
-	                            	{{end}}
-									</span>
-								</div>
-							</div>
-	                        </div>
-	                    </div>
+						{{if eq .Finished true}}
+							{{if eq .Passed true}}
+								<div class="rTableStatusCell rTableStatusGreen"></div>
+							{{else}}
+								<div class="rTableStatusCell rTableStatusRed"></div>
+							{{end}}
+						{{else}}
+							<div class="rTableStatusCell"></div>
+						{{end}}	
 					{{end}}
+					
+					
+			        <div class="rTableCell">
+						{{.CMDLine}}
+						{{range .Tries}}
+							{{$tryID := .ID}}
+							<div class="smallfont">
+								<input type="button" value="Try" ; class="input-button" onclick="Spoil('{{.ID}}')">
+		                    </div>
+		                    <div class="alt2">
+		                        <div id="{{.ID}}" style="">
+									<div class="rTableRow">
+										{{if ne (len .Screens) 0}}
+											<div class="rTableCell" style="width: 650px">
+												<div class="slider2" style="float: left;">
+												{{range .Screens}}
+													<div class="slide">
+														<span><a href="/tries/{{html $tryID}}/out/{{.ID}}.html">PageSource</a></span><br>
+														<span>URL: {{.URL}}</span>
+														<img src="/tries/{{html $tryID}}/out/{{.ID}}.png">
+													</div>
+												{{end}}
+												</div>		
+											</div>
+										{{end}}
+										<div class="rTableCell" style="vertical-align:top;">
+											<span>
+												{{range .STDOut}}
+													{{.}}<br>
+				                            	{{end}}
+											</span>
+										</div>
+									</div>
+		                        </div>
+		                    </div>
+						{{end}}
+					</div>
 				</div>
-			</div>
-        {{end}}
-    </div>
+	        {{end}}
+    	</div>
     </div>
 	
 	
