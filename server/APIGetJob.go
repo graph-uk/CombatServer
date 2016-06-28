@@ -12,9 +12,10 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
 		t.mdb.Lock()
+		//defer t.mdb.Unlock()
 
 		var caseID, caseCMD, sessionID string
-		rows, err := t.mdb.DB.Query(`SELECT id, cmdLine, sessionID FROM cases WHERE finished="false" AND inProgress="false" ORDER BY RANDOM() LIMIT 1`)
+		rows, err := t.mdb.DB.Query(`SELECT id, cmdLine, sessionID FROM Cases WHERE finished="false" AND inProgress="false" ORDER BY RANDOM() LIMIT 1`)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -24,6 +25,7 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 			err = rows.Scan(&caseID, &caseCMD, &sessionID)
 			if err != nil {
 				fmt.Println(err)
+				t.mdb.Unlock()
 				return
 			}
 			rows.Close()
@@ -32,11 +34,13 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 			req, err := t.mdb.DB.Prepare("UPDATE Cases SET inProgress=?, startedAt=? WHERE id=?")
 			if err != nil {
 				fmt.Println(err)
+				t.mdb.Unlock()
 				return
 			}
 			_, err = req.Exec(true, curTime, caseID)
 			if err != nil {
 				fmt.Println(err)
+				t.mdb.Unlock()
 				return
 			}
 			t.mdb.Unlock()
