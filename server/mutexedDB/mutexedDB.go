@@ -19,7 +19,7 @@ func checkDB(path string) error {
 	if _, err := os.Stat(path); os.IsNotExist(err) { // if file does not exist - try to create
 		db, err := sql.Open("sqlite3", path)
 		_, err = db.Exec(`CREATE TABLE Cases (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, cmdLine VARCHAR (50), sessionID VARCHAR (20), inProgress BOOLEAN DEFAULT false, finished BOOLEAN DEFAULT false, passed BOOLEAN DEFAULT false, startedAt DATETIME);
-CREATE TABLE Sessions (id VARCHAR (20) PRIMARY KEY NOT NULL, status INT DEFAULT (0), params VARCHAR (50));
+CREATE TABLE Sessions (id VARCHAR (20) PRIMARY KEY NOT NULL, status INT DEFAULT (0), params VARCHAR (50), hook_FirstFail BOOLEAN DEFAULT False);
 CREATE TABLE Tries (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, caseID INTEGER, exitStatus VARCHAR (50), stdOut STRING);`)
 		if err != nil {
 			fmt.Println("Cannot init empty database. Check permissions to " + path)

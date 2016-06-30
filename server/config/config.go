@@ -11,6 +11,7 @@ type Config struct {
 	Port                         int
 	CountOfStoredSessions        int
 	ProjectName                  string
+	CountOfRetries               int
 	ServerHostname               string
 	FirstSessionFailSlackHook    string
 	FirstSessionFailSlackChannel string

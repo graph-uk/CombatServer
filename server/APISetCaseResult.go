@@ -238,12 +238,11 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 		}
 		tryID := strconv.Itoa(int(tryID64))
 
+		fmt.Println("TestTriesCount=" + strconv.Itoa(triesCount))
 		if exitStatus == "0" { // if test passed
-			if triesCount+2 <= 3 {
-				t.markCasePassed(caseID)
-			}
+			t.markCasePassed(caseID)
 		} else { // if test failed
-			if triesCount+2 > 3 { // if test failed too many times
+			if triesCount+2 > t.config.CountOfRetries { // if test failed too many times
 				t.markCaseFailed(caseID)
 			} else { // if test failed, and should try again
 				t.markCaseNotInProgress(caseID)
