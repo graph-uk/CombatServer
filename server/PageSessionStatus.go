@@ -238,7 +238,5 @@ func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.R
 		}
 
 		w.Write(pageBuffer.Bytes())
-
-		fmt.Println(r.RemoteAddr + " Get session status page for session: " + sessionID)
 	}
 }

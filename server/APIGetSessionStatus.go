@@ -120,6 +120,5 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 		}
 		sessionStatusJSON, _ := json.Marshal(sessionStatus)
 		w.Write(sessionStatusJSON)
-		fmt.Println(r.RemoteAddr + " Get session status for session: " + sessionID)
 	}
 }
