@@ -8,15 +8,18 @@ import (
 )
 
 type Config struct {
-	Port                 int
-	CountOfSavedSessions int
-	ServerHostname       string
+	Port                         int
+	CountOfStoredSessions        int
+	ProjectName                  string
+	ServerHostname               string
+	FirstSessionFailSlackHook    string
+	FirstSessionFailSlackChannel string
 }
 
 func PrintConfigExample() {
 	var conf Config
 	conf.Port = 9090
-	conf.CountOfSavedSessions = 10
+	conf.CountOfStoredSessions = 10
 	conf.ServerHostname = "http://localhost:9090"
 	confBytes, err := json.Marshal(conf)
 	if err != nil {

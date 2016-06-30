@@ -1,8 +1,10 @@
 package server
 
 import (
+	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -19,6 +21,15 @@ func (t *CombatServer) markCaseFailed(caseID string) {
 		fmt.Println(err)
 		return
 	}
+
+	//run hook
+	sessionID, cmdLine, err := t.getSessionIDandCMDLineByCaseID(caseID)
+	if err != nil {
+		fmt.Println(err)
+		t.mdb.Unlock()
+		return
+	}
+	t.hook_FailInSession(sessionID, cmdLine)
 }
 
 func (t *CombatServer) markCasePassed(caseID string) {
@@ -45,6 +56,111 @@ func (t *CombatServer) markCaseNotInProgress(caseID string) {
 		fmt.Println(err)
 		return
 	}
+}
+
+func (t *CombatServer) alarmSlack_FirstFailInSession(sessionID string, cmdLine string) {
+	if t.config.FirstSessionFailSlackHook == "" {
+		fmt.Println("Slack hook is not set. Slack message is not sent.")
+		return
+	}
+
+	if t.config.FirstSessionFailSlackChannel == "" {
+		fmt.Println("Slack channel is not set. Slack message is not sent.")
+		return
+	}
+
+	alarmMessage := `{
+		"channel": "#` + t.config.FirstSessionFailSlackChannel + `",
+	    "text": "<` + t.config.ServerHostname + `/sessions/` + sessionID + `|` + t.config.ProjectName + ` testing failed>: _` + cmdLine + `_"
+		}`
+
+	bodyBuffer := new(bytes.Buffer)
+	bodyBuffer.WriteString(alarmMessage)
+
+	fmt.Println(alarmMessage)
+
+	resp, err := http.Post("https://hooks.slack.com/services/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", "application/json", bodyBuffer)
+	if err != nil {
+		fmt.Println("Cannot post message. Message may be is not sent.")
+		return
+	}
+	//	var respBody []byte
+	//	resp.Body.Read(respBody)
+
+	respBody, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		fmt.Println("Cannot read response body. Message may be is not sent.")
+		return
+	}
+
+	fmt.Println("Response: " + string(respBody))
+
+	fmt.Println("Slack message sent.")
+}
+
+func (t *CombatServer) hook_FirstFailInSession(sessionID string, cmdLine string) {
+	fmt.Println("Hook_FirstFailInSession" + sessionID + " " + cmdLine)
+	go t.alarmSlack_FirstFailInSession(sessionID, cmdLine)
+}
+
+// The method set first fail flag as true, if it was false, and return true for first call.
+func (t *CombatServer) IsFirstFailInSession(sessionID string) (bool, error) {
+	req, err := t.mdb.DB.Prepare(`UPDATE Sessions SET hook_FirstFail="True" WHERE id=? AND hook_FirstFail="False"`) // Set FirstFail flag as true, if not true yet
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+	execRes, err := req.Exec(sessionID)
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+	rowsAffected, err := execRes.RowsAffected()
+	if err != nil {
+		fmt.Println(err)
+		return false, err
+	}
+	if rowsAffected != 0 { // if it first fail in the session
+		return true, nil
+	} else {
+		return false, nil
+	}
+}
+
+func (t *CombatServer) hook_FailInSession(sessionID string, cmdLine string) {
+	fmt.Println("Hook_FailInSession: " + sessionID + " " + cmdLine)
+
+	ItFirstFail, err := t.IsFirstFailInSession(sessionID)
+	if err != nil {
+		return
+	}
+
+	if ItFirstFail {
+		t.hook_FirstFailInSession(sessionID, cmdLine)
+	}
+}
+
+func (t *CombatServer) getSessionIDandCMDLineByCaseID(caseID string) (string, string, error) {
+	req, err := t.mdb.DB.Prepare(`SELECT sessionID,cmdLine FROM Cases WHERE id=?`) // get sessionID, cmdLine for alarm
+	if err != nil {
+		fmt.Println(err)
+		return "", "", err
+	}
+	rows, err := req.Query(caseID)
+	if err != nil {
+		fmt.Println(err)
+		return "", "", err
+	}
+	rows.Next()
+	var sessionID string
+	var cmdLine string
+	err = rows.Scan(&sessionID, &cmdLine)
+	if err != nil {
+		fmt.Println(err)
+		return "", "", err
+	}
+	rows.Close()
+	return sessionID, cmdLine, nil
 }
 
 func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Request) {
@@ -78,17 +194,18 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 		}
 
 		t.mdb.Lock()
-		req, err := t.mdb.DB.Prepare(`SELECT id FROM Tries WHERE caseID=?`)
+		req, err := t.mdb.DB.Prepare(`SELECT id FROM Tries WHERE caseID=?`) // get count of tries
 		if err != nil {
 			fmt.Println(err)
+			t.mdb.Unlock()
 			return
 		}
 		rows, err := req.Query(caseID)
 		if err != nil {
 			fmt.Println(err)
+			t.mdb.Unlock()
 			return
 		}
-
 		triesCount := 0
 		for rows.Next() {
 			triesCount++
@@ -100,41 +217,34 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 		req, err = t.mdb.DB.Prepare("INSERT INTO Tries(caseID,exitStatus,stdOut) VALUES(?,?,?)")
 		if err != nil {
 			fmt.Println(err)
+			t.mdb.Unlock()
 			return
 		}
 		res, err := req.Exec(caseID, exitStatus, stdOut)
 		if err != nil {
 			fmt.Println(err)
+			t.mdb.Unlock()
 			return
 		}
 		tryID64, err := res.LastInsertId()
 		if err != nil {
 			fmt.Println(err)
+			t.mdb.Unlock()
 			return
 		}
 		tryID := strconv.Itoa(int(tryID64))
 
-		if exitStatus == "0" {
+		if exitStatus == "0" { // if test passed
 			if triesCount+2 <= 3 {
 				t.markCasePassed(caseID)
 			}
-		} else {
-			if triesCount+2 > 3 {
+		} else { // if test failed
+			if triesCount+2 > 3 { // if test failed too many times
 				t.markCaseFailed(caseID)
-			} else {
+			} else { // if test failed, and should try again
 				t.markCaseNotInProgress(caseID)
 			}
 		}
-
-		//		if triesCount > 2 && exitStatus != "0" {
-		//			t.markCaseFailed(caseID)
-		//		} else {
-		//			if exitStatus == "0" {
-		//				t.markCasePassed(caseID)
-		//			} else {
-		//				t.markCaseNotInProgress(caseID)
-		//			}
-		//		}
 
 		t.mdb.Unlock()
 

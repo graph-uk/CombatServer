@@ -176,8 +176,6 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 	        {{end}}
     	</div>
     </div>
-	
-	
 							
 
 	<script src="/bindata/jquery.bxslider/jquery.bxslider.min.js"></script>
