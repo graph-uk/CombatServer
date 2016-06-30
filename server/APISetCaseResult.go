@@ -71,7 +71,7 @@ func (t *CombatServer) alarmSlack_FirstFailInSession(sessionID string, cmdLine s
 
 	alarmMessage := `{
 		"channel": "#` + t.config.FirstSessionFailSlackChannel + `",
-	    "text": "<` + t.config.ServerHostname + `/sessions/` + sessionID + `|` + t.config.ProjectName + ` testing failed>: _` + cmdLine + `_"
+	    "text": "<` + t.config.ServerHostname + ":" + strconv.Itoa(t.config.Port) + `/sessions/` + sessionID + `|` + t.config.ProjectName + ` testing failed>: _` + cmdLine + `_"
 		}`
 
 	bodyBuffer := new(bytes.Buffer)

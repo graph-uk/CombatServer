@@ -32,10 +32,13 @@ func PrintConfigExample() {
 
 func defaultConfig() string {
 	return `{
-	"port":9090, 
-	"countOfSavedSessionsFiles":10,
-	"ServerHostname":"http://localhost:9090"
-	
+	"Port":9090,
+	"CountOfStoredSessions":10,
+	"ProjectName": "TestProject",
+	"CountOfRetries": 3,
+	"ServerHostname":"http://localhost",
+	"FirstSessionFailSlackHook":"",
+	"FirstSessionFailSlackChannel":""
 }`
 }
 
