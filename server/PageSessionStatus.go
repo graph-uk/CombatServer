@@ -2,7 +2,6 @@ package server
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strings"

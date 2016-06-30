@@ -81,7 +81,7 @@ func (t *CombatServer) alarmSlack_FirstFailInSession(sessionID string, cmdLine s
 
 	resp, err := http.Post("https://hooks.slack.com/services/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", "application/json", bodyBuffer)
 	if err != nil {
-		fmt.Println("Cannot post message. Message may be is not sent.")
+		fmt.Println("Cannot post message. Message may be was not sent.")
 		return
 	}
 	//	var respBody []byte
@@ -89,13 +89,17 @@ func (t *CombatServer) alarmSlack_FirstFailInSession(sessionID string, cmdLine s
 
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println("Cannot read response body. Message may be is not sent.")
+		fmt.Println("Cannot read response body. Message may be was not sent.")
 		return
 	}
 
-	fmt.Println("Response: " + string(respBody))
-
-	fmt.Println("Slack message sent.")
+	//fmt.Println("Response: " + string(respBody))
+	if string(respBody) == "ok" {
+		fmt.Println("Slack message sent.")
+	} else {
+		fmt.Println("Slack message sending failed with response:")
+		fmt.Println(string(respBody))
+	}
 }
 
 func (t *CombatServer) hook_FirstFailInSession(sessionID string, cmdLine string) {
