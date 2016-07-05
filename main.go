@@ -20,6 +20,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	combatServer.DeleteOldSessions()
+	//os.Exit(1)
+
 	err = combatServer.Serve()
 	if err != nil {
 		fmt.Println("Cannot serve")

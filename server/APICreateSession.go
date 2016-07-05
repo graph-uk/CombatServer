@@ -136,5 +136,7 @@ func (t *CombatServer) setCasesForSession(sessionCases, sessionID string) error 
 	}
 
 	fmt.Println("Explored " + strconv.Itoa(casesCount) + " cases for session: " + sessionID)
+
+	go t.DeleteOldSessions()
 	return nil
 }

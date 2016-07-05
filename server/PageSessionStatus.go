@@ -2,6 +2,7 @@ package server
 
 import (
 	"bytes"
+	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
@@ -180,17 +181,17 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 	<script src="/bindata/jquery.bxslider/jquery.bxslider.min.js"></script>
 	
 	
-<script type="text/javascript">
-	$(document).ready(function(){
-	  $('.slider2').bxSlider({
-	    slideWidth: 650,
-	    minSlides: 1,
-	    maxSlides: 1
-	  });
-	
-	setTimeout("$('.input-button').trigger('click');", 300);
-	});
-</script>
+	<script type="text/javascript">
+		$(document).ready(function(){
+		  $('.slider2').bxSlider({
+		    slideWidth: 650,
+		    minSlides: 1,
+		    maxSlides: 1
+		  });
+		
+		setTimeout("$('.input-button').trigger('click');", 300);
+		});
+	</script>
 </body>
 
 </html>	
@@ -204,7 +205,8 @@ func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.R
 		path := strings.Split(r.URL.Path, "/")
 		sessionID := strings.TrimSpace(path[len(path)-1])
 		if strings.TrimSpace(sessionID) == "" {
-			w.Write([]byte("Session ID is not specified. Please, provide session ID like: /sessions/11203487203498"))
+			//			w.Write([]byte("Session ID is not specified. Please, provide session ID like: /sessions/11203487203498"))
+			t.showSessionsPage(w)
 			return
 		}
 
@@ -238,4 +240,180 @@ func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.R
 
 		w.Write(pageBuffer.Bytes())
 	}
+}
+
+func (t *CombatServer) getSessionsStatusTemplate() *string {
+	template := `
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <title>{{.ProjectName}}</title>
+    <style>
+        .rTable {
+            display: table;
+            width: 100%;
+        }
+        
+        .rTableRow {
+            display: table-row;
+        }
+        
+        .rTableStatusGreen {
+            background-color: green;
+        }
+        
+        .rTableStatusRed {
+            background-color: red;
+        }
+        
+        .rTableStatusProgress {
+            background-color: #99ff99;
+        }
+        
+        .rTableHeading {
+            background-color: #ddd;
+            display: table-header-group;
+        }
+        
+        .rTableStatusCell {
+            display: table-cell;
+            padding: 3px 10px;
+            border: 1px solid #999999;
+            width: 10px
+        }
+        
+        .rTableCell,
+        .rTableHead {
+            display: table-cell;
+            padding: 3px 10px;
+            border: 1px solid #999999;
+        }
+        
+        .rTableHeading {
+            display: table-header-group;
+            background-color: #ddd;
+            font-weight: bold;
+        }
+        
+        .rTableFoot {
+            display: table-footer-group;
+            font-weight: bold;
+            background-color: #ddd;
+        }
+        
+        .rTableBody {
+            display: table-row-group;
+        }
+        
+        .input-button {
+            width: 100%;
+            text-align: left;
+            background-color: #FFffff;
+            border-radius: 10px;
+            -moz-border-radius: 10px;
+            -webkit-border-radius: 10px;
+            border: 1px solid #ccc;
+            font-weight: bolder;
+            color: #000;
+            margin: 0 auto;
+            padding: 5px;
+        }
+        
+        .spoil {}
+        
+        .smallfont {}
+        
+        .alt2 {}
+		
+    </style>
+</head>
+
+<body>
+    <h2>{{.ProjectName}}</h2>
+    <div class="rTable">
+        <div class="rTableHeading">
+            <div class="rTableRow">
+                <div class="rTableCell">Sessions</div>
+            </div>
+        </div>
+        <div class="rTableBody">
+			{{range .Sessions}}
+				<div class="rTableRow">
+			        <div class="rTableCell">
+						<a href="/sessions/{{.ID}}">{{.ID}}</a>
+					</div>
+				</div>
+	        {{end}}
+    	</div>
+    </div>					
+</body>
+
+</html>	
+	`
+	return &template
+}
+
+type PS_testSessions struct {
+	ProjectName string
+	Sessions    []*PS_session
+}
+
+type PS_session struct { // testCase struct for
+	ID string
+}
+
+func (t *CombatServer) getSessionsPageStruct() (*PS_testSessions, error) {
+	var result PS_testSessions
+	result.ProjectName = t.config.ProjectName
+
+	req, err := t.mdb.DB.Prepare(`SELECT id FROM Sessions`)
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+	rows, err := req.Query()
+	if err != nil {
+		fmt.Println(err.Error())
+		return nil, err
+	}
+
+	for rows.Next() {
+		var curSession PS_session
+		err := rows.Scan(&curSession.ID)
+		if err != nil {
+			fmt.Println(err.Error())
+			return nil, err
+		}
+		result.Sessions = append(result.Sessions, &curSession)
+	}
+	rows.Close()
+
+	return &result, nil
+}
+
+func (t *CombatServer) showSessionsPage(w http.ResponseWriter) {
+	pageStruct, err := t.getSessionsPageStruct()
+	if err != nil {
+		w.Write([]byte("Something wrong. See more in log."))
+		fmt.Println(err.Error())
+		return
+	}
+
+	// Create a template.
+	pageBuffer := new(bytes.Buffer)
+
+	tt, err := template.New("SessionPage").Parse(*t.getSessionsStatusTemplate())
+	if err != nil {
+		w.Write([]byte("Error: " + err.Error() + "<br>\n"))
+		return
+	}
+
+	err = tt.Execute(pageBuffer, pageStruct)
+	if err != nil {
+		w.Write([]byte("Error: " + err.Error() + "<br>\n"))
+		return
+	}
+
+	w.Write(pageBuffer.Bytes())
 }
