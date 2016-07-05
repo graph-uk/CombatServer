@@ -34,8 +34,14 @@ func (t *CombatServer) GetOldSessionsList() []*string {
 	}
 	rows.Close()
 
-	if len(result) >= t.config.CountOfStoredSessions {
-		result = result[t.config.CountOfStoredSessions:]
+	if t.config.CountOfStoredSessions < 1 { // when count less than 1 - sessions stores forever (no old sessions)
+		result = []*string{}
+	} else {
+		if len(result) >= t.config.CountOfStoredSessions {
+			result = result[t.config.CountOfStoredSessions:]
+		} else {
+			result = []*string{}
+		}
 	}
 	return result
 }
