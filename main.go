@@ -21,7 +21,6 @@ func main() {
 	}
 
 	combatServer.DeleteOldSessions()
-	//os.Exit(1)
 
 	err = combatServer.Serve()
 	if err != nil {
