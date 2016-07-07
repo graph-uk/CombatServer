@@ -1,6 +1,7 @@
 package session
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -180,8 +181,10 @@ func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
 		return nil, err
 	}
 
+	hasRecords := false
 	// move cases of the session from base to result
 	for rows.Next() {
+		hasRecords = true
 		var curCase PS_testCase
 
 		err = rows.Scan(&curCase.ID, &curCase.CMDLine, &curCase.InProgress, &curCase.Finished, &curCase.Passed)
@@ -192,6 +195,10 @@ func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
 		result_cases = append(result_cases, &curCase)
 	}
 	rows.Close()
+
+	if !hasRecords {
+		return nil, errors.New("Session not found")
+	}
 
 	// load failed tries for each case to result
 	for curCaseIndex, curCase := range result_cases {

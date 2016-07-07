@@ -219,7 +219,7 @@ func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.R
 
 		PS_session, err := Page_session.GetSessionPageStruct()
 		if err != nil {
-			w.Write([]byte("Error: " + err.Error() + "<br>\n"))
+			w.Write([]byte("Error: " + err.Error()))
 			return
 		}
 
@@ -367,7 +367,7 @@ func (t *CombatServer) getSessionsPageStruct() (*PS_testSessions, error) {
 	var result PS_testSessions
 	result.ProjectName = t.config.ProjectName
 
-	req, err := t.mdb.DB.Prepare(`SELECT id FROM Sessions`)
+	req, err := t.mdb.DB.Prepare(`SELECT id FROM Sessions ORDER BY id DESC`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err
