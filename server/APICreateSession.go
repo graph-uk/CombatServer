@@ -57,7 +57,6 @@ func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Reque
 }
 
 func (t *CombatServer) doCasesExplore(params, sessionID string) error {
-	//fmt.Println("CasesExplore")
 	err := unzip("./sessions/"+sessionID+"/archived.zip", "./sessions/"+sessionID+"/unarch")
 	if err != nil {
 		fmt.Print(err.Error())
@@ -69,12 +68,10 @@ func (t *CombatServer) doCasesExplore(params, sessionID string) error {
 
 	command := []string{"cases"}
 	for _, curParameter := range strings.Split(params, " ") {
-		//fmt.Println("#" + curElement)
 		if strings.TrimSpace(curParameter) != "" {
 			command = append(command, curParameter)
 		}
 	}
-	//fmt.Println(command)
 	cmd := exec.Command("combat", command...)
 	cmd.Env = t.addToGOPath(rootTestsPath)
 
@@ -82,17 +79,24 @@ func (t *CombatServer) doCasesExplore(params, sessionID string) error {
 	var outErr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &outErr
-	//fmt.Println(command)
-	//fmt.Print("Run combat cases... ")
 	exitStatus := cmd.Run()
 
 	os.Chdir(t.startPath)
 	if exitStatus == nil {
-		//fmt.Println("Ok")
-		//t.postCases(out.String(), sessionID)
 		t.setCasesForSession(out.String(), sessionID)
-		//fmt.Println(out.String())
 	} else {
+
+		req, err := t.mdb.DB.Prepare("UPDATE Sessions SET casesExploringFailMessage=? WHERE id=?")
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+		_, err = req.Exec(out.String()+"\r\n"+outErr.String(), sessionID) // cases ExploringStarted
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+
 		fmt.Println("Cannot extract cases")
 		fmt.Println(out.String())
 		fmt.Println(outErr.String())
@@ -122,17 +126,6 @@ func (t *CombatServer) setCasesForSession(sessionCases, sessionID string) error 
 				return (err)
 			}
 		}
-	}
-
-	req, err = t.mdb.DB.Prepare("UPDATE Sessions SET status=? WHERE id=?")
-	if err != nil {
-		fmt.Println(err)
-		return err
-	}
-	_, err = req.Exec(1, sessionID) // cases ExploringStarted
-	if err != nil {
-		fmt.Println(err)
-		return err
 	}
 
 	fmt.Println("Explored " + strconv.Itoa(casesCount) + " cases for session: " + sessionID)
