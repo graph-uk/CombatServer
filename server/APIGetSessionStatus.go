@@ -1,25 +1,21 @@
 package server
 
 import (
-	"fmt"
-	//"io"
-	//"io/ioutil"
-	"net/http"
-	//"time"
-	//"strconv"
 	"encoding/json"
+	"fmt"
+	"net/http"
 )
 
 type SessionStatus struct {
-	Finished           bool
-	TotalCasesCount    int
-	FinishedCasesCount int
-	FailReports        []string
+	Finished                  bool
+	TotalCasesCount           int
+	FinishedCasesCount        int
+	CasesExploringFailMessage string
+	FailReports               []string
 }
 
 func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
-		//sessionID := r.Header.Get("sessionID")
 		r.ParseMultipartForm(32 << 20)
 		sessionID := r.FormValue("sessionID")
 		if sessionID == "" {
@@ -27,12 +23,27 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 			return
 		}
 
-		req, err := t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=?`)
+		req, err := t.mdb.DB.Prepare(`SELECT casesExploringFailMessage FROM Sessions WHERE id=?`)
 		if err != nil {
 			fmt.Println(err)
 			return
 		}
 		rows, err := req.Query(sessionID)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		var casesExploringMessage string
+		rows.Next()
+		rows.Scan(&casesExploringMessage)
+		rows.Close()
+
+		req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=?`)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		rows, err = req.Query(sessionID)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -107,12 +118,16 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 		rows.Close()
 
 		var sessionStatus SessionStatus
+		sessionStatus.CasesExploringFailMessage = casesExploringMessage
 		sessionStatus.TotalCasesCount = totalCasesCount
 		sessionStatus.FinishedCasesCount = finishedCasesCount
 		if totalCasesCount == finishedCasesCount && totalCasesCount != 0 {
 			sessionStatus.Finished = true
 		} else {
 			sessionStatus.Finished = false
+		}
+		if sessionStatus.CasesExploringFailMessage != "" {
+			sessionStatus.Finished = true
 		}
 
 		for _, curCase := range errorCases {
