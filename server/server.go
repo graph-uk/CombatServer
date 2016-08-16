@@ -85,7 +85,7 @@ func (t *CombatServer) Serve() error {
 	http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
 	http.HandleFunc("/sessions/", t.pageSessionStatusHandler)
 
-	fmt.Println("Serving combat tests...")
+	fmt.Println("Serving combat tests at port: " + strconv.Itoa(t.config.Port) + "...")
 	err := http.ListenAndServe(":"+strconv.Itoa(t.config.Port), nil)
 	return err
 }

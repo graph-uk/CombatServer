@@ -105,7 +105,22 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
             } else {
                 document.getElementById(tryID).style.display = 'none';
             }
-        }
+			
+			if (typeof window.inited_slieders == 'undefined') {
+   				window.inited_slieders = new Array();
+			}
+        
+			a = window.inited_slieders.indexOf(tryID);
+			if (a == -1) {
+				window.inited_slieders.push(tryID);
+				$('.slider2'+tryID).bxSlider({
+			    	slideWidth: 650,
+			    	minSlides: 1,
+			    	maxSlides: 1
+			  	});
+			}
+
+		}
     </script>
 	
 </head>
@@ -145,11 +160,11 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 								<input type="button" value="Try" ; class="input-button" onclick="Spoil('{{.ID}}')">
 		                    </div>
 		                    <div class="alt2">
-		                        <div id="{{.ID}}" style="">
+		                        <div id="{{.ID}}" style="display:none">
 									<div class="rTableRow">
 										{{if ne (len .Screens) 0}}
 											<div class="rTableCell" style="width: 650px">
-												<div class="slider2" style="float: left;">
+												<div class="slider2{{.ID}}" style="float: left;">
 												{{range .Screens}}
 													<div class="slide">
 														<span><a href="/tries/{{html $tryID}}/out/{{.ID}}.html">PageSource</a></span><br>
@@ -181,17 +196,7 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 	<script src="/bindata/jquery.bxslider/jquery.bxslider.min.js"></script>
 	
 	
-	<script type="text/javascript">
-		$(document).ready(function(){
-		  $('.slider2').bxSlider({
-		    slideWidth: 650,
-		    minSlides: 1,
-		    maxSlides: 1
-		  });
-		
-		setTimeout("$('.input-button').trigger('click');", 300);
-		});
-	</script>
+
 </body>
 
 </html>	
