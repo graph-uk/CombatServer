@@ -172,12 +172,6 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 
 	} else {
 		r.ParseMultipartForm(32 << 20)
-		file, _, err := r.FormFile("uploadfile")
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer file.Close()
 
 		caseID := r.FormValue("caseID")
 		if caseID == "" {
@@ -251,17 +245,27 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 
 		t.mdb.Unlock()
 
-		os.MkdirAll("./tries/"+tryID, 0777)
-		f, err := os.OpenFile("./tries/"+tryID+"/out_archived.zip", os.O_WRONLY|os.O_CREATE, 0666)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		//defer f.Close()
-		io.Copy(f, file)
-		f.Close()
+		if exitStatus != "0" {
+			os.MkdirAll("./tries/"+tryID, 0777)
 
-		go unzip("./tries/"+tryID+"/out_archived.zip", "./tries/"+tryID)
+			file, _, err := r.FormFile("uploadfile")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			f, err := os.OpenFile("./tries/"+tryID+"/out_archived.zip", os.O_WRONLY|os.O_CREATE, 0666)
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
+
+			io.Copy(f, file)
+			f.Close()
+			file.Close()
+
+			go unzip("./tries/"+tryID+"/out_archived.zip", "./tries/"+tryID)
+		}
 
 		fmt.Println(r.RemoteAddr + " Provide result for case: " + caseID + ". Status=" + exitStatus)
 	}
