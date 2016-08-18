@@ -15,6 +15,7 @@ type Config struct {
 	ServerHostname               string
 	FirstSessionFailSlackHook    string
 	FirstSessionFailSlackChannel string
+	FalseNegativePatterns        []string
 }
 
 func PrintConfigExample() {
@@ -38,7 +39,8 @@ func defaultConfig() string {
 	"CountOfRetries": 3,
 	"ServerHostname":"http://localhost",
 	"FirstSessionFailSlackHook":"",
-	"FirstSessionFailSlackChannel":""
+	"FirstSessionFailSlackChannel":"",
+	"FalseNegativePatterns":[]
 }`
 }
 

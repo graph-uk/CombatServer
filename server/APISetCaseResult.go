@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 )
 
@@ -167,6 +168,16 @@ func (t *CombatServer) getSessionIDandCMDLineByCaseID(caseID string) (string, st
 	return sessionID, cmdLine, nil
 }
 
+func (t *CombatServer) IsTryOutFalseNegative(stdOut string) bool {
+	for _, curPattern := range t.config.FalseNegativePatterns {
+		r, _ := regexp.Compile(curPattern)
+		if r.MatchString(stdOut) {
+			return true
+		}
+	}
+	return false
+}
+
 func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 
@@ -188,6 +199,12 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 		stdOut := r.FormValue("stdOut")
 		if stdOut == "" {
 			fmt.Println("cannot extract stdOut")
+			return
+		}
+
+		if t.IsTryOutFalseNegative(stdOut) { // drop false-negative result.
+			t.markCaseNotInProgress(caseID)
+			fmt.Println("False-negative dropped")
 			return
 		}
 
