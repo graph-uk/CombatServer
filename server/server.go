@@ -62,7 +62,7 @@ func NewCombatServer() (*CombatServer, error) {
 		return &result, err
 	}
 
-	err = result.mdb.Connect("./base.sl3")
+	err = result.mdb.Connect("./base.sl3?_busy_timeout=60000")
 	if err != nil {
 		return &result, err
 	}
