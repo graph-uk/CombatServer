@@ -44,7 +44,21 @@ func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Reque
 		fmt.Println(err.Error())
 		return
 	}
+
 	_, err = req.Exec(sessionName, sessionParams)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	//Mark all unfinished cases as finished and failed
+	req, err = t.mdb.DB.Prepare(`UPDATE Cases SET inProgress="false", passed="false", finished="true" WHERE finished="false"`)
+	if err != nil {
+		fmt.Println(err.Error())
+		return
+	}
+
+	_, err = req.Exec()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
