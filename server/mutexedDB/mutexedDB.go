@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -16,7 +17,14 @@ type MutexedDB struct {
 }
 
 func checkDB(path string) error {
-	if _, err := os.Stat(path); os.IsNotExist(err) { // if file does not exist - try to create
+
+	questIndex := strings.Index(path, `?`)
+	shortPath := path
+	if questIndex != -1 {
+		shortPath = path[:questIndex]
+	}
+
+	if _, err := os.Stat(shortPath); os.IsNotExist(err) { // if file does not exist - try to create
 		db, err := sql.Open("sqlite3", path)
 		_, err = db.Exec(`CREATE TABLE Cases (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, cmdLine VARCHAR (50), sessionID VARCHAR (20), inProgress BOOLEAN DEFAULT false, finished BOOLEAN DEFAULT false, passed BOOLEAN DEFAULT false, startedAt DATETIME);
 CREATE TABLE Sessions (id VARCHAR (20) PRIMARY KEY NOT NULL, params VARCHAR (50), hook_FirstFail BOOLEAN DEFAULT False, casesExploringFailMessage STRING);
