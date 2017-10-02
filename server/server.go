@@ -83,6 +83,7 @@ func (t *CombatServer) Serve() error {
 	http.HandleFunc("/getJob", t.getJobHandler)
 	http.HandleFunc("/setCaseResult", t.setCaseResultHandler)
 	http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
+	http.HandleFunc("/getSessionStatusForJunitReport", t.getSessionStatusForJunitReportHandler)
 	http.HandleFunc("/sessions/", t.pageSessionStatusHandler)
 
 	fmt.Println("Serving combat tests at port: " + strconv.Itoa(t.config.Port) + "...")
