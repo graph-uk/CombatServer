@@ -9,7 +9,7 @@ import (
 
 type jUnitCase struct {
 	id       int
-	cmdLine  string
+	CmdLine  string
 	finished bool
 	Passed   bool
 	STDOut   string
@@ -50,7 +50,7 @@ func (t *CombatServer) getSessionStatusForJunitReportHandler(w http.ResponseWrit
 
 		for rows.Next() {
 			var Case jUnitCase
-			rows.Scan(&Case.id, &Case.cmdLine, &Case.finished, &Case.Passed)
+			rows.Scan(&Case.id, &Case.CmdLine, &Case.finished, &Case.Passed)
 			cases = append(cases, &Case)
 		}
 		rows.Close()
@@ -87,7 +87,7 @@ func (t *CombatServer) getSessionStatusForJunitReportHandler(w http.ResponseWrit
 		//get all distinct test names
 		jUntTests := map[string]bool{}
 		for _, curCase := range cases {
-			testname := strings.Split(curCase.cmdLine, ` `)[0]
+			testname := strings.Split(curCase.CmdLine, ` `)[0]
 			if !jUntTests[testname] {
 				jUntTests[testname] = true
 			}
@@ -102,7 +102,7 @@ func (t *CombatServer) getSessionStatusForJunitReportHandler(w http.ResponseWrit
 			var test jUnitTest
 			test.Name = testname
 			for _, curCase := range cases {
-				caseTestName := strings.Split(curCase.cmdLine, ` `)[0]
+				caseTestName := strings.Split(curCase.CmdLine, ` `)[0]
 				if caseTestName == testname {
 					test.Cases = append(test.Cases, curCase)
 				}
