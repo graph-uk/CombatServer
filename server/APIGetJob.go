@@ -15,7 +15,7 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 		//defer t.mdb.Unlock()
 
 		var caseID, caseCMD, sessionID string
-		rows, err := t.mdb.DB.Query(`SELECT id, cmdLine, sessionID FROM Cases WHERE finished="false" AND inProgress="false" ORDER BY RANDOM() LIMIT 1`)
+		rows, err := t.mdb.DB.Query(`SELECT id, cmdLine, sessionID FROM Cases WHERE finished=false AND inProgress=false ORDER BY RANDOM() LIMIT 1`)
 		if err != nil {
 			fmt.Println(err)
 			t.mdb.Unlock()

@@ -8,7 +8,7 @@ import (
 
 func (t *CombatServer) CheckCases() {
 	curtime := time.Now()
-	rows, err := t.mdb.DB.Query(`SELECT id,startedAt FROM Cases WHERE (startedAt IS NOT NULL) AND (inProgress="1") AND (finished="false")`)
+	rows, err := t.mdb.DB.Query(`SELECT id,startedAt FROM Cases WHERE (startedAt IS NOT NULL) AND (inProgress=true) AND (finished=false)`)
 	if err != nil {
 		fmt.Println(err)
 		return

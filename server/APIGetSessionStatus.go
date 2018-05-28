@@ -57,7 +57,7 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 		}
 		rows.Close()
 
-		req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=? AND finished="true"`)
+		req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=? AND finished=true`)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -76,7 +76,7 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 		}
 		rows.Close()
 
-		req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=? AND finished="true" AND passed="false"`)
+		req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=? AND finished=true AND passed=false`)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -95,7 +95,7 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 		}
 		rows.Close()
 
-		req, err = t.mdb.DB.Prepare(`SELECT cmdLine FROM Cases WHERE sessionID=? AND finished="true" AND passed="false"`)
+		req, err = t.mdb.DB.Prepare(`SELECT cmdLine FROM Cases WHERE sessionID=? AND finished=true AND passed=false`)
 		if err != nil {
 			fmt.Println(err)
 			return

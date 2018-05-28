@@ -12,7 +12,7 @@ import (
 )
 
 func (t *CombatServer) markCaseFailed(caseID string) {
-	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress="false", passed="false", finished="true" WHERE id=?`)
+	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress=false, passed=false, finished=true WHERE id=?`)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -34,7 +34,7 @@ func (t *CombatServer) markCaseFailed(caseID string) {
 }
 
 func (t *CombatServer) markCasePassed(caseID string) {
-	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress="false", passed="true", finished="true" WHERE id=?`)
+	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress=false, passed=true, finished=true WHERE id=?`)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -47,7 +47,7 @@ func (t *CombatServer) markCasePassed(caseID string) {
 }
 
 func (t *CombatServer) markCaseNotInProgress(caseID string) {
-	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress="false" WHERE id=?`)
+	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress=false WHERE id=?`)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -110,7 +110,7 @@ func (t *CombatServer) hook_FirstFailInSession(sessionID string, cmdLine string)
 
 // The method set first fail flag as true, if it was false, and return true for first call.
 func (t *CombatServer) IsFirstFailInSession(sessionID string) (bool, error) {
-	req, err := t.mdb.DB.Prepare(`UPDATE Sessions SET hook_FirstFail="True" WHERE id=? AND hook_FirstFail="False"`) // Set FirstFail flag as true, if not true yet
+	req, err := t.mdb.DB.Prepare(`UPDATE Sessions SET hook_FirstFail=true WHERE id=? AND hook_FirstFail=false`) // Set FirstFail flag as true, if not true yet
 	if err != nil {
 		fmt.Println(err)
 		return false, err
