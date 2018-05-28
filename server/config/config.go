@@ -12,6 +12,7 @@ type Config struct {
 	CountOfStoredSessions        int
 	ProjectName                  string
 	CountOfRetries               int
+	CaseTimeoutSec               int
 	ServerHostname               string
 	FirstSessionFailSlackHook    string
 	FirstSessionFailSlackChannel string
@@ -37,6 +38,7 @@ func defaultConfig() string {
 	"CountOfStoredSessions":10,
 	"ProjectName": "TestProject",
 	"CountOfRetries": 3,
+	"CaseTimeoutSec": 300,
 	"ServerHostname":"http://localhost",
 	"FirstSessionFailSlackHook":"",
 	"FirstSessionFailSlackChannel":"",

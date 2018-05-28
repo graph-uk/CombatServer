@@ -18,7 +18,7 @@ func (t *CombatServer) CheckCases() {
 		var startedAt time.Time
 		var id int
 		rows.Scan(&id, &startedAt)
-		if startedAt.Add(100 * time.Second).Before(curtime) {
+		if startedAt.Add(time.Duration(t.config.CaseTimeoutSec) * time.Second).Before(curtime) {
 			oldRunCases = append(oldRunCases, id)
 		}
 	}
