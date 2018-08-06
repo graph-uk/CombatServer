@@ -9,7 +9,9 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -45,27 +47,57 @@ type cmdProcess struct {
 	StdOutBuf []byte
 }
 
-func (t *cmdProcess) refreshErrBuf() {
-	buf := make([]byte, 5120)
-	n, err := io.ReadAtLeast(t.StdErr, buf, 1)
-	check(err)
-	t.StdErrBuf = append(t.StdErrBuf, buf[:n]...)
-}
-
-func (t *cmdProcess) refreshOutBuf() {
+// this loop function - for separate concurrency go-routine.
+// it is get text from console pipe.
+// if command's buffer will overflow - command was paused untill we get this bytes
+func (t *cmdProcess) refreshErrBufLoop() {
 	buf := make([]byte, 512)
-	n, err := io.ReadAtLeast(t.StdOut, buf, 1)
-	check(err)
-	t.StdOutBuf = append(t.StdOutBuf, buf[:n]...)
+	for {
+		len, err := t.StdErr.Read(buf)
+		if err != nil {
+			if err.Error() == `EOF` { // if the pipe closed (app is finished) - stop watching
+				break
+			} else {
+				panic(err)
+			}
+		}
+		if len > 0 {
+			t.StdErrBuf = append(t.StdErrBuf, buf[:len]...)
+		}
+		if len == 0 {
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
 }
 
-func (t *cmdProcess) WaitingForErrBufContains(textPart string, timeout time.Duration) {
+// this loop function - for separate concurrency go-routine.
+// it is get text from console pipe.
+// if command's buffer will overflow - command was paused untill we get this bytes
+func (t *cmdProcess) refreshOutBufLoop() {
+	buf := make([]byte, 512)
+	for {
+		len, err := t.StdOut.Read(buf)
+		if err != nil {
+			if err.Error() == `EOF` { // if the pipe closed (app is finished) - stop watching
+				break
+			} else {
+				panic(err)
+			}
+		}
+		if len > 0 {
+			t.StdOutBuf = append(t.StdOutBuf, buf[:len]...)
+		}
+		if len == 0 {
+			time.Sleep(100 * time.Millisecond)
+		}
+	}
+}
+
+func (t *cmdProcess) WaitingForStdErrContains(textPart string, timeout time.Duration) {
 	startMoment := time.Now()
 	log.Println(`AwaitErr - ` + t.Command + `: ` + textPart)
 	for {
-		t.refreshErrBuf()
 		if strings.Contains(string(t.StdErrBuf), textPart) {
-			//log.Println(`FoundErr - ` + t.Command + `: ` + textPart)
 			break
 		}
 		if startMoment.Add(timeout).Before(time.Now()) { // if timed out
@@ -75,19 +107,44 @@ func (t *cmdProcess) WaitingForErrBufContains(textPart string, timeout time.Dura
 	}
 }
 
-func (t *cmdProcess) WaitingForOutBufContains(textPart string, timeout time.Duration) {
+func (t *cmdProcess) WaitingForStdOutContains(textPart string, timeout time.Duration) {
 	startMoment := time.Now()
 	log.Println(`AwaitOut - ` + t.Command + `: ` + textPart)
 	for {
-		t.refreshOutBuf()
 		if strings.Contains(string(t.StdOutBuf), textPart) {
-			//log.Println(`FoundOut - ` + t.Command + `: ` + textPart)
 			break
 		}
 		if startMoment.Add(timeout).Before(time.Now()) { // if timed out
 			panic(`TimeoutOut - ` + t.Command + `: ` + textPart)
 		}
 		time.Sleep(time.Second)
+	}
+}
+
+func (t *cmdProcess) WaitingForExitWithCode(timeout time.Duration, expectedExitCode int) {
+	log.Println(`AwaitExitWithExitCode ` + strconv.Itoa(expectedExitCode) + ` ` + t.Command)
+
+	ch := make(chan bool, 1)
+	defer close(ch)
+
+	go func() {
+		t.Cmd.Wait()
+		ch <- true
+	}()
+
+	timer := time.NewTimer(1 * time.Second)
+	defer timer.Stop()
+
+	select {
+	case <-ch:
+	case <-timer.C:
+		panic(`TimeoutOut - Wait for exit with code ` + strconv.Itoa(expectedExitCode) + ` ` + t.Command)
+	}
+
+	ws := t.Cmd.ProcessState.Sys().(syscall.WaitStatus)
+	exitCode := ws.ExitStatus()
+	if exitCode != expectedExitCode {
+		panic(strconv.Itoa(expectedExitCode) + ` exit code expected, but the process is finished, with '` + strconv.Itoa(exitCode) + `' exit code. ` + t.Command)
 	}
 }
 
@@ -113,6 +170,10 @@ func startCmd(dir string, env *[]string, command string, args ...string) *cmdPro
 		log.Println(err.Error())
 		os.Exit(1)
 	}
+
+	go res.refreshOutBufLoop() // stdout/stderr pipe-readers routines
+	go res.refreshErrBufLoop()
+
 	log.Println(`Started: ` + command)
 	return &res
 }
@@ -201,8 +262,8 @@ func main() {
 	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`combat`)
 	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`combat-dev-utils`+sl+`combat-dev-go`+sl+`bin`)
 
-	//	fmt.Println(env)
-	//	return
+	fmt.Println(env)
+	//return
 
 	//run server, client worker. Kill before quit.
 	server := startCmd(curdir+sl+`server`, &env, `.`+sl+`combat-server.exe`)
@@ -212,40 +273,37 @@ func main() {
 	worker := startCmd(curdir+sl+`worker`, &env, `.`+sl+`combat-worker.exe`, `http://localhost:9090`)
 	defer worker.Cmd.Process.Kill()
 
-	time.Sleep(10 * time.Second)
+	//time.Sleep(10 * time.Second)
 
 	//Check server's output
-	//server.WaitingForOutBufContains(`config.json is not found. Default config will be created`, 10*time.Second)
-	//	server.WaitingForOutBufContains(`Serving combat tests at port: 9090...`, 10*time.Second)
-	//	server.WaitingForOutBufContains(`Create new session: `, 10*time.Second)
-	//	server.WaitingForOutBufContains(` 40 -InternalIP=192.168.1.1`, 10*time.Second)
-	//	server.WaitingForOutBufContains(`Explored 2 cases for session: `, 10*time.Second)
-	//	server.WaitingForOutBufContains(`Get a job (CasesRun) for case: `, 10*time.Second)
-	//	server.WaitingForOutBufContains(`Provide result for case: `, 10*time.Second)
+	server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)
+	server.WaitingForStdOutContains(`Serving combat tests at port: 9090...`, 10*time.Second)
+	server.WaitingForStdOutContains(`Create new session: `, 10*time.Second)
+	server.WaitingForStdOutContains(` 40 -InternalIP=192.168.1.1`, 10*time.Second)
+	server.WaitingForStdOutContains(`Explored 2 cases for session: `, 10*time.Second)
+	server.WaitingForStdOutContains(`Get a job (CasesRun) for case: `, 10*time.Second)
+	server.WaitingForStdOutContains(`Provide result for case: `, 10*time.Second)
 
-	//	//Check worker's output
-	//	worker.WaitingForOutBufContains(`getJob - idle`, time.Minute)
-	//	worker.WaitingForOutBufContains(`getJob - RunCase`, time.Minute)
-	//	worker.WaitingForOutBufContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, time.Minute)
-	//	worker.WaitingForOutBufContains(`Run case... Fail`, time.Minute)
-	//	worker.WaitingForOutBufContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, time.Minute)
-	//	//worker.WaitingForOutBufContains(`Failed here for example`, time.Minute)
+	//Check worker's output
+	worker.WaitingForStdOutContains(`getJob - idle`, time.Minute)
+	worker.WaitingForStdOutContains(`getJob - RunCase`, time.Minute)
+	worker.WaitingForStdOutContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, time.Minute)
+	worker.WaitingForStdOutContains(`Run case... Fail`, time.Minute)
+	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, time.Minute)
+	worker.WaitingForStdOutContains(`getJob - idle`, time.Minute)
+	worker.WaitingForStdOutContains(`Failed here for example`, time.Minute)
 
-	//	//Check server's output
-	//	client.WaitingForOutBufContains(`Cleanup tests`, 10*time.Second)
-	//	client.WaitingForOutBufContains(`Packing tests`, 10*time.Second)
-	//	client.WaitingForOutBufContains(`Uploading session`, 10*time.Second)
-	//	client.WaitingForOutBufContains(`Session status: http://localhost:9090/sessions/`, 10*time.Second)
-	//	client.WaitingForOutBufContains(`Cases exploring`, 10*time.Second)
-	//	client.WaitingForOutBufContains(`Testing (0/2)`, 10*time.Second)
-	//client.WaitingForOutBufContains(`Testing (1/2)`, 10*time.Second)
-	// client.WaitingForOutBufContains(`Finished with `, 60*time.Second)
-	// client.WaitingForOutBufContains(`More info at: `, 60*time.Second)
-	// client.WaitingForOutBufContains(`Time of testing: `, 60*time.Second)
+	//Check client's output
+	client.WaitingForStdOutContains(`Cleanup tests`, 10*time.Second)
+	client.WaitingForStdOutContains(`Packing tests`, 10*time.Second)
+	client.WaitingForStdOutContains(`Uploading session`, 10*time.Second)
+	client.WaitingForStdOutContains(`Session status: http://localhost:9090/sessions/`, 10*time.Second)
+	client.WaitingForStdOutContains(`Cases exploring`, 10*time.Second)
+	client.WaitingForStdOutContains(`Testing (0/2)`, 10*time.Second)
+	client.WaitingForStdOutContains(`Testing (1/2)`, 10*time.Second)
+	client.WaitingForStdOutContains(`Finished with `, 60*time.Second)
+	client.WaitingForStdOutContains(`More info at: `, 60*time.Second)
+	client.WaitingForStdOutContains(`Time of testing: `, 60*time.Second)
 
-	//	time.Sleep(10 * time.Second)
-	//	client.refreshOutBuf()
-	//	fmt.Println(string(client.StdOutBuf))
-
-	time.Sleep(3 * time.Minute)
+	client.WaitingForExitWithCode(10*time.Second, 1)
 }
