@@ -243,6 +243,7 @@ func init() {
 var sl, curdir string // system filepath separator (/ or \), dir which script started
 
 func main() {
+
 	//Re-create (clear) folders for test binaries
 	os.RemoveAll(`server`)
 	os.RemoveAll(`client`)
@@ -267,10 +268,22 @@ func main() {
 
 	//run server, client worker. Kill before quit.
 	server := startCmd(curdir+sl+`server`, &env, `.`+sl+`combat-server.exe`)
-	defer server.Cmd.Process.Kill()
 	client := startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:9090`, `40`, `-InternalIP=192.168.1.1`)
-	defer client.Cmd.Process.Kill()
 	worker := startCmd(curdir+sl+`worker`, &env, `.`+sl+`combat-worker.exe`, `http://localhost:9090`)
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(`----------------------------------------Server stdout-----------------------------------------`)
+			fmt.Println(string(server.StdOutBuf))
+			fmt.Println(`----------------------------------------Client stdout-----------------------------------------`)
+			fmt.Println(string(client.StdOutBuf))
+			fmt.Println(`----------------------------------------Worker stdout-----------------------------------------`)
+			fmt.Println(string(worker.StdOutBuf))
+		}
+	}()
+
+	defer server.Cmd.Process.Kill()
+	defer client.Cmd.Process.Kill()
 	defer worker.Cmd.Process.Kill()
 
 	//time.Sleep(10 * time.Second)
