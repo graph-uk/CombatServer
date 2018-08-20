@@ -1,25 +1,25 @@
 package server
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
+
+	"github.com/graph-uk/combat-server/server/apireqresp"
 )
 
-type SessionStatus struct {
-	Finished                  bool
-	TotalCasesCount           int
-	FinishedCasesCount        int
-	CasesExploringFailMessage string
-	FailReports               []string
-}
-
 func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == "POST" {
-		r.ParseMultipartForm(32 << 20)
-		sessionID := r.FormValue("sessionID")
+	if r.Method == "GET" {
+		itemsPathArr := strings.Split(r.URL.Path, `/`)
+		if len(itemsPathArr) < 1 {
+			fmt.Println("cannot extract session ID, because items arr has zero length")
+			return
+		}
+
+		sessionID := itemsPathArr[len(itemsPathArr)-1]
+
 		if sessionID == "" {
-			fmt.Println("cannot extract session ID")
+			fmt.Println("cannot extract session ID, because it is empty")
 			return
 		}
 
@@ -117,7 +117,7 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 		}
 		rows.Close()
 
-		var sessionStatus SessionStatus
+		var sessionStatus apireqresp.ResGetSession
 		sessionStatus.CasesExploringFailMessage = casesExploringMessage
 		sessionStatus.TotalCasesCount = totalCasesCount
 		sessionStatus.FinishedCasesCount = finishedCasesCount
@@ -133,7 +133,9 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 		for _, curCase := range errorCases {
 			sessionStatus.FailReports = append(sessionStatus.FailReports, curCase)
 		}
-		sessionStatusJSON, _ := json.Marshal(sessionStatus)
+
+		sessionStatusJSON, _ := sessionStatus.GetJson()
+
 		w.Write(sessionStatusJSON)
 	}
 }

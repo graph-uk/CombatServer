@@ -3,10 +3,12 @@ rem Run "installCombatDevEnv.cmd" as admin before
 ::change dir to the BAT directory
 cd /D %~dp0
 
+@echo off
 set GOPATH=%cd%\..\..\..\..\
 set GOROOT=%GOPATH%\combat-dev-utils\combat-dev-go
 set PATH=%PATH%;%GOROOT%\bin
 set PATH=%PATH%;%GOPATH%\combat-dev-utils\combat-dev-mingw64\mingw64\bin
+@echo on
 
 echo "TESTLine"
 

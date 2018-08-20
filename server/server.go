@@ -79,11 +79,10 @@ func (t *CombatServer) Serve() error {
 	go t.TimeoutWatcher()
 	http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
 
-	http.HandleFunc("/createSession", t.createSessionHandler)
-	http.HandleFunc("/getJob", t.getJobHandler)
-	http.HandleFunc("/setCaseResult", t.setCaseResultHandler)
-	http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
-	http.HandleFunc("/getSessionStatusForJunitReport", t.getSessionStatusForJunitReportHandler)
+	http.HandleFunc("/api/v1/sessions", t.createSessionHandler)
+	http.HandleFunc("/api/v1/sessions/", t.getSessionStatusHandler)
+	http.HandleFunc("/api/v1/commands/get-job", t.getJobHandler)
+	http.HandleFunc("/api/v1/commands/setCaseResult", t.setCaseResultHandler)
 	http.HandleFunc("/sessions/", t.pageSessionStatusHandler)
 
 	fmt.Println("Serving combat tests at port: " + strconv.Itoa(t.config.Port) + "...")

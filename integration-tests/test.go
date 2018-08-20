@@ -70,6 +70,18 @@ func (t *cmdProcess) refreshErrBufLoop() {
 	}
 }
 
+// this function returns cut filepath on t.Command, and return short command
+//D:\combat_server_current\src\github.com\graph-uk\combat-server\integration-tests\client\combat-client.exe
+//combat-client.exe
+func (t *cmdProcess) GetShortCommand() string {
+	arr := strings.Split(t.Command, sl) // split by '/' or '\'
+	if len(arr) > 0 {
+		return arr[len(arr)-1]
+	} else {
+		return `Cannot extract short command`
+	}
+}
+
 // this loop function - for separate concurrency go-routine.
 // it is get text from console pipe.
 // if command's buffer will overflow - command was paused untill we get this bytes
@@ -95,13 +107,13 @@ func (t *cmdProcess) refreshOutBufLoop() {
 
 func (t *cmdProcess) WaitingForStdErrContains(textPart string, timeout time.Duration) {
 	startMoment := time.Now()
-	log.Println(`AwaitErr - ` + t.Command + `: ` + textPart)
+	log.Println(`AwaitErr - ` + t.GetShortCommand() + `: ` + textPart)
 	for {
 		if strings.Contains(string(t.StdErrBuf), textPart) {
 			break
 		}
 		if startMoment.Add(timeout).Before(time.Now()) { // if timed out
-			panic(`TimeoutErr - ` + t.Command + `: ` + textPart)
+			panic(`TimeoutErr - ` + t.GetShortCommand() + `: ` + textPart)
 		}
 		time.Sleep(time.Second)
 	}
@@ -109,20 +121,20 @@ func (t *cmdProcess) WaitingForStdErrContains(textPart string, timeout time.Dura
 
 func (t *cmdProcess) WaitingForStdOutContains(textPart string, timeout time.Duration) {
 	startMoment := time.Now()
-	log.Println(`AwaitOut - ` + t.Command + `: ` + textPart)
+	log.Println(`AwaitOut - ` + t.GetShortCommand() + `: ` + textPart)
 	for {
 		if strings.Contains(string(t.StdOutBuf), textPart) {
 			break
 		}
 		if startMoment.Add(timeout).Before(time.Now()) { // if timed out
-			panic(`TimeoutOut - ` + t.Command + `: ` + textPart)
+			panic(`TimeoutOut - ` + t.GetShortCommand() + `: ` + textPart)
 		}
 		time.Sleep(time.Second)
 	}
 }
 
 func (t *cmdProcess) WaitingForExitWithCode(timeout time.Duration, expectedExitCode int) {
-	log.Println(`AwaitExitWithExitCode ` + strconv.Itoa(expectedExitCode) + ` ` + t.Command)
+	log.Println(`AwaitExitWithExitCode ` + strconv.Itoa(expectedExitCode) + ` ` + t.GetShortCommand())
 
 	ch := make(chan bool, 1)
 	defer close(ch)
@@ -138,13 +150,13 @@ func (t *cmdProcess) WaitingForExitWithCode(timeout time.Duration, expectedExitC
 	select {
 	case <-ch:
 	case <-timer.C:
-		panic(`TimeoutOut - Wait for exit with code ` + strconv.Itoa(expectedExitCode) + ` ` + t.Command)
+		panic(`TimeoutOut - Wait for exit with code ` + strconv.Itoa(expectedExitCode) + ` ` + t.GetShortCommand())
 	}
 
 	ws := t.Cmd.ProcessState.Sys().(syscall.WaitStatus)
 	exitCode := ws.ExitStatus()
 	if exitCode != expectedExitCode {
-		panic(strconv.Itoa(expectedExitCode) + ` exit code expected, but the process is finished, with '` + strconv.Itoa(exitCode) + `' exit code. ` + t.Command)
+		panic(strconv.Itoa(expectedExitCode) + ` exit code expected, but the process is finished, with '` + strconv.Itoa(exitCode) + `' exit code. ` + t.GetShortCommand())
 	}
 }
 
@@ -263,7 +275,7 @@ func main() {
 	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`combat`)
 	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`combat-dev-utils`+sl+`combat-dev-go`+sl+`bin`)
 
-	fmt.Println(env)
+	//fmt.Println(env)
 	//return
 
 	//run server, client worker. Kill before quit.
@@ -275,10 +287,16 @@ func main() {
 		if r := recover(); r != nil {
 			fmt.Println(`----------------------------------------Server stdout-----------------------------------------`)
 			fmt.Println(string(server.StdOutBuf))
+			fmt.Println(`----------------------------------------Server stderr-----------------------------------------`)
+			fmt.Println(string(server.StdErrBuf))
 			fmt.Println(`----------------------------------------Client stdout-----------------------------------------`)
 			fmt.Println(string(client.StdOutBuf))
+			fmt.Println(`----------------------------------------Client stderr-----------------------------------------`)
+			fmt.Println(string(client.StdErrBuf))
 			fmt.Println(`----------------------------------------Worker stdout-----------------------------------------`)
 			fmt.Println(string(worker.StdOutBuf))
+			fmt.Println(`----------------------------------------Worker stderr-----------------------------------------`)
+			fmt.Println(string(worker.StdErrBuf))
 		}
 	}()
 
@@ -298,12 +316,12 @@ func main() {
 	server.WaitingForStdOutContains(`Provide result for case: `, 10*time.Second)
 
 	//Check worker's output
-	worker.WaitingForStdOutContains(`getJob - idle`, time.Minute)
-	worker.WaitingForStdOutContains(`getJob - RunCase`, time.Minute)
+	worker.WaitingForStdOutContains(`Jobs not found. Idle.`, time.Minute)
+	//worker.WaitingForStdOutContains(`getJob - RunCase`, time.Minute)
 	worker.WaitingForStdOutContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, time.Minute)
 	worker.WaitingForStdOutContains(`Run case... Fail`, time.Minute)
 	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, time.Minute)
-	worker.WaitingForStdOutContains(`getJob - idle`, time.Minute)
+	worker.WaitingForStdOutContains(`Jobs not found. Idle.`, time.Minute)
 	worker.WaitingForStdOutContains(`Failed here for example`, time.Minute)
 
 	//Check client's output
@@ -319,4 +337,7 @@ func main() {
 	client.WaitingForStdOutContains(`Time of testing: `, 60*time.Second)
 
 	client.WaitingForExitWithCode(10*time.Second, 1)
+
+	//panic(`test`)
+	log.Println(`The test finished succeed.`)
 }

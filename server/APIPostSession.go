@@ -5,31 +5,33 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/graph-uk/combat-server/server/apireqresp"
 )
 
 func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Request) {
 	sessionName := strconv.FormatInt(time.Now().UnixNano(), 10)
 
-	r.ParseMultipartForm(32 << 20)
-	file, _, err := r.FormFile("uploadfile")
+	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		fmt.Println(err)
-		return
-	}
-	defer file.Close()
-
-	sessionParams := r.FormValue("params")
-	if sessionParams == "" {
-		fmt.Println("cannot extract session params")
-		return
 	}
 
+	reqStruct, err := apireqresp.ParseReqPostSessionFromBytes(body)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(reqStruct.SessionParams)
+
+	//create dir, and save the file.
 	os.MkdirAll("./sessions/"+sessionName, 0777)
 	f, err := os.OpenFile("./sessions/"+sessionName+"/archived.zip", os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
@@ -37,15 +39,22 @@ func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 	defer f.Close()
-	io.Copy(f, file)
 
+	decodedFile, err := reqStruct.GetDecodedFile()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	io.Copy(f, bytes.NewReader(decodedFile))
+
+	//create session in DB.
 	req, err := t.mdb.DB.Prepare("INSERT INTO Sessions(id,params) VALUES(?,?)")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
-
-	_, err = req.Exec(sessionName, sessionParams)
+	_, err = req.Exec(sessionName, reqStruct.SessionParams)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -57,17 +66,19 @@ func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Reque
 		fmt.Println(err.Error())
 		return
 	}
-
 	_, err = req.Exec()
 	if err != nil {
 		fmt.Println(err.Error())
 		return
 	}
 
-	io.WriteString(w, sessionName)
-	fmt.Println(r.RemoteAddr + " Create new session: " + sessionName + " " + sessionParams)
+	w.Header().Add(`Location`, sessionName)
+	w.WriteHeader(http.StatusCreated)
 
-	go t.doCasesExplore(sessionParams, sessionName)
+	//io.WriteString(w, sessionName)
+	fmt.Println(r.RemoteAddr + " Create new session: " + sessionName + " " + reqStruct.SessionParams)
+
+	go t.doCasesExplore(reqStruct.SessionParams, sessionName)
 }
 
 func (t *CombatServer) doCasesExplore(params, sessionID string) error {
