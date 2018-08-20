@@ -17,6 +17,12 @@ type CombatServer struct {
 	mdb       mutexedDB.MutexedDB
 }
 
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
+
 func checkFolder(folderName string) error {
 	if _, err := os.Stat(folderName); os.IsNotExist(err) { // if folder does not exist - try to create
 		err := os.MkdirAll(folderName, 0777)
@@ -53,29 +59,19 @@ func checkFolders() error {
 	return nil
 }
 
-func NewCombatServer() (*CombatServer, error) {
+func NewCombatServer() *CombatServer {
 	var result CombatServer
 	var err error
 	result.startPath, err = os.Getwd()
+	check(err)
 	result.config, err = config.LoadConfig()
-	if err != nil {
-		return &result, err
-	}
-
-	err = result.mdb.Connect("./base.sl3?_busy_timeout=60000")
-	if err != nil {
-		return &result, err
-	}
-
-	err = checkFolders()
-	if err != nil {
-		return &result, err
-	}
-
-	return &result, nil
+	check(err)
+	check(result.mdb.Connect("./base.sl3?_busy_timeout=60000"))
+	check(checkFolders())
+	return &result
 }
 
-func (t *CombatServer) Serve() error {
+func (t *CombatServer) Serve() {
 	go t.TimeoutWatcher()
 	http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
 
@@ -86,8 +82,7 @@ func (t *CombatServer) Serve() error {
 	http.HandleFunc("/sessions/", t.pageSessionStatusHandler)
 
 	fmt.Println("Serving combat tests at port: " + strconv.Itoa(t.config.Port) + "...")
-	err := http.ListenAndServe(":"+strconv.Itoa(t.config.Port), nil)
-	return err
+	check(http.ListenAndServe(":"+strconv.Itoa(t.config.Port), nil))
 }
 
 func (t *CombatServer) addToGOPath(pathExtention string) []string {
