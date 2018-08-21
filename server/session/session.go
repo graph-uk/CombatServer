@@ -61,7 +61,8 @@ func (t *Session) GetStatus() (*SessionStatus, error) {
 	var result SessionStatus
 
 	// Get parameters of session
-	req, err := t.mdb.DB.Prepare(`SELECT status, params FROM Sessions WHERE id=?`)
+
+	req, err := t.mdb.DB.DB().Prepare(`SELECT status, params FROM Sessions WHERE id=?`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err
@@ -83,7 +84,7 @@ func (t *Session) GetStatus() (*SessionStatus, error) {
 	rows.Close()
 
 	// get all cases of the session
-	req, err = t.mdb.DB.Prepare(`SELECT id, cmdLine, inProgress, finished, passed FROM Cases WHERE sessionID=?`)
+	req, err = t.mdb.DB.DB().Prepare(`SELECT id, cmdLine, inProgress, finished, passed FROM Cases WHERE sessionID=?`)
 	if err != nil {
 		fmt.Println(err.Error())
 		//w.Write([]byte(err.Error()))
@@ -170,7 +171,7 @@ func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
 
 	result.ID = t.ID
 
-	req, err := t.mdb.DB.Prepare(`SELECT id,cmdLine,inProgress,finished,passed FROM Cases WHERE sessionID=?`)
+	req, err := t.mdb.DB.DB().Prepare(`SELECT id,cmdLine,inProgress,finished,passed FROM Cases WHERE sessionID=?`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err
@@ -202,7 +203,7 @@ func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
 
 	// load failed tries for each case to result
 	for curCaseIndex, curCase := range result_cases {
-		req, err := t.mdb.DB.Prepare(`SELECT id,stdOut FROM Tries WHERE caseID=? AND exitStatus<>'0'`)
+		req, err := t.mdb.DB.DB().Prepare(`SELECT id,stdOut FROM Tries WHERE caseID=? AND exitStatus<>'0'`)
 		if err != nil {
 			fmt.Println(err.Error())
 			return nil, err

@@ -8,7 +8,7 @@ import (
 
 func (t *CombatServer) CheckCases() {
 	curtime := time.Now()
-	rows, err := t.mdb.DB.Query(`SELECT id,startedAt FROM Cases WHERE (startedAt IS NOT NULL) AND (inProgress=true) AND (finished=false)`)
+	rows, err := t.mdb.DB.DB().Query(`SELECT id,startedAt FROM Cases WHERE (startedAt IS NOT NULL) AND (inProgress=true) AND (finished=false)`)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -31,9 +31,9 @@ func (t *CombatServer) CheckCases() {
 
 func (t *CombatServer) TimeoutWatcher() {
 	for {
-		t.mdb.Lock()
+		//t.mdb.Lock()
 		t.CheckCases()
-		t.mdb.Unlock()
+		//t.mdb.Unlock()
 		time.Sleep(10 * time.Second)
 	}
 }

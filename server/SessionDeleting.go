@@ -15,7 +15,7 @@ func (t *CombatServer) DeleteOldSessions() {
 
 func (t *CombatServer) GetOldSessionsList() []*string {
 
-	req, err := t.mdb.DB.Prepare(`SELECT id FROM Sessions ORDER BY id DESC`)
+	req, err := t.mdb.DB.DB().Prepare(`SELECT id FROM Sessions ORDER BY id DESC`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil
@@ -50,7 +50,7 @@ func (t *CombatServer) DeleteSession(sessionID string) {
 	slash := string(os.PathSeparator)
 	fmt.Println("Deleting session started. SessionID=" + sessionID)
 
-	req, err := t.mdb.DB.Prepare(`SELECT id FROM Cases WHERE sessionID=?`)
+	req, err := t.mdb.DB.DB().Prepare(`SELECT id FROM Cases WHERE sessionID=?`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -71,7 +71,7 @@ func (t *CombatServer) DeleteSession(sessionID string) {
 
 	for _, curCaseID := range cases {
 		fmt.Println("Deleting case: " + *curCaseID)
-		req, err := t.mdb.DB.Prepare(`SELECT id FROM Tries WHERE caseID=?`)
+		req, err := t.mdb.DB.DB().Prepare(`SELECT id FROM Tries WHERE caseID=?`)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -95,7 +95,7 @@ func (t *CombatServer) DeleteSession(sessionID string) {
 			os.RemoveAll(t.startPath + slash + "tries" + slash + *curTryID) // delete tries from directory
 		}
 
-		req, err = t.mdb.DB.Prepare(`DELETE FROM Tries WHERE caseID=?`) // delete tries from DB
+		req, err = t.mdb.DB.DB().Prepare(`DELETE FROM Tries WHERE caseID=?`) // delete tries from DB
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -104,7 +104,7 @@ func (t *CombatServer) DeleteSession(sessionID string) {
 
 		os.RemoveAll(t.startPath + slash + "cases" + slash + sessionID) // delete session from directory
 
-		req, err = t.mdb.DB.Prepare(`DELETE FROM Cases WHERE sessionID=?`) // delete cases from DB
+		req, err = t.mdb.DB.DB().Prepare(`DELETE FROM Cases WHERE sessionID=?`) // delete cases from DB
 		if err != nil {
 			fmt.Println(err.Error())
 			return
@@ -113,7 +113,7 @@ func (t *CombatServer) DeleteSession(sessionID string) {
 
 	}
 
-	req, err = t.mdb.DB.Prepare(`DELETE FROM Sessions WHERE id=?`) // delete session from DB
+	req, err = t.mdb.DB.DB().Prepare(`DELETE FROM Sessions WHERE id=?`) // delete session from DB
 	if err != nil {
 		fmt.Println(err.Error())
 		return

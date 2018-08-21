@@ -49,7 +49,7 @@ func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Reque
 	io.Copy(f, bytes.NewReader(decodedFile))
 
 	//create session in DB.
-	req, err := t.mdb.DB.Prepare("INSERT INTO Sessions(id,params) VALUES(?,?)")
+	req, err := t.mdb.DB.DB().Prepare("INSERT INTO Sessions(id,params) VALUES(?,?)")
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -61,7 +61,7 @@ func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 	//Mark all unfinished cases as finished and failed
-	req, err = t.mdb.DB.Prepare(`UPDATE Cases SET inProgress=false, passed=false, finished=true WHERE finished=false`)
+	req, err = t.mdb.DB.DB().Prepare(`UPDATE Cases SET inProgress=false, passed=false, finished=true WHERE finished=false`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -111,7 +111,7 @@ func (t *CombatServer) doCasesExplore(params, sessionID string) error {
 		t.setCasesForSession(out.String(), sessionID)
 	} else {
 
-		req, err := t.mdb.DB.Prepare("UPDATE Sessions SET casesExploringFailMessage=? WHERE id=?")
+		req, err := t.mdb.DB.DB().Prepare("UPDATE Sessions SET casesExploringFailMessage=? WHERE id=?")
 		if err != nil {
 			fmt.Println(err)
 			return err
@@ -134,7 +134,7 @@ func (t *CombatServer) doCasesExplore(params, sessionID string) error {
 func (t *CombatServer) setCasesForSession(sessionCases, sessionID string) error {
 	sessionCasesArr := strings.Split(sessionCases, "\n")
 
-	req, err := t.mdb.DB.Prepare("INSERT INTO Cases(cmdline, sessionID) VALUES(?,?)")
+	req, err := t.mdb.DB.DB().Prepare("INSERT INTO Cases(cmdline, sessionID) VALUES(?,?)")
 	if err != nil {
 		fmt.Println(err)
 		return (err)

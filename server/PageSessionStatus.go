@@ -372,7 +372,7 @@ func (t *CombatServer) getSessionsPageStruct() (*PS_testSessions, error) {
 	var result PS_testSessions
 	result.ProjectName = t.config.ProjectName
 
-	req, err := t.mdb.DB.Prepare(`SELECT id FROM Sessions ORDER BY id DESC`)
+	req, err := t.mdb.DB.DB().Prepare(`SELECT id FROM Sessions ORDER BY id DESC`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err

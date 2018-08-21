@@ -14,7 +14,7 @@ import (
 )
 
 func (t *CombatServer) markCaseFailed(caseID string) {
-	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress=false, passed=false, finished=true WHERE id=?`)
+	req, err := t.mdb.DB.DB().Prepare(`UPDATE Cases SET inProgress=false, passed=false, finished=true WHERE id=?`)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -29,14 +29,14 @@ func (t *CombatServer) markCaseFailed(caseID string) {
 	sessionID, cmdLine, err := t.getSessionIDandCMDLineByCaseID(caseID)
 	if err != nil {
 		fmt.Println(err)
-		t.mdb.Unlock()
+		//		t.mdb.Unlock()
 		return
 	}
 	t.hook_FailInSession(sessionID, cmdLine)
 }
 
 func (t *CombatServer) markCasePassed(caseID string) {
-	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress=false, passed=true, finished=true WHERE id=?`)
+	req, err := t.mdb.DB.DB().Prepare(`UPDATE Cases SET inProgress=false, passed=true, finished=true WHERE id=?`)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -49,7 +49,7 @@ func (t *CombatServer) markCasePassed(caseID string) {
 }
 
 func (t *CombatServer) markCaseNotInProgress(caseID string) {
-	req, err := t.mdb.DB.Prepare(`UPDATE Cases SET inProgress=false WHERE id=?`)
+	req, err := t.mdb.DB.DB().Prepare(`UPDATE Cases SET inProgress=false WHERE id=?`)
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -109,7 +109,7 @@ func (t *CombatServer) hook_FirstFailInSession(sessionID string, cmdLine string)
 
 // The method set first fail flag as true, if it was false, and return true for first call.
 func (t *CombatServer) IsFirstFailInSession(sessionID string) (bool, error) {
-	req, err := t.mdb.DB.Prepare(`UPDATE Sessions SET hook_FirstFail=true WHERE id=? AND hook_FirstFail=false`) // Set FirstFail flag as true, if not true yet
+	req, err := t.mdb.DB.DB().Prepare(`UPDATE Sessions SET hook_FirstFail=true WHERE id=? AND hook_FirstFail=false`) // Set FirstFail flag as true, if not true yet
 	if err != nil {
 		fmt.Println(err)
 		return false, err
@@ -145,7 +145,7 @@ func (t *CombatServer) hook_FailInSession(sessionID string, cmdLine string) {
 }
 
 func (t *CombatServer) getSessionIDandCMDLineByCaseID(caseID string) (string, string, error) {
-	req, err := t.mdb.DB.Prepare(`SELECT sessionID,cmdLine FROM Cases WHERE id=?`) // get sessionID, cmdLine for alarm
+	req, err := t.mdb.DB.DB().Prepare(`SELECT sessionID,cmdLine FROM Cases WHERE id=?`) // get sessionID, cmdLine for alarm
 	if err != nil {
 		fmt.Println(err)
 		return "", "", err
@@ -213,17 +213,17 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
-	t.mdb.Lock()
-	req, err := t.mdb.DB.Prepare(`SELECT id FROM Tries WHERE caseID=?`) // get count of tries
+	//	t.mdb.Lock()
+	req, err := t.mdb.DB.DB().Prepare(`SELECT id FROM Tries WHERE caseID=?`) // get count of tries
 	if err != nil {
 		fmt.Println(err)
-		t.mdb.Unlock()
+		//		t.mdb.Unlock()
 		return
 	}
 	rows, err := req.Query(caseID)
 	if err != nil {
 		fmt.Println(err)
-		t.mdb.Unlock()
+		//		t.mdb.Unlock()
 		return
 	}
 	triesCount := 0
@@ -234,22 +234,22 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 
 	fmt.Println("CurrentTryCount=" + strconv.Itoa(triesCount))
 
-	req, err = t.mdb.DB.Prepare("INSERT INTO Tries(caseID,exitStatus,stdOut) VALUES(?,?,?)")
+	req, err = t.mdb.DB.DB().Prepare("INSERT INTO Tries(caseID,exitStatus,stdOut) VALUES(?,?,?)")
 	if err != nil {
 		fmt.Println(err)
-		t.mdb.Unlock()
+		//		t.mdb.Unlock()
 		return
 	}
 	res, err := req.Exec(caseID, exitStatus, stdOut)
 	if err != nil {
 		fmt.Println(err)
-		t.mdb.Unlock()
+		//		t.mdb.Unlock()
 		return
 	}
 	tryID64, err := res.LastInsertId()
 	if err != nil {
 		fmt.Println(err)
-		t.mdb.Unlock()
+		//		t.mdb.Unlock()
 		return
 	}
 	tryID := strconv.Itoa(int(tryID64))
@@ -265,7 +265,7 @@ func (t *CombatServer) setCaseResultHandler(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	t.mdb.Unlock()
+	//	t.mdb.Unlock()
 
 	if exitStatus != "0" {
 		os.MkdirAll("./tries/"+tryID, 0777)

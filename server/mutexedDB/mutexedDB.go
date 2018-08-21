@@ -6,14 +6,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"sync"
 
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	//	_ "github.com/mattn/go-sqlite3"
 )
 
 type MutexedDB struct {
-	DB    *sql.DB
-	mutex sync.Mutex
+	DB *gorm.DB
 }
 
 func checkDB(path string) error {
@@ -52,14 +52,7 @@ func (t *MutexedDB) Connect(path string) error {
 	if err != nil {
 		return err
 	}
-	t.DB, err = sql.Open("sqlite3", path)
+	t.DB, err = gorm.Open("sqlite3", path)
+	//t.DB, err = sql.Open("sqlite3", path)
 	return err
-}
-
-func (t *MutexedDB) Lock() {
-	t.mutex.Lock()
-}
-
-func (t *MutexedDB) Unlock() {
-	t.mutex.Unlock()
 }

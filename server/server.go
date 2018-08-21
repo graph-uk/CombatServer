@@ -23,40 +23,18 @@ func check(err error) {
 	}
 }
 
-func checkFolder(folderName string) error {
+func checkFolder(folderName string) {
 	if _, err := os.Stat(folderName); os.IsNotExist(err) { // if folder does not exist - try to create
-		err := os.MkdirAll(folderName, 0777)
-		if err != nil {
-			fmt.Println("Cannot create folder " + folderName)
-			return err
-		}
+		check(os.MkdirAll(folderName, 0777))
 	} else {
-		err := os.MkdirAll(folderName+string(os.PathSeparator)+"TMP_TESTFOLDER", 0777)
-		if err != nil {
-			fmt.Println("Cannot create subfolder in folder " + folderName + ". Check permissions")
-			return err
-		}
-
-		err = os.RemoveAll(folderName + string(os.PathSeparator) + "TMP_TESTFOLDER")
-		if err != nil {
-			fmt.Println("Cannot delete subfolder in folder " + folderName + ". Check permissions")
-			return err
-		}
+		check(os.MkdirAll(folderName+string(os.PathSeparator)+"TMP_TESTFOLDER", 0777))
+		check(os.RemoveAll(folderName + string(os.PathSeparator) + "TMP_TESTFOLDER"))
 	}
-	return nil
 }
 
-func checkFolders() error {
-	err := checkFolder("sessions")
-	if err != nil {
-		return err
-	}
-	err = checkFolder("tries")
-	if err != nil {
-		return err
-	}
-
-	return nil
+func checkFolders() {
+	checkFolder("sessions")
+	checkFolder("tries")
 }
 
 func NewCombatServer() *CombatServer {
@@ -67,7 +45,7 @@ func NewCombatServer() *CombatServer {
 	result.config, err = config.LoadConfig()
 	check(err)
 	check(result.mdb.Connect("./base.sl3?_busy_timeout=60000"))
-	check(checkFolders())
+	checkFolders()
 	return &result
 }
 
