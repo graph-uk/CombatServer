@@ -2,13 +2,19 @@ package server
 
 import (
 	"fmt"
-	"net/http"
+	"html/template"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/graph-uk/combat-server/server/config"
 	"github.com/graph-uk/combat-server/server/mutexedDB"
+	"github.com/graph-uk/combat-server/server/site"
+	"github.com/graph-uk/combat-server/server/site/sessions"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 type CombatServer struct {
@@ -75,20 +81,70 @@ func NewCombatServer() (*CombatServer, error) {
 	return &result, nil
 }
 
-func (t *CombatServer) Serve() error {
+func parseTemplates() (*template.Template, error) {
+	cleanRoot := filepath.Clean("server/site/")
+	pfx := len(cleanRoot) + 1
+	root := template.New("")
+
+	err := filepath.Walk(cleanRoot, func(path string, info os.FileInfo, e1 error) error {
+		if !info.IsDir() && strings.HasSuffix(path, ".html") {
+			if e1 != nil {
+				return e1
+			}
+
+			b, e2 := ioutil.ReadFile(path)
+			if e2 != nil {
+				return e2
+			}
+
+			name := strings.Replace(path[pfx:], "\\", "/", -1)
+
+			t := root.New(name)
+			t, e2 = t.Parse(string(b))
+			if e2 != nil {
+				return e2
+			}
+		}
+
+		return nil
+	})
+
+	return root, err
+}
+
+// Start web server
+func (t *CombatServer) Start() error {
 	go t.TimeoutWatcher()
-	http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
 
-	http.HandleFunc("/createSession", t.createSessionHandler)
-	http.HandleFunc("/getJob", t.getJobHandler)
-	http.HandleFunc("/setCaseResult", t.setCaseResultHandler)
-	http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
-	http.HandleFunc("/getSessionStatusForJunitReport", t.getSessionStatusForJunitReportHandler)
-	http.HandleFunc("/sessions/", t.pageSessionStatusHandler)
+	templates, _ := parseTemplates()
 
-	fmt.Println("Serving combat tests at port: " + strconv.Itoa(t.config.Port) + "...")
-	err := http.ListenAndServe(":"+strconv.Itoa(t.config.Port), nil)
-	return err
+	renderer := &site.Template{
+		Templates: templates}
+
+	e := echo.New()
+	e.Renderer = renderer
+	e.Use(middleware.Static("/assets"))
+	e.Use(middleware.Logger())
+
+	e.GET("/sessions/", sessions.Index)
+	e.GET("/sessions/:id", sessions.View)
+
+	e.Logger.Fatal(e.Start(":" + strconv.Itoa(t.config.Port)))
+
+	// http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("server/assets"))))
+	// http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
+
+	// http.HandleFunc("/getJob", t.getJobHandler)
+	// http.HandleFunc("/setCaseResult", t.setCaseResultHandler)
+	// http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
+	// http.HandleFunc("/getSessionStatusForJunitReport", t.getSessionStatusForJunitReportHandler)
+
+	// http.HandleFunc("/createSession", t.createSessionHandler)
+	// http.HandleFunc("/sessions/", sessions.Handler)
+
+	// fmt.Println("Serving combat tests at port: " + strconv.Itoa(t.config.Port) + "...")
+	// err := http.ListenAndServe(":"+strconv.Itoa(t.config.Port), nil)
+	return nil
 }
 
 func (t *CombatServer) addToGOPath(pathExtention string) []string {
