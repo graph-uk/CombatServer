@@ -5,12 +5,13 @@ import (
 	//	"fmt"
 	//	"strconv"
 
-	"github.com/graph-uk/combat-server/server/mutexedDB"
+	//"github.com/graph-uk/combat-server/server/DB"
+	"github.com/graph-uk/combat-server/server/entities"
 )
 
 type TestCase struct {
 	ID  int
-	mdb *mutexedDB.MutexedDB
+	mdb *entities.Entities
 }
 
 type TestCaseStatus struct {
@@ -21,7 +22,7 @@ type TestCaseStatus struct {
 	Tries      *[]string
 }
 
-func NewAssignedTestCase(id int, mdb *mutexedDB.MutexedDB) *TestCase {
+func NewAssignedTestCase(id int, mdb *entities.Entities) *TestCase {
 	var result TestCase
 	result.mdb = mdb
 	result.ID = id

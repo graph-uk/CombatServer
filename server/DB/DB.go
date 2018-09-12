@@ -1,5 +1,5 @@
 // Mutexed DB is a hack to lock DB, until problem with transactions will be solved.
-package mutexedDB
+package DB
 
 import (
 	"database/sql"
@@ -7,13 +7,13 @@ import (
 	"os"
 	"strings"
 
+	"github.com/graph-uk/combat-server/server/entities"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
-	//	_ "github.com/mattn/go-sqlite3"
 )
 
-type MutexedDB struct {
-	DB *gorm.DB
+type DB struct {
+	*gorm.DB
 }
 
 func checkDB(path string) error {
@@ -26,9 +26,8 @@ func checkDB(path string) error {
 
 	if _, err := os.Stat(shortPath); os.IsNotExist(err) { // if file does not exist - try to create
 		db, err := sql.Open("sqlite3", path)
-		_, err = db.Exec(`CREATE TABLE Cases (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, cmdLine VARCHAR (50), sessionID VARCHAR (20), inProgress BOOLEAN DEFAULT false, finished BOOLEAN DEFAULT false, passed BOOLEAN DEFAULT false, startedAt DATETIME);
-CREATE TABLE Sessions (id VARCHAR (20) PRIMARY KEY NOT NULL, params VARCHAR (50), hook_FirstFail BOOLEAN DEFAULT False, casesExploringFailMessage STRING);
-CREATE TABLE Tries (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, caseID INTEGER, exitStatus VARCHAR (50), stdOut STRING);`)
+		_, err = db.Exec(`CREATE TABLE Cases (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, cmd_line VARCHAR (50), session_id VARCHAR (20), in_progress BOOLEAN DEFAULT false, finished BOOLEAN DEFAULT false, passed BOOLEAN DEFAULT false, started_at DATETIME);
+		CREATE TABLE tries (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, case_id INTEGER, exit_status VARCHAR (50), std_out STRING);`)
 		if err != nil {
 			fmt.Println("Cannot init empty database. Check permissions to " + path)
 			fmt.Print(err.Error())
@@ -47,12 +46,17 @@ CREATE TABLE Tries (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, caseID INTEGE
 	return nil
 }
 
-func (t *MutexedDB) Connect(path string) error {
+func (t *DB) Connect(path string) error {
 	err := checkDB(path)
 	if err != nil {
 		return err
 	}
 	t.DB, err = gorm.Open("sqlite3", path)
-	//t.DB, err = sql.Open("sqlite3", path)
 	return err
+}
+
+func (t *DB) CheckDBNew() {
+	//t.DB.DropTableIfExists(&entities.Session{})
+	t.DB.AutoMigrate(&entities.Session{})
+	//fmt.Println(t.DB.GetErrors())
 }

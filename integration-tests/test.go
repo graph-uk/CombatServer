@@ -338,6 +338,7 @@ func main() {
 
 	client.WaitingForExitWithCode(10*time.Second, 1)
 
+	//time.Sleep(10 * time.Second)
 	//panic(`test`)
 	log.Println(`The test finished succeed.`)
 }

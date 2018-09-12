@@ -2,7 +2,7 @@ package server
 
 import (
 	"bytes"
-	"fmt"
+	//	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
@@ -206,17 +206,15 @@ func (t *CombatServer) getSessionStatusTemplate() *string {
 
 func (t *CombatServer) pageSessionStatusHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-
 		path := strings.Split(r.URL.Path, "/")
 		sessionID := strings.TrimSpace(path[len(path)-1])
 		if strings.TrimSpace(sessionID) == "" {
-			//			w.Write([]byte("Session ID is not specified. Please, provide session ID like: /sessions/11203487203498"))
 			t.showSessionsPage(w)
 			return
 		}
 
 		// Get session status
-		Page_session, err := session.NewAssignedSession(sessionID, &t.mdb, t.startPath)
+		Page_session, err := session.NewAssignedSession(sessionID, t.entities, t.startPath)
 		if err != nil {
 			w.Write([]byte("Error: " + err.Error() + "<br>\n"))
 			return
@@ -368,42 +366,28 @@ type PS_session struct { // testCase struct for
 	ID string
 }
 
-func (t *CombatServer) getSessionsPageStruct() (*PS_testSessions, error) {
+func (t *CombatServer) getSessionsPageStruct() *PS_testSessions {
 	var result PS_testSessions
 	result.ProjectName = t.config.ProjectName
 
-	req, err := t.mdb.DB.DB().Prepare(`SELECT id FROM Sessions ORDER BY id DESC`)
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
-	}
+	req, err := t.entities.DB.DB().Prepare(`SELECT id FROM Sessions ORDER BY id DESC`)
+	check(err)
+
 	rows, err := req.Query()
-	if err != nil {
-		fmt.Println(err.Error())
-		return nil, err
-	}
+	check(err)
 
 	for rows.Next() {
 		var curSession PS_session
-		err := rows.Scan(&curSession.ID)
-		if err != nil {
-			fmt.Println(err.Error())
-			return nil, err
-		}
+		check(rows.Scan(&curSession.ID))
 		result.Sessions = append(result.Sessions, &curSession)
 	}
-	rows.Close()
+	check(rows.Close())
 
-	return &result, nil
+	return &result
 }
 
 func (t *CombatServer) showSessionsPage(w http.ResponseWriter) {
-	pageStruct, err := t.getSessionsPageStruct()
-	if err != nil {
-		w.Write([]byte("Something wrong. See more in log."))
-		fmt.Println(err.Error())
-		return
-	}
+	pageStruct := t.getSessionsPageStruct()
 
 	// Create a template.
 	pageBuffer := new(bytes.Buffer)

@@ -27,7 +27,7 @@ type ResGetSession struct {
 //		return nil
 //	}
 
-//	req, err := mdb.DB.Prepare(`SELECT casesExploringFailMessage FROM Sessions WHERE id=?`)
+//	req, err := mdb.DB.Prepare(`SELECT cases_exploring_fail_message FROM Sessions WHERE id=?`)
 //	if err != nil {
 //		fmt.Println(err)
 //		return nil
@@ -42,7 +42,7 @@ type ResGetSession struct {
 //	rows.Scan(&casesExploringMessage)
 //	rows.Close()
 
-//	req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=?`)
+//	req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE session_id=?`)
 //	if err != nil {
 //		fmt.Println(err)
 //		return nil
@@ -61,7 +61,7 @@ type ResGetSession struct {
 //	}
 //	rows.Close()
 
-//	req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=? AND finished=true`)
+//	req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE session_id=? AND finished=true`)
 //	if err != nil {
 //		fmt.Println(err)
 //		return nil
@@ -80,7 +80,7 @@ type ResGetSession struct {
 //	}
 //	rows.Close()
 
-//	req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=? AND finished=true AND passed=false`)
+//	req, err = t.mdb.DB.Prepare(`SELECT Count()as count FROM Cases WHERE session_id=? AND finished=true AND passed=false`)
 //	if err != nil {
 //		fmt.Println(err)
 //		return nil
@@ -99,7 +99,7 @@ type ResGetSession struct {
 //	}
 //	rows.Close()
 
-//	req, err = t.mdb.DB.Prepare(`SELECT cmdLine FROM Cases WHERE sessionID=? AND finished=true AND passed=false`)
+//	req, err = t.mdb.DB.Prepare(`SELECT cmd_line FROM Cases WHERE session_id=? AND finished=true AND passed=false`)
 //	if err != nil {
 //		fmt.Println(err)
 //		return nil

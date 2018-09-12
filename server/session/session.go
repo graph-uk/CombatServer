@@ -9,13 +9,14 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/graph-uk/combat-server/server/mutexedDB"
+	//"github.com/graph-uk/combat-server/server/DB"
+	"github.com/graph-uk/combat-server/server/entities"
 	"github.com/graph-uk/combat-server/server/session/testCase"
 )
 
 type Session struct {
 	ID       string
-	mdb      *mutexedDB.MutexedDB
+	mdb      *entities.Entities
 	RootPath string
 }
 
@@ -29,7 +30,7 @@ type SessionStatus struct {
 	FailedCases        []*string
 }
 
-func NewAssignedSession(id string, mdb *mutexedDB.MutexedDB, RootPath string) (*Session, error) {
+func NewAssignedSession(id string, mdb *entities.Entities, RootPath string) (*Session, error) {
 	var result Session
 	result.mdb = mdb
 	result.ID = id
@@ -84,7 +85,7 @@ func (t *Session) GetStatus() (*SessionStatus, error) {
 	rows.Close()
 
 	// get all cases of the session
-	req, err = t.mdb.DB.DB().Prepare(`SELECT id, cmdLine, inProgress, finished, passed FROM Cases WHERE sessionID=?`)
+	req, err = t.mdb.DB.DB().Prepare(`SELECT id, cmd_line, in_progress, finished, passed FROM Cases WHERE session_id=?`)
 	if err != nil {
 		fmt.Println(err.Error())
 		//w.Write([]byte(err.Error()))
@@ -171,7 +172,7 @@ func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
 
 	result.ID = t.ID
 
-	req, err := t.mdb.DB.DB().Prepare(`SELECT id,cmdLine,inProgress,finished,passed FROM Cases WHERE sessionID=?`)
+	req, err := t.mdb.DB.DB().Prepare(`SELECT id,cmd_line,in_progress,finished,passed FROM Cases WHERE session_id=?`)
 	if err != nil {
 		fmt.Println(err.Error())
 		return nil, err
@@ -203,7 +204,7 @@ func (t *Session) GetSessionPageStruct() (*PS_testSession, error) {
 
 	// load failed tries for each case to result
 	for curCaseIndex, curCase := range result_cases {
-		req, err := t.mdb.DB.DB().Prepare(`SELECT id,stdOut FROM Tries WHERE caseID=? AND exitStatus<>'0'`)
+		req, err := t.mdb.DB.DB().Prepare(`SELECT id,std_out FROM tries WHERE case_id=? AND exit_status<>'0'`)
 		if err != nil {
 			fmt.Println(err.Error())
 			return nil, err

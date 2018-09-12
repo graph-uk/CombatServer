@@ -7,14 +7,16 @@ import (
 	"strconv"
 	"strings"
 
+	//	"github.com/graph-uk/combat-server/server/DB"
 	"github.com/graph-uk/combat-server/server/config"
-	"github.com/graph-uk/combat-server/server/mutexedDB"
+	"github.com/graph-uk/combat-server/server/entities"
 )
 
 type CombatServer struct {
 	config    *config.Config
 	startPath string
-	mdb       mutexedDB.MutexedDB
+	//db        DB.DB
+	entities *entities.Entities
 }
 
 func check(err error) {
@@ -26,9 +28,6 @@ func check(err error) {
 func checkFolder(folderName string) {
 	if _, err := os.Stat(folderName); os.IsNotExist(err) { // if folder does not exist - try to create
 		check(os.MkdirAll(folderName, 0777))
-	} else {
-		check(os.MkdirAll(folderName+string(os.PathSeparator)+"TMP_TESTFOLDER", 0777))
-		check(os.RemoveAll(folderName + string(os.PathSeparator) + "TMP_TESTFOLDER"))
 	}
 }
 
@@ -44,7 +43,9 @@ func NewCombatServer() *CombatServer {
 	check(err)
 	result.config, err = config.LoadConfig()
 	check(err)
-	check(result.mdb.Connect("./base.sl3?_busy_timeout=60000"))
+	//	check(result.db.Connect("./base.sl3?_busy_timeout=60000"))
+	//	result.db.CheckDBNew()
+	result.entities = entities.NewEntities(`./base.sl3?_busy_timeout=60000`)
 	checkFolders()
 	return &result
 }

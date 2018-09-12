@@ -12,69 +12,41 @@ import (
 func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 
 	if r.Method == "GET" {
-		//		t.mdb.Lock()
-		//defer t.mdb.Unlock()
-
+		//fmt.Println(r.RemoteAddr + " Getting a job")
 		//select case not in progress
 		var caseID, caseCMD, sessionID string
-		rows, err := t.mdb.DB.DB().Query(`SELECT id, cmdLine, sessionID FROM Cases WHERE finished=false AND inProgress=false ORDER BY RANDOM() LIMIT 1`)
-		if err != nil {
-			fmt.Println(err)
-			//			t.mdb.Unlock()
-			return
-		}
+		rows, err := t.entities.DB.DB().Query(`SELECT id, cmd_line, session_id FROM Cases WHERE finished=false AND in_progress=false ORDER BY RANDOM() LIMIT 1`)
+		check(err)
 
 		// if found some case not in progress.
 		if rows.Next() {
-			err = rows.Scan(&caseID, &caseCMD, &sessionID)
-			if err != nil {
-				fmt.Println(err)
-				//				t.mdb.Unlock()
-				return
-			}
-			rows.Close()
+			check(rows.Scan(&caseID, &caseCMD, &sessionID))
+			check(rows.Close())
 
 			// set case.InProgress = true, and unlock DB
 			curTime := time.Now()
-			req, err := t.mdb.DB.DB().Prepare("UPDATE Cases SET inProgress=?, startedAt=? WHERE id=?")
-			if err != nil {
-				fmt.Println(err)
-				//				t.mdb.Unlock()
-				return
-			}
+			req, err := t.entities.DB.DB().Prepare("UPDATE Cases SET in_progress=?, started_at=? WHERE id=?")
+			check(err)
+
 			_, err = req.Exec(true, curTime, caseID)
-			if err != nil {
-				fmt.Println(err)
-				//				t.mdb.Unlock()
-				return
-			}
-			//			t.mdb.Unlock()
+			check(err)
 
 			zipFile, err := ioutil.ReadFile("./sessions/" + sessionID + "/archived.zip")
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
+			check(err)
 
 			resp := apireqresp.NewResGetJob(caseID, caseCMD, zipFile)
 
 			respJson, err := resp.GetJson()
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
+			check(err)
 
 			_, err = w.Write(respJson)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
+			check(err)
 
 			fmt.Println(r.RemoteAddr + " Get a job (CasesRun) for case: " + caseCMD)
 		} else { // when not found cases to run
-			w.WriteHeader(http.StatusNotFound)
 			rows.Close()
-			//			t.mdb.Unlock()
+			//fmt.Println(r.RemoteAddr + " Jobs not found. Idle. ")
+			w.WriteHeader(http.StatusNotFound)
 		}
 	}
 }

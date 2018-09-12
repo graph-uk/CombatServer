@@ -23,119 +23,81 @@ func (t *CombatServer) getSessionStatusHandler(w http.ResponseWriter, r *http.Re
 			return
 		}
 
-		req, err := t.mdb.DB.DB().Prepare(`SELECT casesExploringFailMessage FROM Sessions WHERE id=?`)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		rows, err := req.Query(sessionID)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
 		var casesExploringMessage string
-		rows.Next()
-		rows.Scan(&casesExploringMessage)
-		rows.Close()
+		var sessionStatus apireqresp.ResGetSession
 
-		req, err = t.mdb.DB.DB().Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=?`)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		req, err := t.entities.DB.DB().Prepare(`SELECT cases_exploring_fail_message FROM Sessions WHERE id=?`)
+		check(err)
+		rows, err := req.Query(sessionID)
+		check(err)
+
+		fmt.Println(rows.Next())
+
+		rows.Scan(&casesExploringMessage)
+		check(rows.Close())
+
+		req, err = t.entities.DB.DB().Prepare(`SELECT Count()as count FROM Cases WHERE session_id=?`)
+		check(err)
+
 		rows, err = req.Query(sessionID)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
+		check(err)
+
 		var totalCasesCount int
 		rows.Next()
-		err = rows.Scan(&totalCasesCount)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		rows.Close()
+		if rows.Scan(&totalCasesCount) == nil {
+			rows.Close()
 
-		req, err = t.mdb.DB.DB().Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=? AND finished=true`)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		rows, err = req.Query(sessionID)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		var finishedCasesCount int
-		rows.Next()
-		err = rows.Scan(&finishedCasesCount)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		rows.Close()
+			var finishedCasesCount int
+			req, err = t.entities.DB.DB().Prepare(`SELECT Count()as count FROM Cases WHERE session_id=? AND finished=true`)
+			check(err)
+			rows, err = req.Query(sessionID)
+			check(err)
+			rows.Next()
+			check(rows.Scan(&finishedCasesCount))
+			check(rows.Close())
 
-		req, err = t.mdb.DB.DB().Prepare(`SELECT Count()as count FROM Cases WHERE sessionID=? AND finished=true AND passed=false`)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		rows, err = req.Query(sessionID)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		var failedCasesCount int
-		rows.Next()
-		err = rows.Scan(&failedCasesCount)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		rows.Close()
+			var failedCasesCount int
+			req, err = t.entities.DB.DB().Prepare(`SELECT Count()as count FROM Cases WHERE session_id=? AND finished=true AND passed=false`)
+			check(err)
+			rows, err = req.Query(sessionID)
+			check(err)
+			rows.Next()
+			check(rows.Scan(&failedCasesCount))
+			check(rows.Close())
 
-		req, err = t.mdb.DB.DB().Prepare(`SELECT cmdLine FROM Cases WHERE sessionID=? AND finished=true AND passed=false`)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		rows, err = req.Query(sessionID)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		var errorCases []string
-		for rows.Next() {
-			var cmdLine string
-			err = rows.Scan(&cmdLine)
-			if err != nil {
-				fmt.Println(err)
-				return
+			var errorCases []string
+			req, err = t.entities.DB.DB().Prepare(`SELECT cmd_line FROM Cases WHERE session_id=? AND finished=true AND passed=false`)
+			check(err)
+			rows, err = req.Query(sessionID)
+			check(err)
+			for rows.Next() {
+				var cmdLine string
+				check(rows.Scan(&cmdLine))
+				errorCases = append(errorCases, cmdLine)
 			}
-			errorCases = append(errorCases, cmdLine)
-		}
-		rows.Close()
+			check(rows.Close())
 
-		var sessionStatus apireqresp.ResGetSession
-		sessionStatus.CasesExploringFailMessage = casesExploringMessage
-		sessionStatus.TotalCasesCount = totalCasesCount
-		sessionStatus.FinishedCasesCount = finishedCasesCount
-		if totalCasesCount == finishedCasesCount && totalCasesCount != 0 {
-			sessionStatus.Finished = true
+			sessionStatus.CasesExploringFailMessage = casesExploringMessage
+			sessionStatus.TotalCasesCount = totalCasesCount
+			sessionStatus.FinishedCasesCount = finishedCasesCount
+			if totalCasesCount == finishedCasesCount && totalCasesCount != 0 {
+				sessionStatus.Finished = true
+			} else {
+				sessionStatus.Finished = false
+			}
+			if sessionStatus.CasesExploringFailMessage != "" {
+				sessionStatus.Finished = true
+			}
+
+			for _, curCase := range errorCases {
+				sessionStatus.FailReports = append(sessionStatus.FailReports, curCase)
+			}
 		} else {
-			sessionStatus.Finished = false
-		}
-		if sessionStatus.CasesExploringFailMessage != "" {
-			sessionStatus.Finished = true
+			rows.Close()
 		}
 
-		for _, curCase := range errorCases {
-			sessionStatus.FailReports = append(sessionStatus.FailReports, curCase)
-		}
-
-		sessionStatusJSON, _ := sessionStatus.GetJson()
-
+		sessionStatusJSON, err := sessionStatus.GetJson()
+		check(err)
 		w.Write(sessionStatusJSON)
 	}
 }

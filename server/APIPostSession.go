@@ -2,7 +2,7 @@ package server
 
 import (
 	"bytes"
-	"errors"
+	//	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -20,75 +20,46 @@ func (t *CombatServer) createSessionHandler(w http.ResponseWriter, r *http.Reque
 	sessionName := strconv.FormatInt(time.Now().UnixNano(), 10)
 
 	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		fmt.Println(err)
-	}
-
+	check(err)
 	reqStruct, err := apireqresp.ParseReqPostSessionFromBytes(body)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	fmt.Println(reqStruct.SessionParams)
+	check(err)
 
 	//create dir, and save the file.
-	os.MkdirAll("./sessions/"+sessionName, 0777)
+	check(os.MkdirAll("./sessions/"+sessionName, 0777))
 	f, err := os.OpenFile("./sessions/"+sessionName+"/archived.zip", os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+	check(err)
 	defer f.Close()
-
 	decodedFile, err := reqStruct.GetDecodedFile()
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-
-	io.Copy(f, bytes.NewReader(decodedFile))
+	check(err)
+	_, err = io.Copy(f, bytes.NewReader(decodedFile))
+	check(err)
 
 	//create session in DB.
-	req, err := t.mdb.DB.DB().Prepare("INSERT INTO Sessions(id,params) VALUES(?,?)")
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	req, err := t.entities.DB.DB().Prepare("INSERT INTO Sessions(id,params) VALUES(?,?)")
+	check(err)
 	_, err = req.Exec(sessionName, reqStruct.SessionParams)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	check(err)
 
 	//Mark all unfinished cases as finished and failed
-	req, err = t.mdb.DB.DB().Prepare(`UPDATE Cases SET inProgress=false, passed=false, finished=true WHERE finished=false`)
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	req, err = t.entities.DB.DB().Prepare(`UPDATE Cases SET in_progress=false, passed=false, finished=true WHERE finished=false`)
+	check(err)
 	_, err = req.Exec()
-	if err != nil {
-		fmt.Println(err.Error())
-		return
-	}
+	check(err)
 
 	w.Header().Add(`Location`, sessionName)
 	w.WriteHeader(http.StatusCreated)
 
-	//io.WriteString(w, sessionName)
 	fmt.Println(r.RemoteAddr + " Create new session: " + sessionName + " " + reqStruct.SessionParams)
 
 	go t.doCasesExplore(reqStruct.SessionParams, sessionName)
 }
 
-func (t *CombatServer) doCasesExplore(params, sessionID string) error {
+func (t *CombatServer) doCasesExplore(params, sessionID string) {
 	err := unzip("./sessions/"+sessionID+"/archived.zip", "./sessions/"+sessionID+"/unarch")
-	if err != nil {
-		fmt.Print(err.Error())
-		return err
-	}
-	os.Chdir("./sessions/" + sessionID + "/unarch/src/Tests")
-	rootTestsPath, _ := os.Getwd()
+	check(err)
+	check(os.Chdir("./sessions/" + sessionID + "/unarch/src/Tests"))
+	rootTestsPath, err := os.Getwd()
+	check(err)
 	rootTestsPath += string(os.PathSeparator) + ".." + string(os.PathSeparator) + ".."
 
 	command := []string{"cases"}
@@ -106,39 +77,27 @@ func (t *CombatServer) doCasesExplore(params, sessionID string) error {
 	cmd.Stderr = &outErr
 	exitStatus := cmd.Run()
 
-	os.Chdir(t.startPath)
+	check(os.Chdir(t.startPath))
 	if exitStatus == nil {
 		t.setCasesForSession(out.String(), sessionID)
 	} else {
 
-		req, err := t.mdb.DB.DB().Prepare("UPDATE Sessions SET casesExploringFailMessage=? WHERE id=?")
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
+		req, err := t.entities.DB.DB().Prepare("UPDATE Sessions SET cases_exploring_fail_message=? WHERE id=?")
+		check(err)
 		_, err = req.Exec(out.String()+"\r\n"+outErr.String(), sessionID) // cases ExploringStarted
-		if err != nil {
-			fmt.Println(err)
-			return err
-		}
+		check(err)
 
 		fmt.Println("Cannot extract cases")
 		fmt.Println(out.String())
 		fmt.Println(outErr.String())
-		return errors.New("Cannot extract combat cases.")
 	}
-
-	return nil
 }
 
-func (t *CombatServer) setCasesForSession(sessionCases, sessionID string) error {
+func (t *CombatServer) setCasesForSession(sessionCases, sessionID string) {
 	sessionCasesArr := strings.Split(sessionCases, "\n")
 
-	req, err := t.mdb.DB.DB().Prepare("INSERT INTO Cases(cmdline, sessionID) VALUES(?,?)")
-	if err != nil {
-		fmt.Println(err)
-		return (err)
-	}
+	req, err := t.entities.DB.DB().Prepare("INSERT INTO Cases(cmd_line, session_id) VALUES(?,?)")
+	check(err)
 
 	casesCount := 0
 	for _, curCase := range sessionCasesArr {
@@ -146,15 +105,11 @@ func (t *CombatServer) setCasesForSession(sessionCases, sessionID string) error 
 		if curCaseCleared != "" {
 			casesCount++
 			_, err = req.Exec(curCase, sessionID)
-			if err != nil {
-				fmt.Println(err)
-				return (err)
-			}
+			check(err)
 		}
 	}
 
 	fmt.Println("Explored " + strconv.Itoa(casesCount) + " cases for session: " + sessionID)
 
 	go t.DeleteOldSessions()
-	return nil
 }
