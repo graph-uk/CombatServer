@@ -123,7 +123,7 @@ func (t *CombatServer) Start() error {
 
 	e := echo.New()
 	e.Renderer = renderer
-	e.Use(middleware.Static("/assets"))
+	e.Static("/assets", "./assets/_")
 	e.Use(middleware.Logger())
 
 	e.GET("/sessions/", sessions.Index)
