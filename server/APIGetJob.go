@@ -2,10 +2,11 @@ package server
 
 import (
 	"fmt"
-	//"io"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/graph-uk/combat-server/server/apireqresp"
 )
 
 func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
@@ -14,6 +15,7 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 		t.mdb.Lock()
 		//defer t.mdb.Unlock()
 
+		//select case not in progress
 		var caseID, caseCMD, sessionID string
 		rows, err := t.mdb.DB.Query(`SELECT id, cmdLine, sessionID FROM Cases WHERE finished=false AND inProgress=false ORDER BY RANDOM() LIMIT 1`)
 		if err != nil {
@@ -22,6 +24,7 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// if found some case not in progress.
 		if rows.Next() {
 			err = rows.Scan(&caseID, &caseCMD, &sessionID)
 			if err != nil {
@@ -31,6 +34,7 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			rows.Close()
 
+			// set case.InProgress = true, and unlock DB
 			curTime := time.Now()
 			req, err := t.mdb.DB.Prepare("UPDATE Cases SET inProgress=?, startedAt=? WHERE id=?")
 			if err != nil {
@@ -46,25 +50,30 @@ func (t *CombatServer) getJobHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			t.mdb.Unlock()
 
-			w.Header().Add("Command", "RunCase")
-			w.Header().Add("Params", caseCMD)
-			w.Header().Add("SessionID", caseID)
+			zipFile, err := ioutil.ReadFile("./sessions/" + sessionID + "/archived.zip")
+			if err != nil {
+				fmt.Println(err)
+				return
+			}
 
-			zipArchive, err := ioutil.ReadFile("./sessions/" + sessionID + "/archived.zip")
+			resp := apireqresp.NewResGetJob(caseID, caseCMD, zipFile)
+
+			respJson, err := resp.GetJson()
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
-			_, err = w.Write(zipArchive)
+
+			_, err = w.Write(respJson)
 			if err != nil {
 				fmt.Println(err)
 				return
 			}
+
 			fmt.Println(r.RemoteAddr + " Get a job (CasesRun) for case: " + caseCMD)
-
 		} else { // when not found cases to run
+			w.WriteHeader(http.StatusNotFound)
 			rows.Close()
-			w.Header().Add("Command", "idle")
 			t.mdb.Unlock()
 		}
 	}

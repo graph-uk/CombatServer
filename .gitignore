@@ -4,6 +4,9 @@
 /sessions
 /config.json
 /base.*
+/integration-tests/client
+/integration-tests/server
+/integration-tests/worker
 
 #idea
 *.iml
