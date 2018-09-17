@@ -1,106 +1,35 @@
 <!DOCTYPE html>
 <html lang="en-US">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>{{.ProjectName}}</title>
+		<link href="/assets/index.css" rel="stylesheet">
+	</head>
 
-<head>
-	<title>{{.ProjectName}}</title>
-	<style>
-		.rTable {
-			display: table;
-			width: 100%;
-		}
-
-		.rTableRow {
-			display: table-row;
-		}
-
-		.rTableStatusGreen {
-			background-color: green;
-		}
-
-		.rTableStatusRed {
-			background-color: red;
-		}
-
-		.rTableStatusProgress {
-			background-color: #99ff99;
-		}
-
-		.rTableHeading {
-			background-color: #ddd;
-			display: table-header-group;
-		}
-
-		.rTableStatusCell {
-			display: table-cell;
-			padding: 3px 10px;
-			border: 1px solid #999999;
-			width: 10px
-		}
-
-		.rTableCell,
-		.rTableHead {
-			display: table-cell;
-			padding: 3px 10px;
-			border: 1px solid #999999;
-		}
-
-		.rTableHeading {
-			display: table-header-group;
-			background-color: #ddd;
-			font-weight: bold;
-		}
-
-		.rTableFoot {
-			display: table-footer-group;
-			font-weight: bold;
-			background-color: #ddd;
-		}
-
-		.rTableBody {
-			display: table-row-group;
-		}
-
-		.input-button {
-			width: 100%;
-			text-align: left;
-			background-color: #FFffff;
-			border-radius: 10px;
-			-moz-border-radius: 10px;
-			-webkit-border-radius: 10px;
-			border: 1px solid #ccc;
-			font-weight: bolder;
-			color: #000;
-			margin: 0 auto;
-			padding: 5px;
-		}
-
-		.spoil {}
-
-		.smallfont {}
-
-		.alt2 {}
-
-	</style>
-</head>
-
-<body>
-	<h2>{{.ProjectName}}</h2>
-	<div class="rTable">
-		<div class="rTableHeading">
-			<div class="rTableRow">
-				<div class="rTableCell">Sessions</div>
-			</div>
+	<body data-gr-c-s-loaded="true">
+		<div class="container-fluid">
+			<h1>{{.ProjectName}}</h1>
+			<table class="table table-hover">
+				<thead class="thead-light">
+					<tr>
+						<th scope="col">#</th>
+						<th scope="col">Status</th>
+						<th scope="col" width="100%">Session date</th>
+					</tr>
+				</thead>
+				<tbody>
+					{{range .Sessions}}
+						<tr class="has-behaviour" onClick="location.href='/sessions/{{.ID}}'">
+							<th scope="row">{{.Index}}</th>
+							<td class="text-align-center">
+								<div class="icon icon--{{.Status}}"></div>
+							</td>
+							<td>{{.Time}}</td>
+						</tr>
+					{{end}}
+				</tbody>
+			</table>
 		</div>
-		<div class="rTableBody">
-			{{range .Sessions}}
-				<div class="rTableRow">
-					<div class="rTableCell">
-						<a href="/sessions/{{.ID}}">{{.ID}}</a>
-					</div>
-				</div>
-			{{end}}
-		</div>
-	</div>
-</body>
-
+		<script src="/assets/index.js"></script>
+	</body>
 </html>

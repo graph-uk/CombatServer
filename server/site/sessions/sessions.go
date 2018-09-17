@@ -24,58 +24,30 @@ func init() {
 	configuration, _ = config.LoadConfig()
 }
 
-func PageSessionStatusHandler(startPath string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// showSessionsPage(w)
-		// if r.Method == "GET" {
+func getSessionItems() []sessions.SessionItem {
+	repo := &repositories.Sessions{}
 
-		// 	path := strings.Split(r.URL.Path, "/")
-		// 	sessionID := strings.TrimSpace(path[len(path)-1])
-		// 	if strings.TrimSpace(sessionID) == "" {
-		// 		//			w.Write([]byte("Session ID is not specified. Please, provide session ID like: /sessions/11203487203498"))
-		// 		showSessionsPage(w)
-		// 		return
-		// 	}
+	var result []sessions.SessionItem
+	items := repo.FindAll()
 
-		// 	// Get session status
-		// 	Page_session, err := session.NewAssignedSession(sessionID, &t.mdb, startPath)
-		// 	if err != nil {
-		// 		w.Write([]byte("Error: " + err.Error() + "<br>\n"))
-		// 		return
-		// 	}
+	for index, item := range items {
+		timestamp, _ := strconv.ParseInt(item.ID, 10, 64)
 
-		// 	PS_session, err := Page_session.GetSessionPageStruct()
-		// 	if err != nil {
-		// 		w.Write([]byte("Error: " + err.Error()))
-		// 		return
-		// 	}
-
-		// 	// Create a template.
-		// 	pageBuffer := new(bytes.Buffer)
-
-		// 	tt, err := template.ParseFiles("*views/sessions/view.html")
-		// 	if err != nil {
-		// 		w.Write([]byte("Error: " + err.Error() + "<br>\n"))
-		// 		return
-		// 	}
-
-		// 	err = tt.Execute(pageBuffer, PS_session)
-		// 	if err != nil {
-		// 		w.Write([]byte("Error: " + err.Error() + "<br>\n"))
-		// 		return
-		// 	}
-
-		// 	w.Write(pageBuffer.Bytes())
-		// }
+		result = append(result, sessions.SessionItem{
+			ID:     item.ID,
+			Index:  index + 1,
+			Time:   time.Unix(timestamp/(1000*int64(time.Millisecond)), 0).Format("2006-01-02 15:04:05"),
+			Status: "success"})
 	}
+
+	return result
 }
 
 // Index sessions page
 func Index(c echo.Context) error {
-	repo := &repositories.Sessions{}
 	model := &sessions.List{
 		ProjectName: configuration.ProjectName,
-		Sessions:    repo.FindAll()}
+		Sessions:    getSessionItems()}
 
 	return c.Render(http.StatusOK, "sessions/views/index.html", model)
 }
