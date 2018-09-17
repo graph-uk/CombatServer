@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/graph-uk/combat-server/server/api/jobs"
 	"github.com/graph-uk/combat-server/server/config"
 	"github.com/graph-uk/combat-server/server/mutexedDB"
 	"github.com/graph-uk/combat-server/server/site"
@@ -129,9 +130,10 @@ func (t *CombatServer) Start() error {
 	e.GET("/sessions/", sessions.Index)
 	e.GET("/sessions/:id", sessions.View)
 
+	e.POST("/api/v1/jobs/acquire", jobs.Acquire)
+
 	e.Logger.Fatal(e.Start(":" + strconv.Itoa(t.config.Port)))
 
-	// http.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("server/assets"))))
 	// http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
 
 	// http.HandleFunc("/getJob", t.getJobHandler)
@@ -140,10 +142,7 @@ func (t *CombatServer) Start() error {
 	// http.HandleFunc("/getSessionStatusForJunitReport", t.getSessionStatusForJunitReportHandler)
 
 	// http.HandleFunc("/createSession", t.createSessionHandler)
-	// http.HandleFunc("/sessions/", sessions.Handler)
 
-	// fmt.Println("Serving combat tests at port: " + strconv.Itoa(t.config.Port) + "...")
-	// err := http.ListenAndServe(":"+strconv.Itoa(t.config.Port), nil)
 	return nil
 }
 
