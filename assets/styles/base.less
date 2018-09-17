@@ -1,0 +1,144 @@
+body {
+	font-family: 'Roboto', sans-serif;
+	background: #fff;
+}
+
+h1 {
+	margin: .5em 0 1em 0;
+}
+
+.table {
+	tr {
+		position: relative;
+
+		&.has-behaviour {
+			cursor: pointer;
+
+			&:after {
+				content: '';
+				position: absolute;
+				display: block;
+				width: 22px;
+				height: 22px;
+				margin-left: -31px;
+				margin-top: 13px;
+				cursor: pointer;
+
+				.baseline-navigate-next-24px;
+			}
+		}
+
+		&.active {
+			background-color: rgba(0, 0, 0, 0.075);
+		}
+	}
+}
+
+.text-align-center {
+	text-align: center;
+}
+
+.icon {
+	display: inline-block;
+	width: 22px;
+	height: 22px;
+	background: transparent center center no-repeat;
+	background-size: cover;
+	position: absolute;
+	// margin-left: -11px;
+
+	&--success {
+		.baseline-check-circle-outline-24px;
+		background-color: var(--green);
+	}
+
+	&--fail {
+		.baseline-info-24px;
+		background-color: var(--red);
+	}
+
+	.table & {
+		margin-left: 11px;
+	}
+}
+
+.log-navigation {
+	background: #e9ecef;
+	height: 51px;
+	line-height: 49px;
+	border-bottom: 2px solid #dee2e6;
+	user-select: none;
+
+	&__title {
+		color: #495057;
+		font-weight: bold;
+		display: inline-block;
+		padding: 0 0.75rem;
+	}
+
+	&__item {
+		display: inline-block;
+		cursor: pointer;
+		padding: 5px 10px;
+		background: #f9f9f9;
+		border: solid 1px #b3b3b3;
+		border-radius: 5px;
+		line-height: 1em;
+		margin-right: .5em;
+		user-select: none;
+
+		&--active {
+			background: #eaeaea;
+			border: solid 1px #b3b3b3;
+		}
+	}
+}
+
+.log {
+	padding: 0.75em;
+
+	&__tabs-nav {
+		text-align: center;
+		cursor: pointer;
+		padding: 0.75em;
+
+		&--active {
+			background: #ececec;
+		}
+	}
+
+	&__terminal {
+		overflow: auto;
+		font-size: 14px;
+		white-space: nowrap;
+		font-family: monospace;
+		background: #000;
+		color: #fff;
+		padding: 0.75em;
+	}
+
+	&__slide {
+		border-top: 1px solid #ececec;
+		padding-top: 0.75em;
+		margin-bottom: 0.75em;
+
+		&-url,
+		&-source {
+			display: inline-block;
+			padding: 0.75em;
+			margin-right: 0.75em;
+			text-decoration: underline;
+			color: #000;
+		}
+
+		&-img-link {
+			display: block;
+			text-decoration: none;
+		}
+
+		&-img {
+			max-width: 100%;
+		}
+	}
+
+}
