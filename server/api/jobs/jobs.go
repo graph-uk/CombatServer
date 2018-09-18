@@ -1,6 +1,7 @@
 package jobs
 
 import (
+	"encoding/base64"
 	"net/http"
 
 	"github.com/graph-uk/combat-server/data/repositories"
@@ -20,14 +21,16 @@ func Acquire(c echo.Context) error {
 
 	sessionContent := sessionRepo.FindSessionContent(sessionCase.SessionID)
 
-	if sessionContent == "" {
+	if sessionContent == nil {
 		return c.NoContent(http.StatusNotFound)
 	}
+
+	sessionContentEncoded := base64.StdEncoding.EncodeToString(sessionContent)
 
 	model := jobs.Job{
 		CaseID:      sessionCase.ID,
 		CommandLine: sessionCase.CommandLine,
-		Content:     sessionContent}
+		Content:     sessionContentEncoded}
 
 	return c.JSON(http.StatusOK, model)
 }

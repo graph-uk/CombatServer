@@ -1,7 +1,6 @@
 package repositories
 
 import (
-	"encoding/base64"
 	"io/ioutil"
 
 	"github.com/graph-uk/combat-server/data"
@@ -49,12 +48,12 @@ func (t *Sessions) Find(id string) *models.Session {
 }
 
 // FindSessionContent returns session archive in BASE64 format from local disk
-func (t *Sessions) FindSessionContent(sessionID string) string {
+func (t *Sessions) FindSessionContent(sessionID string) []byte {
 	zipFile, err := ioutil.ReadFile("./sessions/" + sessionID + "/archived.zip")
 
 	if err != nil {
-		return ""
+		return nil
 	}
 
-	return base64.StdEncoding.EncodeToString(zipFile)
+	return zipFile
 }
