@@ -108,9 +108,9 @@ func (t *Cases) AcquireFreeJob() *models.Case {
 
 	query := func(db *gorm.DB) {
 		// Where is string because of shitty gorm which can't filter by false :-(
-		db.Where("finished = 0 AND inProgress = 0").First(&result)
+		db.Order("random()").Where(&models.Case{Status: status.Awaiting}).First(&result)
 		if result.ID > 0 {
-			result.Status = status.Awaiting
+			result.Status = status.Pending
 			result.DateStarted = time.Now()
 			db.Save(&result)
 		}
