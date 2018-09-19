@@ -15,6 +15,15 @@ type Cases struct {
 	context data.Context
 }
 
+// Create ...
+func (t *Cases) Create(sessionCase *models.Case) error {
+	query := func(db *gorm.DB) {
+		db.Create(sessionCase)
+	}
+
+	return t.context.Execute(query)
+}
+
 //FindAll returns all cases from the database
 func (t *Cases) FindAll() []models.Case {
 	var cases []models.Case

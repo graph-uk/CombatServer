@@ -11,7 +11,7 @@ import (
 
 func Acquire(c echo.Context) error {
 	repo := &repositories.Cases{}
-	sessionRepo := &repositories.Sessions{}
+	sessionFSRepo := &repositories.SessionsFS{}
 
 	sessionCase := repo.AcquireFreeJob()
 
@@ -19,7 +19,7 @@ func Acquire(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	sessionContent := sessionRepo.FindSessionContent(sessionCase.SessionID)
+	sessionContent := sessionFSRepo.FindSessionContent(sessionCase.SessionID)
 
 	if sessionContent == nil {
 		return c.NoContent(http.StatusNotFound)
