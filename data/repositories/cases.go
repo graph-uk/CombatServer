@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/graph-uk/combat-server/data"
@@ -63,6 +64,33 @@ func (t *Cases) Find(id int) *models.Case {
 	}
 
 	return &result
+}
+
+// StopCurrentCases marks all cases with Awaiting or Pending statuses to incomplete
+func (t *Cases) StopCurrentCases() error {
+
+	query := func(db *gorm.DB) {
+		var cases []models.Case
+		sessionIDs := map[string]bool{}
+
+		db.Where(&models.Case{Status: status.Awaiting}).Or(&models.Case{Status: status.Pending}).Find(&cases)
+
+		for _, sessionCase := range cases {
+			fmt.Println(sessionCase.ID)
+			sessionIDs[sessionCase.SessionID] = true
+			sessionCase.Status = status.Incomplete
+			db.Save(&sessionCase)
+		}
+
+		for sessionID := range sessionIDs {
+			var session models.Session
+			db.Find(&session, sessionID)
+			session.Status = status.Incomplete
+			db.Save(session)
+		}
+	}
+
+	return t.context.Execute(query)
 }
 
 // AcquireFreeJob case by is not in progress and not finished

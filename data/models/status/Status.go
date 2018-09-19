@@ -2,9 +2,9 @@ package status
 
 // Statuses
 const (
-	Awaiting   = 0
-	Pending    = 1
-	Success    = 2
-	Failed     = 3
-	Incomplete = 4
+	Awaiting   = 1
+	Pending    = 2
+	Success    = 3
+	Failed     = 4
+	Incomplete = 5
 )

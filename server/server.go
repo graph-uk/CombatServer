@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/graph-uk/combat-server/server/api/jobs"
+	sessionsAPI "github.com/graph-uk/combat-server/server/api/sessions"
 	"github.com/graph-uk/combat-server/server/config"
 	"github.com/graph-uk/combat-server/server/mutexedDB"
 	"github.com/graph-uk/combat-server/server/site"
@@ -115,7 +116,7 @@ func parseTemplates() (*template.Template, error) {
 
 // Start web server
 func (t *CombatServer) Start() error {
-	go t.TimeoutWatcher()
+	//go t.TimeoutWatcher()
 
 	templates, _ := parseTemplates()
 
@@ -131,6 +132,7 @@ func (t *CombatServer) Start() error {
 	e.GET("/sessions/:id", sessions.View)
 
 	e.POST("/api/v1/jobs/acquire", jobs.Acquire)
+	e.POST("/api/v1/sessions", sessionsAPI.Post)
 
 	e.Logger.Fatal(e.Start(":" + strconv.Itoa(t.config.Port)))
 
