@@ -1,9 +1,11 @@
 package models
 
+import "time"
+
 // Session sdf
 type Session struct {
-	ID                        string `gorm:"type:varchar(20)"`
-	Params                    string `gorm:"size:50"`
-	CasesExploringFailMessage string
-	IsFirstFail               bool `gorm:"Column:hook_FirstFail"`
+	ID          string `gorm:"type:varchar(20)"`
+	Arguments   string `gorm:"size:500"`
+	Status      int
+	DateCreated time.Time
 }

@@ -4,11 +4,11 @@ package models
 type Try struct {
 	ID         int
 	CaseID     int
+	Output     string `gorm:"size:1000"`
 	ExitStatus string `gorm:"size:50"`
-	CaseOutput string `gorm:"Column:stdOut"`
 }
 
-// TableName ooverride
+// TableName override
 func (Try) TableName() string {
-	return "profiles"
+	return "Tries"
 }

@@ -4,12 +4,13 @@ import "time"
 
 // Case model
 type Case struct {
-	ID           int
-	CommandLine  string    `gorm:"Column:cmdLine"`
-	SessionID    string    `gorm:"Column:sessionID"`
-	IsInProgress bool      `gorm:"Column:inProgress"`
-	IsFinished   bool      `gorm:"Column:finished"`
-	IsPassed     bool      `gorm:"Column:passed"`
-	DateStarted  time.Time `gorm:"Column:startedAt"`
-	Tries        []Try     `gorm:"foreignkey:CaseID"`
+	ID          int
+	SessionID   string `gorm:"size:100"`
+	Code        string `gorm:"size:100"`
+	Title       string `gorm:"size:100"`
+	CommandLine string `gorm:"size:500"`
+	Status      int
+	DateStarted time.Time
+
+	Tries []Try `gorm:"foreignkey:CaseID"`
 }

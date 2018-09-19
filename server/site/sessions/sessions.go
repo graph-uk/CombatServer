@@ -65,8 +65,7 @@ func View(c echo.Context) error {
 		return c.NoContent(http.StatusNotFound)
 	}
 
-	timestamp, _ := strconv.ParseInt(session.ID, 10, 64)
-	time := time.Unix(timestamp/(1000*int64(time.Millisecond)), 0).Format("2006-01-02 15:04:05")
+	time := session.DateCreated.Format("2006-01-02 15:04:05")
 
 	cases := casesRepo.FindBySessionID(session.ID)
 

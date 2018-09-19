@@ -5,6 +5,7 @@ import (
 
 	"github.com/graph-uk/combat-server/data"
 	"github.com/graph-uk/combat-server/data/models"
+	"github.com/graph-uk/combat-server/data/models/status"
 	"github.com/jinzhu/gorm"
 )
 
@@ -72,7 +73,7 @@ func (t *Cases) AcquireFreeJob() *models.Case {
 		// Where is string because of shitty gorm which can't filter by false :-(
 		db.Where("finished = 0 AND inProgress = 0").First(&result)
 		if result.ID > 0 {
-			result.IsInProgress = true
+			result.Status = status.Awaiting
 			result.DateStarted = time.Now()
 			db.Save(&result)
 		}

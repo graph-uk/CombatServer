@@ -8,17 +8,17 @@ import (
 
 func (t *CombatServer) CheckCases() {
 	curtime := time.Now()
-	rows, err := t.mdb.DB.Query(`SELECT id,startedAt FROM Cases WHERE (startedAt IS NOT NULL) AND (inProgress=true) AND (finished=false)`)
+	rows, err := t.mdb.DB.Query(`SELECT id,date_started FROM Cases WHERE (date_started IS NOT NULL) AND (status=1)`)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	var oldRunCases []int
 	for rows.Next() {
-		var startedAt time.Time
+		var date_started time.Time
 		var id int
-		rows.Scan(&id, &startedAt)
-		if startedAt.Add(time.Duration(t.config.CaseTimeoutSec) * time.Second).Before(curtime) {
+		rows.Scan(&id, &date_started)
+		if date_started.Add(time.Duration(t.config.CaseTimeoutSec) * time.Second).Before(curtime) {
 			oldRunCases = append(oldRunCases, id)
 		}
 	}
