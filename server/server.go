@@ -79,7 +79,7 @@ func parseTemplates() (*template.Template, error) {
 
 // Start web server
 func (t *CombatServer) Start() error {
-	//go t.TimeoutWatcher()
+	go TimeoutWatcher()
 
 	templates, _ := parseTemplates()
 

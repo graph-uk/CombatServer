@@ -2,40 +2,34 @@ package server
 
 import (
 	"fmt"
-	"strconv"
 	"time"
+
+	"github.com/graph-uk/combat-server/data/models/status"
+
+	"github.com/graph-uk/combat-server/data/repositories"
 
 	"github.com/graph-uk/combat-server/server/config"
 )
 
-func (t *CombatServer) CheckCases() {
-	curtime := time.Now()
-	rows, err := t.mdb.DB.Query(`SELECT id,date_started FROM Cases WHERE (date_started IS NOT NULL) AND (status=1)`)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	var oldRunCases []int
-	for rows.Next() {
-		var date_started time.Time
-		var id int
-		rows.Scan(&id, &date_started)
-		if date_started.Add(time.Duration(config.GetApplicationConfig().CaseTimeoutSec) * time.Second).Before(curtime) {
-			oldRunCases = append(oldRunCases, id)
+func checkCases() {
+	casesRepo := &repositories.Cases{}
+
+	cases := casesRepo.FindProcessingCases()
+	currentTime := time.Now()
+
+	for _, sessionCase := range cases {
+		if sessionCase.DateStarted.Add(time.Duration(config.GetApplicationConfig().CaseTimeoutSec) * time.Second).Before(currentTime) {
+			sessionCase.Status = status.Pending
+			casesRepo.Update(&sessionCase)
+			fmt.Printf("Watcher: case %d is out of date. Restarted.\n", sessionCase.ID)
 		}
-	}
-	rows.Close()
-	for _, curID := range oldRunCases {
-		t.markCaseNotInProgress(strconv.Itoa(curID))
-		fmt.Println("Watcher: case " + strconv.Itoa(curID) + " is out of date. Restarted.")
 	}
 }
 
-func (t *CombatServer) TimeoutWatcher() {
+// TimeoutWatcher ...
+func TimeoutWatcher() {
 	for {
-		t.mdb.Lock()
-		t.CheckCases()
-		t.mdb.Unlock()
+		checkCases()
 		time.Sleep(10 * time.Second)
 	}
 }

@@ -67,6 +67,23 @@ func (t *Cases) FindBySessionID(sessionID string) []models.Case {
 	return cases
 }
 
+//FindProcessingCases returns cases with processing status
+func (t *Cases) FindProcessingCases() []models.Case {
+	var cases []models.Case
+
+	query := func(db *gorm.DB) {
+		db.Where(&models.Case{Status: status.Processing}).Find(&cases)
+	}
+
+	error := t.context.Execute(query)
+
+	if error != nil {
+		return nil
+	}
+
+	return cases
+}
+
 // Find case by id
 func (t *Cases) Find(id int) *models.Case {
 	var result models.Case
