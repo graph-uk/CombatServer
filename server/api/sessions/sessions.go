@@ -64,7 +64,7 @@ func Post(c echo.Context) error {
 	sessionsRepo := &repositories.Sessions{}
 
 	if err := c.Bind(&model); err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	sessionContent, err := base64.StdEncoding.DecodeString(model.Content)

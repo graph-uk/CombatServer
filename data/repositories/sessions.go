@@ -49,6 +49,41 @@ func (t *Sessions) Update(session *models.Session) error {
 	return t.context.Execute(query)
 }
 
+// UpdateSessionStatus ...
+func (t *Sessions) UpdateSessionStatus(id string) error {
+	session := t.Find(id)
+	sessionStatus := t.getSessionStatus(session)
+
+	session.Status = sessionStatus
+
+	return t.Update(session)
+}
+
+func (t *Sessions) getSessionStatus(session *models.Session) status.Status {
+	var incompletedCasesCount int
+	var failedCasesCount int
+
+	if session.Status == status.Pending || session.Status == status.Processing {
+		return session.Status
+	}
+
+	query := func(db *gorm.DB) {
+		db.Where(&models.Case{SessionID: session.ID, Status: status.Pending}).Or(&models.Case{SessionID: session.ID, Status: status.Processing}).Count(&incompletedCasesCount)
+		db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Count(&failedCasesCount)
+	}
+
+	t.context.Execute(query)
+
+	if incompletedCasesCount == 0 {
+		if failedCasesCount > 0 {
+			return status.Failed
+		}
+		return status.Success
+	}
+
+	return status.Processing
+}
+
 //FindAll returns all sessions from the database
 func (t *Sessions) FindAll() []models.Session {
 	var sessions []models.Session

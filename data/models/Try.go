@@ -6,6 +6,8 @@ type Try struct {
 	CaseID     int
 	Output     string `gorm:"size:1000"`
 	ExitStatus string `gorm:"size:50"`
+
+	Items []string `gorm:"-"`
 }
 
 // TableName override
