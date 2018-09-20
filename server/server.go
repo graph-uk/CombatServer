@@ -131,19 +131,19 @@ func (t *CombatServer) Start() error {
 	e.GET("/sessions/", sessions.Index)
 	e.GET("/sessions/:id", sessions.View)
 
-	e.POST("/api/v1/jobs/acquire", jobs.Acquire)
+	e.GET("/api/v1/sessions", sessionsAPI.Get)
+	e.GET("/api/v1/sessions/:id", sessionsAPI.Get)
 	e.POST("/api/v1/sessions", sessionsAPI.Post)
+
+	e.POST("/api/v1/jobs/acquire", jobs.Acquire)
 
 	e.Logger.Fatal(e.Start(":" + strconv.Itoa(t.config.Port)))
 
 	// http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
 
-	// http.HandleFunc("/getJob", t.getJobHandler)
 	// http.HandleFunc("/setCaseResult", t.setCaseResultHandler)
 	// http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
 	// http.HandleFunc("/getSessionStatusForJunitReport", t.getSessionStatusForJunitReportHandler)
-
-	// http.HandleFunc("/createSession", t.createSessionHandler)
 
 	return nil
 }

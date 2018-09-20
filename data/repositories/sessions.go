@@ -82,3 +82,20 @@ func (t *Sessions) Find(id string) *models.Session {
 
 	return &session
 }
+
+// FindLast session
+func (t *Sessions) FindLast() *models.Session {
+	var session models.Session
+
+	query := func(db *gorm.DB) {
+		db.Order("id desc").First(&session)
+	}
+
+	error := t.context.Execute(query)
+
+	if error != nil {
+		return nil
+	}
+
+	return &session
+}
