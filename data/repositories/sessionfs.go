@@ -83,6 +83,7 @@ func (t *SessionsFS) extractTestCases(session *models.Session) []models.Case {
 	}
 
 	session.Status = status.Failed
+	session.Error = err.Error()
 	sessionRepo.Update(session)
 	return nil
 }
@@ -113,7 +114,7 @@ func parseCasesOutput(session *models.Session, casesOutput bytes.Buffer) []model
 				Code:        sessionCaseCode,
 				CommandLine: strings.TrimSpace(caseParsed),
 				SessionID:   session.ID,
-				Status:      status.Awaiting,
+				Status:      status.Pending,
 				Title:       sessionCaseTitle}
 			cases = append(cases, sessionCase)
 		}

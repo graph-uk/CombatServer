@@ -75,14 +75,14 @@ func (t *Cases) Find(id int) *models.Case {
 	return &result
 }
 
-// StopCurrentCases marks all cases with Awaiting or Pending statuses to incomplete
+// StopCurrentCases marks all cases with Pending or Processing statuses to incomplete
 func (t *Cases) StopCurrentCases() error {
 
 	query := func(db *gorm.DB) {
 		var cases []models.Case
 		sessionIDs := map[string]bool{}
 
-		db.Where(&models.Case{Status: status.Awaiting}).Or(&models.Case{Status: status.Pending}).Find(&cases)
+		db.Where(&models.Case{Status: status.Pending}).Or(&models.Case{Status: status.Processing}).Find(&cases)
 
 		for _, sessionCase := range cases {
 			fmt.Println(sessionCase.ID)
@@ -108,9 +108,9 @@ func (t *Cases) AcquireFreeJob() *models.Case {
 
 	query := func(db *gorm.DB) {
 		// Where is string because of shitty gorm which can't filter by false :-(
-		db.Order("random()").Where(&models.Case{Status: status.Awaiting}).First(&result)
+		db.Order("random()").Where(&models.Case{Status: status.Pending}).First(&result)
 		if result.ID > 0 {
-			result.Status = status.Pending
+			result.Status = status.Processing
 			result.DateStarted = time.Now()
 			db.Save(&result)
 		}

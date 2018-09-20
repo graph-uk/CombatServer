@@ -20,7 +20,7 @@ func (t *Sessions) Create(arguments string, content []byte) *models.Session {
 	session := &models.Session{
 		ID:          strconv.FormatInt(time.Now().UnixNano(), 10),
 		DateCreated: time.Now(),
-		Status:      status.Awaiting,
+		Status:      status.Pending,
 		Arguments:   arguments}
 
 	sessionFs := SessionsFS{}

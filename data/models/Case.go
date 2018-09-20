@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/graph-uk/combat-server/data/models/status"
+)
 
 // Case model
 type Case struct {
@@ -9,7 +13,7 @@ type Case struct {
 	Code        string `gorm:"size:100"`
 	Title       string `gorm:"size:100"`
 	CommandLine string `gorm:"size:500"`
-	Status      int
+	Status      status.Status
 	DateStarted time.Time
 
 	Tries []Try `gorm:"foreignkey:CaseID"`
