@@ -3,6 +3,8 @@ package server
 import (
 	"fmt"
 	"os"
+
+	"github.com/graph-uk/combat-server/server/config"
 )
 
 func (t *CombatServer) DeleteOldSessions() {
@@ -34,11 +36,11 @@ func (t *CombatServer) GetOldSessionsList() []*string {
 	}
 	rows.Close()
 
-	if t.config.CountOfStoredSessions < 1 { // when count less than 1 - sessions stores forever (no old sessions)
+	if config.GetApplicationConfig().MaxStoredSessions < 1 { // when count less than 1 - sessions stores forever (no old sessions)
 		result = []*string{}
 	} else {
-		if len(result) >= t.config.CountOfStoredSessions {
-			result = result[t.config.CountOfStoredSessions:]
+		if len(result) >= config.GetApplicationConfig().MaxStoredSessions {
+			result = result[config.GetApplicationConfig().MaxStoredSessions:]
 		} else {
 			result = []*string{}
 		}

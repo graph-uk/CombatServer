@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"os"
@@ -11,6 +10,7 @@ import (
 
 	"github.com/graph-uk/combat-server/server/api/jobs"
 	sessionsAPI "github.com/graph-uk/combat-server/server/api/sessions"
+	"github.com/graph-uk/combat-server/server/api/tries"
 	"github.com/graph-uk/combat-server/server/config"
 	"github.com/graph-uk/combat-server/server/mutexedDB"
 	"github.com/graph-uk/combat-server/server/site"
@@ -19,53 +19,17 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
+// CombatServer ...
 type CombatServer struct {
-	config    *config.Config
 	startPath string
 	mdb       mutexedDB.MutexedDB
 }
 
-func checkFolder(folderName string) error {
-	if _, err := os.Stat(folderName); os.IsNotExist(err) { // if folder does not exist - try to create
-		err := os.MkdirAll(folderName, 0777)
-		if err != nil {
-			fmt.Println("Cannot create folder " + folderName)
-			return err
-		}
-	} else {
-		err := os.MkdirAll(folderName+string(os.PathSeparator)+"TMP_TESTFOLDER", 0777)
-		if err != nil {
-			fmt.Println("Cannot create subfolder in folder " + folderName + ". Check permissions")
-			return err
-		}
-
-		err = os.RemoveAll(folderName + string(os.PathSeparator) + "TMP_TESTFOLDER")
-		if err != nil {
-			fmt.Println("Cannot delete subfolder in folder " + folderName + ". Check permissions")
-			return err
-		}
-	}
-	return nil
-}
-
-func checkFolders() error {
-	err := checkFolder("sessions")
-	if err != nil {
-		return err
-	}
-	err = checkFolder("tries")
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
+// NewCombatServer ...
 func NewCombatServer() (*CombatServer, error) {
 	var result CombatServer
 	var err error
 	result.startPath, err = os.Getwd()
-	result.config, err = config.LoadConfig()
 	if err != nil {
 		return &result, err
 	}
@@ -75,7 +39,6 @@ func NewCombatServer() (*CombatServer, error) {
 		return &result, err
 	}
 
-	err = checkFolders()
 	if err != nil {
 		return &result, err
 	}
@@ -137,24 +100,9 @@ func (t *CombatServer) Start() error {
 
 	e.POST("/api/v1/jobs/acquire", jobs.Acquire)
 
-	e.Logger.Fatal(e.Start(":" + strconv.Itoa(t.config.Port)))
+	e.POST("/api/v1/cases/:id/tries", tries.Post)
 
-	// http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
-
-	// http.HandleFunc("/setCaseResult", t.setCaseResultHandler)
-	// http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
-	// http.HandleFunc("/getSessionStatusForJunitReport", t.getSessionStatusForJunitReportHandler)
+	e.Logger.Fatal(e.Start(":" + strconv.Itoa(config.GetApplicationConfig().Port)))
 
 	return nil
-}
-
-func (t *CombatServer) addToGOPath(pathExtention string) []string {
-	result := os.Environ()
-	for curVarIndex, curVarValue := range result {
-		if strings.HasPrefix(curVarValue, "GOPATH=") {
-			result[curVarIndex] = result[curVarIndex] + string(os.PathListSeparator) + pathExtention
-			return result
-		}
-	}
-	return result
 }

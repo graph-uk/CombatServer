@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/graph-uk/combat-server/server/config"
 )
 
 func (t *CombatServer) CheckCases() {
@@ -18,7 +20,7 @@ func (t *CombatServer) CheckCases() {
 		var date_started time.Time
 		var id int
 		rows.Scan(&id, &date_started)
-		if date_started.Add(time.Duration(t.config.CaseTimeoutSec) * time.Second).Before(curtime) {
+		if date_started.Add(time.Duration(config.GetApplicationConfig().CaseTimeoutSec) * time.Second).Before(curtime) {
 			oldRunCases = append(oldRunCases, id)
 		}
 	}
