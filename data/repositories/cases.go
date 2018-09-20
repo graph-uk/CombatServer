@@ -105,6 +105,7 @@ func (t *Cases) StopCurrentCases() error {
 // AcquireFreeJob case by is not in progress and not finished
 func (t *Cases) AcquireFreeJob() *models.Case {
 	var result models.Case
+	var session models.Session
 
 	query := func(db *gorm.DB) {
 		// Where is string because of shitty gorm which can't filter by false :-(
@@ -113,6 +114,10 @@ func (t *Cases) AcquireFreeJob() *models.Case {
 			result.Status = status.Processing
 			result.DateStarted = time.Now()
 			db.Save(&result)
+
+			db.Find(&session, result.SessionID)
+			session.Status = status.Processing
+			db.Save(&session)
 		}
 	}
 
