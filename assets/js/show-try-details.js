@@ -89,7 +89,4 @@ const renderDetails = (data, $placeholder) => {
 	if (data && data.constructor === Array) {
 		return renderSlider(data, $placeholder);
 	}
-
-	// object?
-	console.log('renderDetails', data)
 }

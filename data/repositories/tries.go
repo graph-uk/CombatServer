@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path"
+	"path/filepath"
 
 	"github.com/graph-uk/combat-server/data"
 	"github.com/graph-uk/combat-server/data/models"
@@ -150,4 +152,23 @@ func (t *Tries) Find(id int) *models.Try {
 	}
 
 	return &try
+}
+
+// FindTrySteps ...
+func (t *Tries) FindTrySteps(tryID int) []string {
+	var result []string
+	unarchivedPath := fmt.Sprintf(triesUnarchivedPathTemplate, tryID)
+	files, err := ioutil.ReadDir(fmt.Sprintf("%s/*.png", unarchivedPath))
+
+	if err != nil {
+		return result
+	}
+
+	for _, file := range files {
+		filename := path.Base(file.Name())
+		extension := filepath.Ext(filename)
+		result = append(result, filename[0:len(filename)-len(extension)])
+	}
+
+	return result
 }

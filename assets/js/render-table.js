@@ -7,14 +7,15 @@ combat.renderTable = function($target, logs) {
 	const $tries = createTag('div', {class: 'col-6'});
 	const $tbody = createTag('tbody', {
 		children: Object.keys(logs).map((key, index) => {
-			const {state, title, tries} = logs[key];
+			const {status, title, tries} = logs[key];
+
 			const hasBehaviour = tries && tries.length > 0;
 			const $tr = createTag('tr', {
 				class: hasBehaviour ? TR_HAS_TRIES_CLASS : '',
 				children: [
 					createTag('th', {scope: 'row', children: 1 + index}),
 					createTag('td', {children:
-						createTag('div', {class: `icon icon--${state}`})
+						createTag('div', {class: `icon icon--${status}`})
 					}),
 					createTag('td', {children: title})
 				]

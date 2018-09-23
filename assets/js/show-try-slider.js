@@ -44,7 +44,7 @@ const createSliderMarkUp = data => {
 
 	combat.slides = {all: 0, loaded: 0};
 
-	data.forEach(({img, source, url}, index) => {
+	data.forEach(({image, source, url}, index) => {
 		const $slide = createTag('li', {class: `glide__slide ${LOG_SLIDE_CLASS}`});
 
 		if (url) {
@@ -65,7 +65,7 @@ const createSliderMarkUp = data => {
 			}));
 		}
 
-		if (img) {
+		if (image) {
 			combat.slides.all += 1;
 
 			const $img = createTag('img', {
@@ -73,11 +73,11 @@ const createSliderMarkUp = data => {
 			});
 
 			$img.addEventListener('load', () => combat.slides.loaded += 1, false);
-			$img.setAttribute('src', img);
+			$img.setAttribute('src', image);
 	
 			$slide.append(createTag('a', {
 				class: LOG_SLIDE_IMG_LINK_CLASS,
-				href: img,
+				href: image,
 				target: '_blank', 
 				children: $img
 			}));

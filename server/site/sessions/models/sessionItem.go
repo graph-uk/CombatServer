@@ -1,5 +1,6 @@
 package sessions
 
+// SessionItem ...
 type SessionItem struct {
 	ID     string
 	Index  int

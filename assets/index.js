@@ -28,16 +28,5 @@ combat.createTag = (tagName, attrs) => {
 }
 
 if (typeof window.combatLogs === 'object') {
-	// init after all
 	setTimeout(() => combat.renderTable($app, window.combatLogs), 0);
 }
-
-// combat.$detailsPlaceholder = document.querySelector('#details');
-
-// combat.openDetails = hashId => {
-// 	const targetLogs = combat.logs[hashId];
-
-// 	if (targetLogs.length !== 0) {
-// 		combat.renderLogNavigation(targetLogs);
-// 	}
-// }
