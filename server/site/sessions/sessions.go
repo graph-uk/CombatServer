@@ -4,9 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
-	"time"
 
 	"github.com/graph-uk/combat-server/data/repositories"
 	sessions "github.com/graph-uk/combat-server/server/site/sessions/models"
@@ -29,12 +27,11 @@ func getSessionItems() []sessions.SessionItem {
 	items := repo.FindAll()
 
 	for index, item := range items {
-		timestamp, _ := strconv.ParseInt(item.ID, 10, 64)
 
 		result = append(result, sessions.SessionItem{
 			ID:     item.ID,
 			Index:  index + 1,
-			Time:   time.Unix(timestamp/(1000*int64(time.Millisecond)), 0).Format("2006-01-02 15:04:05"),
+			Time:   item.DateCreated.Format("2006-01-02 15:04:05"),
 			Status: strings.ToLower(item.Status.String())})
 	}
 
