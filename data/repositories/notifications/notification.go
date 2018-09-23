@@ -4,13 +4,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/graph-uk/combat-server/data/models"
+
 	"github.com/graph-uk/combat-server/data/models/status"
 	"github.com/graph-uk/combat-server/utils"
 )
 
 // Repository ...
 type Repository interface {
-	Notify(sessionID string, s status.Status, message string) error
+	Notify(session models.Session, s status.Status, message string) error
 }
 
 func getGatewayStatuses(rawStatuses string) map[status.Status]bool {

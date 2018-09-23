@@ -64,7 +64,7 @@ func (t *Sessions) UpdateSessionStatus(id string) error {
 	notificationRepositories := notifications.GetNotificationRepositories(session.Status)
 
 	for _, notificationRepository := range notificationRepositories {
-		notificationRepository.Notify(session.ID, session.Status, failedCases)
+		notificationRepository.Notify(*session, session.Status, failedCases)
 	}
 
 	return err
