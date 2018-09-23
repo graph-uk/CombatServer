@@ -15,7 +15,7 @@ type Config struct {
 	MaxStoredSessions int
 	MaxRetries        int
 	CaseTimeoutSec    int
-	ServerHostname    string
+	ServerAddress     string
 
 	NotificationGateways []map[string]string
 
@@ -40,10 +40,11 @@ func defaultConfig() string {
 	"projectName": "TestProject",
 	"maxRetries": 3,
 	"caseTimeoutSec": 300,
-	"serverHostname":"http://localhost",
+	"serverAddress":"http://localhost:9090",
 	"falseNegativePatterns":[],
 	"notificationGateways": [{
 			"gateway": "slack",
+			"statuses": "3,4",
 			"url": "https://hooks.slack.com/services/...",
 			"channel": "#channel"
 		}

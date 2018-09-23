@@ -2,7 +2,10 @@ package repositories
 
 import (
 	"strconv"
+	"strings"
 	"time"
+
+	"github.com/graph-uk/combat-server/data/repositories/notifications"
 
 	"github.com/graph-uk/combat-server/data"
 	"github.com/graph-uk/combat-server/data/models"
@@ -52,36 +55,49 @@ func (t *Sessions) Update(session *models.Session) error {
 // UpdateSessionStatus ...
 func (t *Sessions) UpdateSessionStatus(id string) error {
 	session := t.Find(id)
-	sessionStatus := t.getSessionStatus(session)
+	sessionStatus, failedCases := t.getSessionStatus(session)
 
 	session.Status = sessionStatus
 
-	return t.Update(session)
+	err := t.Update(session)
+
+	notificationRepositories := notifications.GetNotificationRepositories(session.Status)
+
+	for _, notificationRepository := range notificationRepositories {
+		notificationRepository.Notify(session.ID, session.Status, failedCases)
+	}
+
+	return err
 }
 
-func (t *Sessions) getSessionStatus(session *models.Session) status.Status {
+func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, string) {
 	var incompletedCasesCount int
-	var failedCasesCount int
+	var failedCases []models.Case
+	var failedCasesTitles []string
 
 	if session.Status == status.Pending || session.Status == status.Processing {
-		return session.Status
+		return session.Status, ""
 	}
 
 	query := func(db *gorm.DB) {
 		db.Where(&models.Case{SessionID: session.ID, Status: status.Pending}).Or(&models.Case{SessionID: session.ID, Status: status.Processing}).Count(&incompletedCasesCount)
-		db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Count(&failedCasesCount)
+		db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Order("title").Find(&failedCases)
 	}
 
 	t.context.Execute(query)
 
-	if incompletedCasesCount == 0 {
-		if failedCasesCount > 0 {
-			return status.Failed
-		}
-		return status.Success
+	for _, failedCase := range failedCases {
+		failedCasesTitles = append(failedCasesTitles, failedCase.Title)
 	}
 
-	return status.Processing
+	if incompletedCasesCount == 0 {
+		if len(failedCases) > 0 {
+			return status.Failed, strings.Join(failedCasesTitles, "\n")
+		}
+		return status.Success, ""
+	}
+
+	return status.Processing, strings.Join(failedCasesTitles, "\n")
 }
 
 //FindAll returns all sessions from the database
