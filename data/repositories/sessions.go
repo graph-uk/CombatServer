@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -149,4 +150,18 @@ func (t *Sessions) FindLast() *models.Session {
 	}
 
 	return &session
+}
+
+// DeleteOldSessions session
+func (t *Sessions) DeleteOldSessions(maxSessionsCount int) error {
+	var sessions []models.Session
+
+	query := func(db *gorm.DB) {
+		db.Order("id desc").Limit(math.MaxInt32).Offset(maxSessionsCount).Find(&sessions)
+		for session := range sessions {
+			db.Delete(session)
+		}
+	}
+
+	return t.context.Execute(query)
 }

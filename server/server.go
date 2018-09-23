@@ -11,7 +11,6 @@ import (
 	"github.com/graph-uk/combat-server/server/api/jobs"
 	sessionsAPI "github.com/graph-uk/combat-server/server/api/sessions"
 	"github.com/graph-uk/combat-server/server/api/tries"
-	"github.com/graph-uk/combat-server/server/mutexedDB"
 	"github.com/graph-uk/combat-server/server/site"
 	"github.com/graph-uk/combat-server/server/site/sessions"
 	"github.com/graph-uk/combat-server/utils"
@@ -22,28 +21,7 @@ import (
 // CombatServer ...
 type CombatServer struct {
 	startPath string
-	mdb       mutexedDB.MutexedDB
-}
-
-// NewCombatServer ...
-func NewCombatServer() (*CombatServer, error) {
-	var result CombatServer
-	var err error
-	result.startPath, err = os.Getwd()
-	if err != nil {
-		return &result, err
-	}
-
-	err = result.mdb.Connect("./base.sl3?_busy_timeout=60000")
-	if err != nil {
-		return &result, err
-	}
-
-	if err != nil {
-		return &result, err
-	}
-
-	return &result, nil
+	// mdb       mutexedDB.MutexedDB
 }
 
 func parseTemplates() (*template.Template, error) {

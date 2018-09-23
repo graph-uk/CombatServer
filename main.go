@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/graph-uk/combat-server/utils"
+
 	"github.com/graph-uk/combat-server/data/repositories"
 
 	"github.com/graph-uk/combat-server/server"
@@ -11,18 +13,19 @@ import (
 
 func main() {
 	repo := &repositories.Migrations{}
+	sessionsRepo := &repositories.Sessions{}
+
+	config := utils.GetApplicationConfig()
+
 	repo.Apply()
 
-	combatServer, err := server.NewCombatServer()
-	if err != nil {
-		fmt.Println("Cannot init combat server")
-		fmt.Println(err.Error())
-		os.Exit(1)
+	combatServer := &server.CombatServer{}
+
+	if config.MaxStoredSessions > 0 {
+		sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
 	}
 
-	combatServer.DeleteOldSessions()
-
-	err = combatServer.Start()
+	err := combatServer.Start()
 	if err != nil {
 		fmt.Println("Cannot serve")
 		fmt.Println(err.Error())
