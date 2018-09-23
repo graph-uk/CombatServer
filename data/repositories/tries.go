@@ -8,7 +8,7 @@ import (
 	"github.com/graph-uk/combat-server/data"
 	"github.com/graph-uk/combat-server/data/models"
 	"github.com/graph-uk/combat-server/data/models/status"
-	"github.com/graph-uk/combat-server/server/config"
+	"github.com/graph-uk/combat-server/utils"
 	"github.com/jinzhu/gorm"
 	"github.com/mholt/archiver"
 )
@@ -88,7 +88,7 @@ func (t *Tries) getCaseStatus(try *models.Try) status.Status {
 
 	t.context.Execute(query)
 
-	if casesTriesCount >= config.GetApplicationConfig().MaxRetries {
+	if casesTriesCount >= utils.GetApplicationConfig().MaxRetries {
 		return status.Failed
 	}
 	return status.Pending

@@ -13,7 +13,8 @@ import (
 	"github.com/graph-uk/combat-server/data/models"
 
 	tries "github.com/graph-uk/combat-server/server/api/tries/models"
-	"github.com/graph-uk/combat-server/server/config"
+
+	"github.com/graph-uk/combat-server/utils"
 	"github.com/labstack/echo"
 )
 
@@ -58,7 +59,7 @@ func Post(c echo.Context) error {
 }
 
 func isTryOutFalseNegative(output string) bool {
-	patterns := config.GetApplicationConfig().FalseNegativePatterns
+	patterns := utils.GetApplicationConfig().FalseNegativePatterns
 	for _, pattern := range patterns {
 		r, _ := regexp.Compile(pattern)
 		if r.MatchString(output) {

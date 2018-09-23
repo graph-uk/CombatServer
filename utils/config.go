@@ -1,4 +1,4 @@
-package config
+package utils
 
 import (
 	"encoding/json"
@@ -17,9 +17,7 @@ type Config struct {
 	CaseTimeoutSec    int
 	ServerHostname    string
 
-	// To be replaced with proper notification handler
-	FirstSessionFailSlackHook    string
-	FirstSessionFailSlackChannel string
+	NotificationGateways []map[string]string
 
 	FalseNegativePatterns []string
 }
@@ -37,20 +35,23 @@ func GetApplicationConfig() *Config {
 
 func defaultConfig() string {
 	return `{
-	"Port":9090,
-	"MaxStoredSessions":10,
-	"ProjectName": "TestProject",
-	"CountOfRetries": 3,
-	"CaseTimeoutSec": 300,
-	"ServerHostname":"http://localhost",
-	"FirstSessionFailSlackHook":"",
-	"FirstSessionFailSlackChannel":"",
-	"FalseNegativePatterns":[]
+	"port":9090,
+	"maxStoredSessions":10,
+	"projectName": "TestProject",
+	"maxRetries": 3,
+	"caseTimeoutSec": 300,
+	"serverHostname":"http://localhost",
+	"falseNegativePatterns":[],
+	"notificationGateways": [{
+			"gateway": "slack",
+			"url": "https://hooks.slack.com/services/...",
+			"channel": "#channel"
+		}
+	]
 }`
 }
 
-//Try to load config - if not found - create and load again.
-//If cannot create or load - print error, help text and exit(1)
+// LoadConfig from config.json if not found - create and load again. If cannot create or load - print error, help text and exit(1)
 func LoadConfig() (*Config, error) {
 	var conf Config
 

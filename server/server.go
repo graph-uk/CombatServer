@@ -11,10 +11,10 @@ import (
 	"github.com/graph-uk/combat-server/server/api/jobs"
 	sessionsAPI "github.com/graph-uk/combat-server/server/api/sessions"
 	"github.com/graph-uk/combat-server/server/api/tries"
-	"github.com/graph-uk/combat-server/server/config"
 	"github.com/graph-uk/combat-server/server/mutexedDB"
 	"github.com/graph-uk/combat-server/server/site"
 	"github.com/graph-uk/combat-server/server/site/sessions"
+	"github.com/graph-uk/combat-server/utils"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
@@ -102,7 +102,7 @@ func (t *CombatServer) Start() error {
 
 	e.POST("/api/v1/cases/:id/tries", tries.Post)
 
-	e.Logger.Fatal(e.Start(":" + strconv.Itoa(config.GetApplicationConfig().Port)))
+	e.Logger.Fatal(e.Start(":" + strconv.Itoa(utils.GetApplicationConfig().Port)))
 
 	return nil
 }

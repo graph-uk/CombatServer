@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/graph-uk/combat-server/data/repositories"
-	"github.com/graph-uk/combat-server/server/config"
 	sessions "github.com/graph-uk/combat-server/server/site/sessions/models"
+	"github.com/graph-uk/combat-server/utils"
 	"github.com/labstack/echo"
 )
 
@@ -17,12 +17,7 @@ type handlerConfig struct {
 	handler func([]string, http.ResponseWriter)
 }
 
-var configuration *config.Config
 var handlers []*handlerConfig
-
-func init() {
-	configuration, _ = config.LoadConfig()
-}
 
 func getSessionItems() []sessions.SessionItem {
 	repo := &repositories.Sessions{}
@@ -46,7 +41,7 @@ func getSessionItems() []sessions.SessionItem {
 // Index sessions page
 func Index(c echo.Context) error {
 	model := &sessions.List{
-		ProjectName: configuration.ProjectName,
+		ProjectName: utils.GetApplicationConfig().ProjectName,
 		Sessions:    getSessionItems()}
 
 	return c.Render(http.StatusOK, "sessions/views/index.html", model)
@@ -70,7 +65,7 @@ func View(c echo.Context) error {
 	cases := casesRepo.FindBySessionID(session.ID)
 
 	model := &sessions.View{
-		ProjectName: configuration.ProjectName,
+		ProjectName: utils.GetApplicationConfig().ProjectName,
 		Session:     *session,
 		Time:        time,
 		Cases:       cases,

@@ -8,7 +8,7 @@ import (
 
 	"github.com/graph-uk/combat-server/data/repositories"
 
-	"github.com/graph-uk/combat-server/server/config"
+	"github.com/graph-uk/combat-server/utils"
 )
 
 func checkCases() {
@@ -18,7 +18,7 @@ func checkCases() {
 	currentTime := time.Now()
 
 	for _, sessionCase := range cases {
-		if sessionCase.DateStarted.Add(time.Duration(config.GetApplicationConfig().CaseTimeoutSec) * time.Second).Before(currentTime) {
+		if sessionCase.DateStarted.Add(time.Duration(utils.GetApplicationConfig().CaseTimeoutSec) * time.Second).Before(currentTime) {
 			sessionCase.Status = status.Pending
 			casesRepo.Update(&sessionCase)
 			fmt.Printf("Watcher: case %d is out of date. Restarted.\n", sessionCase.ID)

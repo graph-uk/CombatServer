@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/graph-uk/combat-server/server/config"
+	"github.com/graph-uk/combat-server/utils"
 )
 
 func (t *CombatServer) DeleteOldSessions() {
@@ -36,11 +36,13 @@ func (t *CombatServer) GetOldSessionsList() []*string {
 	}
 	rows.Close()
 
-	if config.GetApplicationConfig().MaxStoredSessions < 1 { // when count less than 1 - sessions stores forever (no old sessions)
+	config := utils.GetApplicationConfig()
+
+	if config.MaxStoredSessions < 1 { // when count less than 1 - sessions stores forever (no old sessions)
 		result = []*string{}
 	} else {
-		if len(result) >= config.GetApplicationConfig().MaxStoredSessions {
-			result = result[config.GetApplicationConfig().MaxStoredSessions:]
+		if len(result) >= config.MaxStoredSessions {
+			result = result[config.MaxStoredSessions:]
 		} else {
 			result = []*string{}
 		}
