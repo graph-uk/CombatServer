@@ -84,8 +84,10 @@ func (t *Tries) getCaseStatus(try *models.Try) status.Status {
 		return status.Success
 	}
 
+	fmt.Printf("Try status: %s\n", tryStatus.String())
+
 	query := func(db *gorm.DB) {
-		db.Where(&models.Try{CaseID: try.CaseID}).Count(&casesTriesCount)
+		db.Model(&models.Try{}).Where(&models.Try{CaseID: try.CaseID}).Count(&casesTriesCount)
 	}
 
 	t.context.Execute(query)
