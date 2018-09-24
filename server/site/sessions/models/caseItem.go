@@ -15,7 +15,7 @@ type TryItem struct {
 
 // TryStepItem ...
 type TryStepItem struct {
-	Source string `json:"soruce"`
+	Source string `json:"source"`
 	URL    string `json:"url"`
 	Image  string `json:"image"`
 }

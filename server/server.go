@@ -65,8 +65,14 @@ func (t *CombatServer) Start() error {
 		Templates: templates}
 
 	e := echo.New()
+
+	e.Pre(middleware.Rewrite(map[string]string{
+		"/tries/*/*": "/tries/$1/_/out/$2",
+	}))
+
 	e.Renderer = renderer
 	e.Static("/assets", "./assets/_")
+	e.Static("/tries", "./_data/tries")
 	e.Use(middleware.Logger())
 
 	e.GET("/sessions/", sessions.Index)

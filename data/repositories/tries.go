@@ -159,17 +159,27 @@ func (t *Tries) Find(id int) *models.Try {
 // FindTrySteps ...
 func (t *Tries) FindTrySteps(tryID int) []string {
 	var result []string
+
 	unarchivedPath := fmt.Sprintf(triesUnarchivedPathTemplate, tryID)
-	files, err := ioutil.ReadDir(fmt.Sprintf("%s/*.png", unarchivedPath))
+	files, err := ioutil.ReadDir(fmt.Sprintf("./%s/out/", unarchivedPath))
 
 	if err != nil {
+		fmt.Println(err.Error())
 		return result
 	}
+
+	resultMap := make(map[string]bool)
 
 	for _, file := range files {
 		filename := path.Base(file.Name())
 		extension := filepath.Ext(filename)
-		result = append(result, filename[0:len(filename)-len(extension)])
+
+		entry := filename[0 : len(filename)-len(extension)]
+
+		if _, value := resultMap[entry]; !value {
+			resultMap[entry] = true
+			result = append(result, entry)
+		}
 	}
 
 	return result

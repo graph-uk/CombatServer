@@ -3,6 +3,7 @@ package sessions
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strings"
 
@@ -64,10 +65,13 @@ func getCasesJSON(sessionID string) string {
 			rawSteps := triesRepo.FindTrySteps(try.ID)
 
 			for _, step := range rawSteps {
+				stepUrlBuff, _ := ioutil.ReadFile(fmt.Sprintf("./_data/tries/%d/_/out/%s.txt", try.ID, step))
+
 				steps = append(steps, sessions.TryStepItem{
 					Image:  fmt.Sprintf("/tries/%d/%s.png", try.ID, step),
 					Source: fmt.Sprintf("/tries/%d/%s.html", try.ID, step),
-					URL:    ""})
+					URL:    string(stepUrlBuff),
+				})
 			}
 
 			tries = append(tries, sessions.TryItem{
