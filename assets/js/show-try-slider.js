@@ -93,10 +93,10 @@ const createSliderMarkUp = data => {
 		}),
 		createTag('div', {class: 'glide__arrows', 'data-glide-el': 'controls', children: [
 			createTag('button', {class: 'glide__arrow glide__arrow--left',
-				'data-glide-dir': '<', children: 'prev'
+				'data-glide-dir': '<', children: '<'
 			}),
 			createTag('button', { class: 'glide__arrow glide__arrow--right',
-				'data-glide-dir': '>', children: 'next'
+				'data-glide-dir': '>', children: '>'
 			})
 		]}),
 		$bullets

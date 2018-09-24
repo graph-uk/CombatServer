@@ -8,27 +8,29 @@
 
 	<body data-gr-c-s-loaded="true">
 		<div class="container-fluid">
-			<h1>{{.ProjectName}}</h1>
-			<table class="table table-hover">
-				<thead class="thead-light">
-					<tr>
-						<th scope="col">#</th>
-						<th scope="col">Status</th>
-						<th scope="col" width="100%">Session date</th>
-					</tr>
-				</thead>
-				<tbody>
-					{{range .Sessions}}
-						<tr class="has-behaviour" onClick="location.href='/sessions/{{.ID}}'">
-							<th scope="row">{{.Index}}</th>
-							<td class="text-align-center">
-								<div class="icon icon--{{.Status}}"></div>
-							</td>
-							<td>{{.Time}}</td>
+			<h1 class="container"><a href="/sessions/">{{.ProjectName}}</a></h1>
+			<div class="container">
+				<table class="table table-hover">
+					<thead class="thead-light">
+						<tr>
+							<th scope="col">#</th>
+							<th scope="col">Status</th>
+							<th scope="col" width="100%">Session date</th>
 						</tr>
-					{{end}}
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						{{range .Sessions}}
+							<tr class="has-behaviour" onClick="location.href='/sessions/{{.ID}}'">
+								<th scope="row">{{.Index}}</th>
+								<td class="text-align-center">
+									<div class="icon icon--{{.Status}}"></div>
+								</td>
+								<td>{{.Time}}</td>
+							</tr>
+						{{end}}
+					</tbody>
+				</table>
+			</div>
 		</div>
 		<script src="/assets/index.js"></script>
 	</body>
