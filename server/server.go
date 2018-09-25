@@ -1,103 +1,92 @@
 package server
 
 import (
-	"fmt"
-	"net/http"
+	"html/template"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
-	"github.com/graph-uk/combat-server/server/config"
-	"github.com/graph-uk/combat-server/server/mutexedDB"
+	"github.com/graph-uk/combat-server/server/api/jobs"
+	sessionsAPI "github.com/graph-uk/combat-server/server/api/sessions"
+	"github.com/graph-uk/combat-server/server/api/tries"
+	"github.com/graph-uk/combat-server/server/site"
+	"github.com/graph-uk/combat-server/server/site/sessions"
+	"github.com/graph-uk/combat-server/utils"
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
+// CombatServer ...
 type CombatServer struct {
-	config    *config.Config
 	startPath string
-	mdb       mutexedDB.MutexedDB
+	// mdb       mutexedDB.MutexedDB
 }
 
-func checkFolder(folderName string) error {
-	if _, err := os.Stat(folderName); os.IsNotExist(err) { // if folder does not exist - try to create
-		err := os.MkdirAll(folderName, 0777)
-		if err != nil {
-			fmt.Println("Cannot create folder " + folderName)
-			return err
-		}
-	} else {
-		err := os.MkdirAll(folderName+string(os.PathSeparator)+"TMP_TESTFOLDER", 0777)
-		if err != nil {
-			fmt.Println("Cannot create subfolder in folder " + folderName + ". Check permissions")
-			return err
+func parseTemplates() (*template.Template, error) {
+	cleanRoot := filepath.Clean("server/site/")
+	pfx := len(cleanRoot) + 1
+	root := template.New("")
+
+	err := filepath.Walk(cleanRoot, func(path string, info os.FileInfo, e1 error) error {
+		if !info.IsDir() && strings.HasSuffix(path, ".html") {
+			if e1 != nil {
+				return e1
+			}
+
+			b, e2 := ioutil.ReadFile(path)
+			if e2 != nil {
+				return e2
+			}
+
+			name := strings.Replace(path[pfx:], "\\", "/", -1)
+
+			t := root.New(name)
+			t, e2 = t.Parse(string(b))
+			if e2 != nil {
+				return e2
+			}
 		}
 
-		err = os.RemoveAll(folderName + string(os.PathSeparator) + "TMP_TESTFOLDER")
-		if err != nil {
-			fmt.Println("Cannot delete subfolder in folder " + folderName + ". Check permissions")
-			return err
-		}
-	}
+		return nil
+	})
+
+	return root, err
+}
+
+// Start web server
+func (t *CombatServer) Start() error {
+	go TimeoutWatcher()
+
+	templates, _ := parseTemplates()
+
+	renderer := &site.Template{
+		Templates: templates}
+
+	e := echo.New()
+
+	e.Pre(middleware.Rewrite(map[string]string{
+		"/tries/*/*": "/tries/$1/_/out/$2",
+	}))
+
+	e.Renderer = renderer
+	e.Static("/assets", "./assets/_")
+	e.Static("/tries", "./_data/tries")
+	e.Use(middleware.Logger())
+
+	e.GET("/sessions/", sessions.Index)
+	e.GET("/sessions/:id", sessions.View)
+
+	e.GET("/api/v1/sessions", sessionsAPI.Get)
+	e.GET("/api/v1/sessions/:id", sessionsAPI.Get)
+	e.POST("/api/v1/sessions", sessionsAPI.Post)
+
+	e.POST("/api/v1/jobs/acquire", jobs.Acquire)
+
+	e.POST("/api/v1/cases/:id/tries", tries.Post)
+
+	e.Logger.Fatal(e.Start(":" + strconv.Itoa(utils.GetApplicationConfig().Port)))
+
 	return nil
-}
-
-func checkFolders() error {
-	err := checkFolder("sessions")
-	if err != nil {
-		return err
-	}
-	err = checkFolder("tries")
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func NewCombatServer() (*CombatServer, error) {
-	var result CombatServer
-	var err error
-	result.startPath, err = os.Getwd()
-	result.config, err = config.LoadConfig()
-	if err != nil {
-		return &result, err
-	}
-
-	err = result.mdb.Connect("./base.sl3?_busy_timeout=60000")
-	if err != nil {
-		return &result, err
-	}
-
-	err = checkFolders()
-	if err != nil {
-		return &result, err
-	}
-
-	return &result, nil
-}
-
-func (t *CombatServer) Serve() error {
-	go t.TimeoutWatcher()
-	http.Handle("/tries/", http.StripPrefix("/tries/", http.FileServer(http.Dir("./tries"))))
-
-	http.HandleFunc("/createSession", t.createSessionHandler)
-	http.HandleFunc("/getJob", t.getJobHandler)
-	http.HandleFunc("/setCaseResult", t.setCaseResultHandler)
-	http.HandleFunc("/getSessionStatus", t.getSessionStatusHandler)
-	http.HandleFunc("/getSessionStatusForJunitReport", t.getSessionStatusForJunitReportHandler)
-	http.HandleFunc("/sessions/", t.pageSessionStatusHandler)
-
-	fmt.Println("Serving combat tests at port: " + strconv.Itoa(t.config.Port) + "...")
-	err := http.ListenAndServe(":"+strconv.Itoa(t.config.Port), nil)
-	return err
-}
-
-func (t *CombatServer) addToGOPath(pathExtention string) []string {
-	result := os.Environ()
-	for curVarIndex, curVarValue := range result {
-		if strings.HasPrefix(curVarValue, "GOPATH=") {
-			result[curVarIndex] = result[curVarIndex] + string(os.PathListSeparator) + pathExtention
-			return result
-		}
-	}
-	return result
 }

@@ -11,3 +11,7 @@
 #idea
 *.iml
 .idea
+/node_modules/
+/debug
+/assets/_/
+/_data/
