@@ -254,6 +254,12 @@ func init() {
 
 var sl, curdir string // system filepath separator (/ or \), dir which script started
 
+func CopyDir(src, dst string) error {
+	cmd := exec.Command(`xcopy`, `/s`, `/e`, `/c`, `/h`, `/k`, `/y`, src, dst+`\`)
+	//log.Printf("Running cp -a")
+	return cmd.Run()
+}
+
 func main() {
 
 	//Re-create (clear) folders for test binaries
@@ -268,6 +274,8 @@ func main() {
 	check(CopyFile(`..`+sl+`..`+sl+`combat-server`+sl+`combat-server.exe`, `server`+sl+`combat-server.exe`))
 	check(CopyFile(`..`+sl+`..`+sl+`combat-client`+sl+`combat-client.exe`, `client`+sl+`combat-client.exe`))
 	check(CopyFile(`..`+sl+`..`+sl+`combat-worker`+sl+`combat-worker.exe`, `worker`+sl+`combat-worker.exe`))
+	check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`server`, `server`+sl+`server`))
+	check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`assets`, `server`+sl+`assets`))
 
 	//Configure environment variable for the server and workers
 	env := envRewrite(os.Environ(), `GOPATH`, curdir+sl+`CombatTestsExample`+sl)
@@ -280,7 +288,7 @@ func main() {
 
 	//run server, client worker. Kill before quit.
 	server := startCmd(curdir+sl+`server`, &env, `.`+sl+`combat-server.exe`)
-	client := startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:9090`, `40`, `-InternalIP=192.168.1.1`)
+	client := startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:9090`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
 	worker := startCmd(curdir+sl+`worker`, &env, `.`+sl+`combat-worker.exe`, `http://localhost:9090`)
 
 	defer func() {
@@ -308,35 +316,29 @@ func main() {
 
 	//Check server's output
 	server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)
-	server.WaitingForStdOutContains(`Serving combat tests at port: 9090...`, 10*time.Second)
-	server.WaitingForStdOutContains(`Create new session: `, 10*time.Second)
-	server.WaitingForStdOutContains(` 40 -InternalIP=192.168.1.1`, 10*time.Second)
-	server.WaitingForStdOutContains(`Explored 2 cases for session: `, 10*time.Second)
-	server.WaitingForStdOutContains(`Get a job (CasesRun) for case: `, 10*time.Second)
-	server.WaitingForStdOutContains(`Provide result for case: `, 10*time.Second)
+	server.WaitingForStdOutContains(`http server started on`, 10*time.Second)
+	server.WaitingForStdOutContains(`Created:  _data/sessions`, 10*time.Second)
+	server.WaitingForStdOutContains(`TestFail -InternalIP=192.168.1.1`, 20*time.Second)
+	server.WaitingForStdOutContains(`TestSuccess -InternalIP=192.168.1.1`, 20*time.Second)
+	server.WaitingForStdOutContains(`Try status: Failed`, 20*time.Second)
 
 	//Check worker's output
-	worker.WaitingForStdOutContains(`Jobs not found. Idle.`, time.Minute)
-	//worker.WaitingForStdOutContains(`getJob - RunCase`, time.Minute)
+	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, time.Minute)
+	worker.WaitingForStdOutContains(`Run case... Ok`, time.Minute)
 	worker.WaitingForStdOutContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, time.Minute)
 	worker.WaitingForStdOutContains(`Run case... Fail`, time.Minute)
-	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, time.Minute)
-	worker.WaitingForStdOutContains(`Jobs not found. Idle.`, time.Minute)
 	worker.WaitingForStdOutContains(`Failed here for example`, time.Minute)
 
 	//Check client's output
 	client.WaitingForStdOutContains(`Cleanup tests`, 10*time.Second)
 	client.WaitingForStdOutContains(`Packing tests`, 10*time.Second)
 	client.WaitingForStdOutContains(`Uploading session`, 10*time.Second)
-	client.WaitingForStdOutContains(`Session status: http://localhost:9090/sessions/`, 10*time.Second)
-	client.WaitingForStdOutContains(`Cases exploring`, 10*time.Second)
-	client.WaitingForStdOutContains(`Testing (0/2)`, 10*time.Second)
-	client.WaitingForStdOutContains(`Testing (1/2)`, 10*time.Second)
-	client.WaitingForStdOutContains(`Finished with `, 60*time.Second)
-	client.WaitingForStdOutContains(`More info at: `, 60*time.Second)
-	client.WaitingForStdOutContains(`Time of testing: `, 60*time.Second)
-
-	client.WaitingForExitWithCode(10*time.Second, 1)
+	client.WaitingForStdOutContains(` - Pending`, 10*time.Second)
+	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
+	client.WaitingForStdOutContains(` - Processing`, 20*time.Second)
+	client.WaitingForStdOutContains(`Processed 0 of 2 tests`, 20*time.Second)
+	client.WaitingForStdOutContains(`Processed 1 of 2 tests`, 20*time.Second)
+	client.WaitingForStdOutContains(`Processed 2 of 2 tests`, 20*time.Second)
 
 	//panic(`test`)
 	log.Println(`The test finished succeed.`)
