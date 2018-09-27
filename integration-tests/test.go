@@ -288,8 +288,8 @@ func main() {
 
 	//run server, client worker. Kill before quit.
 	server := startCmd(curdir+sl+`server`, &env, `.`+sl+`combat-server.exe`)
-	client := startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:9090`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
-	worker := startCmd(curdir+sl+`worker`, &env, `.`+sl+`combat-worker.exe`, `http://localhost:9090`)
+	client := startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	worker := startCmd(curdir+sl+`worker`, &env, `.`+sl+`combat-worker.exe`, `http://localhost:3133`)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -308,9 +308,9 @@ func main() {
 		}
 	}()
 
-	defer server.Cmd.Process.Kill()
+	//defer server.Cmd.Process.Kill()
 	defer client.Cmd.Process.Kill()
-	defer worker.Cmd.Process.Kill()
+	//defer worker.Cmd.Process.Kill()
 
 	//time.Sleep(10 * time.Second)
 
@@ -337,8 +337,9 @@ func main() {
 	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
 	client.WaitingForStdOutContains(` - Processing`, 20*time.Second)
 	client.WaitingForStdOutContains(`Processed 0 of 2 tests`, 20*time.Second)
-	client.WaitingForStdOutContains(`Processed 1 of 2 tests`, 20*time.Second)
-	client.WaitingForStdOutContains(`Processed 2 of 2 tests`, 20*time.Second)
+	//client.WaitingForStdOutContains(`Processed 1 of 2 tests`, 40*time.Second)
+	//client.WaitingForStdOutContains(`Processed 2 of 2 tests`, 40*time.Second)
+	client.WaitingForExitWithCode(40*time.Second, 1)
 
 	//panic(`test`)
 	log.Println(`The test finished succeed.`)

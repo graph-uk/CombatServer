@@ -15,11 +15,13 @@ type CommandHandler struct {
 
 // ExecuteCommand ...
 func (t *CommandHandler) ExecuteCommand(command string, arguments []string, path string) (bytes.Buffer, error) {
+	sl := string(os.PathSeparator)
+
 	var outputBuffer bytes.Buffer
 	var errorBuffer bytes.Buffer
 
-	cmd := exec.Command("combat", arguments...)
-	cmd.Env = addToGOPath(path)
+	cmd := exec.Command(command, arguments...)
+	cmd.Env = addToGOPath(path + sl + `..` + sl + `..`)
 
 	cmd.Dir = path
 	cmd.Stdout = &outputBuffer

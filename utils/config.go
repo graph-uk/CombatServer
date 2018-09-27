@@ -35,12 +35,12 @@ func GetApplicationConfig() *Config {
 
 func defaultConfig() string {
 	return `{
-	"port":9090,
+	"port":3133,
 	"maxStoredSessions":10,
 	"projectName": "TestProject",
 	"maxRetries": 3,
 	"caseTimeoutSec": 300,
-	"serverAddress":"http://localhost:9090",
+	"serverAddress":"http://localhost:3133",
 	"falseNegativePatterns":[],
 	"notificationGateways": [{
 			"gateway": "slack",

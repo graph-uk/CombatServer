@@ -76,12 +76,12 @@ func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, str
 	var failedCases []models.Case
 	var failedCasesTitles []string
 
-	if session.Status == status.Pending || session.Status == status.Processing {
+	if session.Status == status.Pending {
 		return session.Status, ""
 	}
 
 	query := func(db *gorm.DB) {
-		db.Where(&models.Case{SessionID: session.ID, Status: status.Pending}).Or(&models.Case{SessionID: session.ID, Status: status.Processing}).Count(&incompletedCasesCount)
+		db.Model(&models.Case{}).Where(&models.Case{SessionID: session.ID, Status: status.Pending}).Or(&models.Case{SessionID: session.ID, Status: status.Processing}).Count(&incompletedCasesCount)
 		db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Order("title").Find(&failedCases)
 	}
 
