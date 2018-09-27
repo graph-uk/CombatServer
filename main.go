@@ -17,7 +17,11 @@ func main() {
 
 	config := utils.GetApplicationConfig()
 
-	repo.Apply()
+	err := repo.Apply()
+
+	if err != nil {
+		panic(err)
+	}
 
 	combatServer := &server.CombatServer{}
 
@@ -25,7 +29,7 @@ func main() {
 		sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
 	}
 
-	err := combatServer.Start()
+	err = combatServer.Start()
 	if err != nil {
 		fmt.Println("Cannot serve")
 		fmt.Println(err.Error())
