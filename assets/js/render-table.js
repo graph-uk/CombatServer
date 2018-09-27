@@ -5,9 +5,27 @@ const TR_ACTIVE_CLASS = 'active';
 combat.renderTable = function($target, logs) {
 	const {createTag, showTries} = this;
 	const $tries = createTag('div', {class: 'col-6'});
+
+	var items = Object.keys(combatLogs).reduce((agg, key) => {
+		return agg.concat([
+			Object.assign({}, combatLogs[key], {key})
+		])
+	}, [])
+		.sort((a, b) => {
+			if (a.title > b.title) {
+				return 1;
+			}
+
+			if (a.title < b.title) {
+				return -1;
+			}
+
+			return 0;
+		});
+
 	const $tbody = createTag('tbody', {
-		children: Object.keys(logs).map((key, index) => {
-			const {status, title, tries} = logs[key];
+		children: items.map((item, index) => {
+			const {status, title, tries, key} = item;
 
 			const hasBehaviour = tries && tries.length > 0;
 			const $tr = createTag('tr', {
