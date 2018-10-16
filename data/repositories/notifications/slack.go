@@ -55,8 +55,6 @@ func (t SlackNotificationsRepository) Notify(session models.Session, s status.St
 					Text:  message,
 				}}}).
 		Post(t.URL)
-
-	fmt.Println(resp)
-
+	fmt.Println(`Slack alert sent. Response: `, resp)
 	return err
 }

@@ -16,7 +16,7 @@ type Repository interface {
 }
 
 func getGatewayStatuses(rawStatuses string) map[status.Status]bool {
-	var result map[status.Status]bool
+	result := map[status.Status]bool{}
 
 	for _, strStatus := range strings.Split(rawStatuses, ",") {
 		s, _ := strconv.Atoi(strStatus)
@@ -38,6 +38,7 @@ func createSlackRepository(gateway map[string]string) Repository {
 func GetNotificationRepositories(s status.Status) []Repository {
 	var result []Repository
 
+	//0 : map[gateway:slack statuses:3,4 url:https://hooks.slack.com/services/... channel:#...]
 	gateways := utils.GetApplicationConfig().NotificationGateways
 
 	if gateways == nil {
@@ -48,7 +49,8 @@ func GetNotificationRepositories(s status.Status) []Repository {
 		gatewayType := gateway["type"]
 		statuses := getGatewayStatuses(gateway["statuses"])
 
-		_, statusExists := statuses[s]
+		// why  "_, statusExists := statuses[s]" is equal "statusExists := statuses[s]"?
+		statusExists := statuses[s]
 
 		if statusExists {
 			if gatewayType == "slack" {
