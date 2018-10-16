@@ -261,7 +261,6 @@ func CopyDir(src, dst string) error {
 }
 
 func main() {
-
 	//Re-create (clear) folders for test binaries
 	os.RemoveAll(`server`)
 	os.RemoveAll(`client`)
@@ -272,6 +271,7 @@ func main() {
 
 	//Copy compiled binaries to correspond test folders
 	check(CopyFile(`..`+sl+`..`+sl+`combat-server`+sl+`combat-server.exe`, `server`+sl+`combat-server.exe`))
+	check(CopyFile(`config.json`, `server`+sl+`config.json`))
 	check(CopyFile(`..`+sl+`..`+sl+`combat-client`+sl+`combat-client.exe`, `client`+sl+`combat-client.exe`))
 	check(CopyFile(`..`+sl+`..`+sl+`combat-worker`+sl+`combat-worker.exe`, `worker`+sl+`combat-worker.exe`))
 	check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`server`, `server`+sl+`server`))
@@ -315,7 +315,7 @@ func main() {
 	//time.Sleep(10 * time.Second)
 
 	//Check server's output
-	server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)
+	//server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)
 	server.WaitingForStdOutContains(`http server started on`, 10*time.Second)
 	server.WaitingForStdOutContains(`Created:  _data/sessions`, 10*time.Second)
 	server.WaitingForStdOutContains(`TestFail -InternalIP=192.168.1.1`, 20*time.Second)
@@ -337,9 +337,9 @@ func main() {
 	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
 	client.WaitingForStdOutContains(` - Processing`, 20*time.Second)
 	client.WaitingForStdOutContains(`Processed 0 of 2 tests`, 20*time.Second)
-	//client.WaitingForStdOutContains(`Processed 1 of 2 tests`, 40*time.Second)
-	//client.WaitingForStdOutContains(`Processed 2 of 2 tests`, 40*time.Second)
-	client.WaitingForExitWithCode(40*time.Second, 1)
+	//client.WaitingForExitWithCode(40*time.Second, 0)
+
+	server.WaitingForStdOutContains(`Slack alert sent. Response:  ok`, 40*time.Second)
 
 	//panic(`test`)
 	log.Println(`The test finished succeed.`)

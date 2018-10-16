@@ -43,7 +43,7 @@ func defaultConfig() string {
 	"serverAddress":"http://localhost:3133",
 	"falseNegativePatterns":[],
 	"notificationGateways": [{
-			"gateway": "slack",
+			"type": "slack",
 			"statuses": "3,4",
 			"url": "https://hooks.slack.com/services/...",
 			"channel": "#channel"
