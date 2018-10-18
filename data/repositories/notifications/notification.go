@@ -39,7 +39,6 @@ func createEmailRepository(gateway map[string]string) Repository {
 		SmtpServerUrl:  gateway["smtpserverurl"],
 		SmtpServerPort: gateway["smtpserverport"],
 		FromEmail:      gateway["fromemail"],
-		FromPass:       gateway["frompass"],
 		ToEmail:        gateway["toemail"],
 	}
 
