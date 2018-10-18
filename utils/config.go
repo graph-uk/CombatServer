@@ -47,6 +47,14 @@ func defaultConfig() string {
 			"statuses": "3,4",
 			"url": "https://hooks.slack.com/services/...",
 			"channel": "#channel"
+		},{
+			"type": "email",
+			"statuses": "3,4",
+			"smtpserverurl": "smtp.gmail.com",
+			"smtpserverport": "587",
+			"fromemail": "...@gmail.com",
+			"frompass": "...",
+			"toemail": "...@gmail.com"
 		}
 	]
 }`

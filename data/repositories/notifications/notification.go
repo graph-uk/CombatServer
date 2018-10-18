@@ -34,6 +34,18 @@ func createSlackRepository(gateway map[string]string) Repository {
 	return Repository(*slackRepository)
 }
 
+func createEmailRepository(gateway map[string]string) Repository {
+	emailRepository := &EmailNotificationsRepository{
+		SmtpServerUrl:  gateway["smtpserverurl"],
+		SmtpServerPort: gateway["smtpserverport"],
+		FromEmail:      gateway["fromemail"],
+		FromPass:       gateway["frompass"],
+		ToEmail:        gateway["toemail"],
+	}
+
+	return Repository(*emailRepository)
+}
+
 // GetNotificationRepositories ...
 func GetNotificationRepositories(s status.Status) []Repository {
 	var result []Repository
@@ -55,6 +67,9 @@ func GetNotificationRepositories(s status.Status) []Repository {
 		if statusExists {
 			if gatewayType == "slack" {
 				result = append(result, createSlackRepository(gateway))
+			}
+			if gatewayType == "email" {
+				result = append(result, createEmailRepository(gateway))
 			}
 		}
 	}
