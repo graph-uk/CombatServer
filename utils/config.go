@@ -50,10 +50,9 @@ func defaultConfig() string {
 		},{
 			"type": "email",
 			"statuses": "3,4",
-			"smtpserverurl": "smtp.gmail.com",
-			"smtpserverport": "587",
-			"fromemail": "...@gmail.com",
-			"frompass": "...",
+			"smtpserverurl": "127.0.0.1",
+			"smtpserverport": "25",
+			"fromemail": "...@....com",
 			"toemail": "...@gmail.com"
 		}
 	]
