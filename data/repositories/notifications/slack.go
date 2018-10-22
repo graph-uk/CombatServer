@@ -41,7 +41,7 @@ func getMessageColor(s status.Status) string {
 }
 
 // Notify ...
-func (t SlackNotificationsRepository) Notify(session models.Session, s status.Status, message string) error {
+func (t SlackNotificationsRepository) Notify(session models.Session, s status.Status, message string, totalCasesCount, failedCasesCount int) error {
 	config := utils.GetApplicationConfig()
 
 	resp, err := resty.R().

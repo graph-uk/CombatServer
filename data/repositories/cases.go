@@ -155,3 +155,33 @@ func (t *Cases) AcquireFreeJob() *models.Case {
 
 	return &result
 }
+
+func (t *Cases) GetTotalCasesCountBySessionID(sessionID string) int {
+	var cases []models.Case
+
+	query := func(db *gorm.DB) {
+		db.Where(&models.Case{SessionID: sessionID}).Find(&cases)
+	}
+
+	err := t.context.Execute(query)
+	if err != nil {
+		panic(err)
+	}
+
+	return len(cases)
+}
+
+func (t *Cases) GetFailedCasesCountBySessionID(sessionID string) int {
+	var cases []models.Case
+
+	query := func(db *gorm.DB) {
+		db.Where(&models.Case{SessionID: sessionID, Status: status.Failed}).Find(&cases)
+	}
+
+	err := t.context.Execute(query)
+	if err != nil {
+		panic(err)
+	}
+
+	return len(cases)
+}

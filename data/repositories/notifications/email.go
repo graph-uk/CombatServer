@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"net/smtp"
+	"strconv"
 
 	"github.com/graph-uk/combat-server/data/models"
 
@@ -19,13 +20,14 @@ type EmailNotificationsRepository struct {
 	ToEmail        string
 }
 
-func (t EmailNotificationsRepository) Notify(session models.Session, sessionStatus status.Status, message string) error {
+func (t EmailNotificationsRepository) Notify(session models.Session, sessionStatus status.Status, message string, totalCasesCount, failedCasesCount int) error {
 	config := utils.GetApplicationConfig()
 
+	subject := fmt.Sprintf("%s: %s - %s", config.ProjectName, session.DateCreated.Format("2006-01-02 15:04:05"), sessionStatus.String())
 	var body string
 	switch sessionStatus {
 	case status.Failed:
-		body = `At least "` + message + `" test failed.` + "\n"
+		body = strconv.Itoa(failedCasesCount) + ` of ` + strconv.Itoa(totalCasesCount) + ` cases failed.` + "\n"
 	case status.Success:
 		body = `All tests are passed.` + "\n"
 	default:
@@ -53,7 +55,7 @@ func (t EmailNotificationsRepository) Notify(session models.Session, sessionStat
 	}
 	defer wc.Close()
 
-	buf := bytes.NewBufferString(body)
+	buf := bytes.NewBufferString("Subject: " + subject + "\n\n" + body)
 	_, err = buf.WriteTo(wc)
 
 	if err != nil {

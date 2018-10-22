@@ -12,7 +12,7 @@ import (
 
 // Repository ...
 type Repository interface {
-	Notify(session models.Session, s status.Status, message string) error
+	Notify(session models.Session, s status.Status, message string, totalCasesCount, failedCasesCount int) error
 }
 
 func getGatewayStatuses(rawStatuses string) map[status.Status]bool {
