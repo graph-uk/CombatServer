@@ -58,6 +58,10 @@ func (t *Sessions) UpdateSessionStatus(id string) error {
 	session := t.Find(id)
 	sessionStatus, failedCases := t.getSessionStatus(session)
 
+	casesRepo := &Cases{t.context}
+	totalCasesCount := casesRepo.GetTotalCasesCountBySessionID(session.ID)
+	failedCasesCount := casesRepo.GetFailedCasesCountBySessionID(session.ID)
+
 	session.Status = sessionStatus
 
 	err := t.Update(session)
@@ -65,7 +69,7 @@ func (t *Sessions) UpdateSessionStatus(id string) error {
 	notificationRepositories := notifications.GetNotificationRepositories(session.Status)
 
 	for _, notificationRepository := range notificationRepositories {
-		notificationRepository.Notify(*session, session.Status, failedCases)
+		notificationRepository.Notify(*session, session.Status, failedCases, totalCasesCount, failedCasesCount)
 	}
 
 	return err
