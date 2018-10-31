@@ -11,7 +11,7 @@ import (
 	"github.com/graph-uk/combat-server/data/models"
 	"github.com/graph-uk/combat-server/data/models/status"
 	"github.com/graph-uk/combat-server/utils"
-	"github.com/mholt/archiver"
+	//	"github.com/mholt/archiver"
 )
 
 // SessionsFS ...
@@ -59,8 +59,7 @@ func (t *SessionsFS) parseSessionContent(session *models.Session, content []byte
 		panic(err)
 	}
 
-	archiver.Zip.Open(archivedPath, fmt.Sprintf(sessionUnarchivedPathTemplate, session.ID))
-
+	utils.Unzip(archivedPath, fmt.Sprintf(sessionUnarchivedPathTemplate, session.ID))
 	return t.extractTestCases(session)
 }
 
