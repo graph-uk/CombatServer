@@ -339,7 +339,7 @@ func main() {
 	client.WaitingForStdOutContains(`Processed 0 of 2 tests`, 20*time.Second)
 	//client.WaitingForExitWithCode(40*time.Second, 0)
 
-	server.WaitingForStdOutContains(`Slack alert sent. Response:  ok`, 40*time.Second)
+	//server.WaitingForStdOutContains(`Slack alert sent. Response:  ok`, 40*time.Second)
 
 	//panic(`test`)
 	log.Println(`The test finished succeed.`)
