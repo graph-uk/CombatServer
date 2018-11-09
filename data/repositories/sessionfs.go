@@ -11,7 +11,6 @@ import (
 	"github.com/graph-uk/combat-server/data/models"
 	"github.com/graph-uk/combat-server/data/models/status"
 	"github.com/graph-uk/combat-server/utils"
-	//	"github.com/mholt/archiver"
 )
 
 // SessionsFS ...

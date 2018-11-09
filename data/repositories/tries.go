@@ -12,7 +12,6 @@ import (
 	"github.com/graph-uk/combat-server/data/models/status"
 	"github.com/graph-uk/combat-server/utils"
 	"github.com/jinzhu/gorm"
-	"github.com/mholt/archiver"
 )
 
 const triesPathTemplate = "_data/tries/%d"
@@ -53,7 +52,7 @@ func (t *Tries) Create(try *models.Try, content []byte) error {
 		return err
 	}
 
-	archiver.Zip.Open(archivedPath, unarchivedPath)
+	utils.Unzip(archivedPath, unarchivedPath)
 
 	err = t.setCaseStatus(try)
 
