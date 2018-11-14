@@ -40,10 +40,14 @@ combat.renderSlider = (data, $target) => {
 const createSliderMarkUp = data => {
 	const {createTag} = combat;
 	const $slides = createTag('ul', {class: 'glide__slides'});
-	const $bullets = createTag('div', {class: 'glide__bullets', 'data-glide-el': 'controls[nav]'});
+	// const $bullets = createTag('div', {class: 'glide__bullets', 'data-glide-el': 'controls[nav]'});
 
 	combat.slides = {all: 0, loaded: 0};
-
+    //     [].slice.call(document.querySelectorAll('.glide__bullet')).forEach(function (item,index) {
+    //     item.addEventListener('click', function () {
+    //         console.log(item,index)
+    //     })
+    // })
 	data.forEach(({image, source, url}, index) => {
 		const $slide = createTag('li', {class: `glide__slide ${LOG_SLIDE_CLASS}`});
 
@@ -84,7 +88,7 @@ const createSliderMarkUp = data => {
 		}
 
 		$slides.append($slide);
-		$bullets.append(createTag('button', {'class': 'glide__bullet', 'data-glide-dir': index}));
+		// $bullets.append(createTag('button', {'class': 'glide__bullet', 'data-glide-dir': index}));
 	});
 
 	return createTag('div', {class: 'glide', id: LOG_SLIDE_ID, children: [
@@ -98,7 +102,7 @@ const createSliderMarkUp = data => {
 			createTag('button', { class: 'glide__arrow glide__arrow--right',
 				'data-glide-dir': '>', children: '>'
 			})
-		]}),
-		$bullets
+		]})
+		// ,$bullets
 	]});
 }

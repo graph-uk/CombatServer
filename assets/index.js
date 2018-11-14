@@ -28,5 +28,6 @@ combat.createTag = (tagName, attrs) => {
 }
 
 if (typeof window.combatLogs === 'object') {
+	console.log(window.combatLogs);
 	setTimeout(() => combat.renderTable($app, window.combatLogs), 0);
 }
