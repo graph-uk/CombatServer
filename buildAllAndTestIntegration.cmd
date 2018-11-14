@@ -26,8 +26,6 @@ pushd %GOPATH%\src\github.com\graph-uk\combat-worker
 start go build
 popd
 
-call packBinData.cmd
-
 pushd %GOPATH%\src\github.com\graph-uk\combat-server
 go build
 popd

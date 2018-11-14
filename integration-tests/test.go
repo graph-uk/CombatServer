@@ -320,7 +320,7 @@ func main() {
 	server.WaitingForStdOutContains(`Created:  _data/sessions`, 10*time.Second)
 	server.WaitingForStdOutContains(`TestFail -InternalIP=192.168.1.1`, 20*time.Second)
 	server.WaitingForStdOutContains(`TestSuccess -InternalIP=192.168.1.1`, 20*time.Second)
-	server.WaitingForStdOutContains(`Try status: Failed`, 20*time.Second)
+	server.WaitingForStdOutContains(`Try status: Failed`, 200*time.Second)
 
 	//Check worker's output
 	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, time.Minute)

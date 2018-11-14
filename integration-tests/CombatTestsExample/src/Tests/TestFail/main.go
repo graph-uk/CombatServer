@@ -4,6 +4,7 @@ import (
 	"Tests_shared/aTest"
 	"Tests_shared/fakescreenshots"
 	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -41,10 +42,15 @@ func main() {
 		}
 	}()
 	fmt.Println(theTest.params.InternalIP.Value)
-	fakescreenshots.MakeFakeSetpArtifacts(theTest.timestamp)
-	time.Sleep(2 * time.Second)
-	fakescreenshots.MakeFakeSetpArtifacts(time.Now().Format("20060102150405"))
-	time.Sleep(2 * time.Second)
-	fakescreenshots.MakeFakeSetpArtifacts(time.Now().Format("20060102150405"))
+	for i := 0; i < 100; i++ {
+		fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(i))
+		time.Sleep(200 * time.Millisecond)
+	}
+	//	fakescreenshots.MakeFakeSetpArtifacts(theTest.timestamp)
+	//	time.Sleep(2 * time.Second)
+	//	fakescreenshots.MakeFakeSetpArtifacts(time.Now().Format("20060102150405"))
+	//	time.Sleep(2 * time.Second)
+	//	fakescreenshots.MakeFakeSetpArtifacts(time.Now().Format("20060102150405"))
+
 	panic(`Failed here for example`)
 }
