@@ -40,9 +40,7 @@ cd combat-dev-utils
 nuget.exe install combat-dev-liteide -ExcludeVersion
 nuget.exe install combat-dev-go -ExcludeVersion
 nuget.exe install combat-dev-mingw64 -ExcludeVersion
-
-
-
+nuget.exe install Nodejs.Redist.x64 -ExcludeVersion -Version 11.1.0
 
 :: build bindata builder
 cd /D %~dp0
