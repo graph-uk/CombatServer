@@ -43,8 +43,13 @@ func main() {
 	}()
 	fmt.Println(theTest.params.InternalIP.Value)
 	for i := 0; i < 100; i++ {
+		if i< 10 {
+		fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(0)+strconv.Itoa(i))
+		time.Sleep(200 * time.Millisecond)
+		}else {
 		fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(i))
 		time.Sleep(200 * time.Millisecond)
+		}
 	}
 	//	fakescreenshots.MakeFakeSetpArtifacts(theTest.timestamp)
 	//	time.Sleep(2 * time.Second)
