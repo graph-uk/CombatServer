@@ -338,6 +338,7 @@ func main() {
 	client.WaitingForStdOutContains(` - Processing`, 20*time.Second)
 	client.WaitingForStdOutContains(`Processed 0 of 2 tests`, 20*time.Second)
 	//client.WaitingForExitWithCode(40*time.Second, 0)
+	//time.Sleep(20*time.Second)
 
 	//server.WaitingForStdOutContains(`Slack alert sent. Response:  ok`, 40*time.Second)
 
