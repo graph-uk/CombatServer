@@ -35,7 +35,8 @@ combat.renderTable = function($target, logs) {
 					createTag('td', {children:
 						createTag('div', {class: `icon icon--${status}`})
 					}),
-					createTag('td', {children: title})
+					createTag('td', {class:'test_name_span', children:
+							createTag('span', {children: title})})
 				]
 			});
 
