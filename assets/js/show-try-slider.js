@@ -77,7 +77,7 @@ const createSliderMarkUp = data => {
 			});
 
 			$img.addEventListener('load', () => combat.slides.loaded += 1, false);
-			$img.addEventListener('load', () => console.log(index+ " out of " + combat.slides.all))
+			// $img.addEventListener('load', () => console.log(index+ " out of " + combat.slides.all))
 			$img.setAttribute('src', image);
 	
 			$slide.append(createTag('a', {
