@@ -61,7 +61,8 @@ combat.renderTable = function($target, logs) {
 	$target.append(
 		createTag('div', {class: 'container', children:
 			createTag('div', {class: 'row', children: [
-				createTag('div', {class: 'col-6', children:
+				createTag('div', {class: 'col-6', children:[
+					createTag('button', { id: 'disable_slack', children : 'Disable slack notification (8 hours)'}),
 					createTag('table', {class: 'table table-hover', children: [
 						createTag('thead', {class: 'thead-light', children:
 							createTag('tr', {class: 'thead-light', children: [
@@ -71,10 +72,11 @@ combat.renderTable = function($target, logs) {
 							]})
 						}),
 						$tbody
-					]})
+					]})]
 				}),
 				$tries
 			]})
 		})
 	);
 }
+
