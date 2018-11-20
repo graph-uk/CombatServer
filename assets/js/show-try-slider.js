@@ -77,6 +77,7 @@ const createSliderMarkUp = data => {
 			});
 
 			$img.addEventListener('load', () => combat.slides.loaded += 1, false);
+			$img.addEventListener('load', () => console.log(index+ " out of " + combat.slides.all))
 			$img.setAttribute('src', image);
 	
 			$slide.append(createTag('a', {
@@ -104,6 +105,8 @@ const createSliderMarkUp = data => {
 				'data-glide-dir': '>', children: '>'
 			})
 		]})
-		,$bullets
+		,$bullets,
+            createTag('span', { id: 'test_number_counter', children : '1 out of ' + combat.slides.all
+            })
 	]});
 }
