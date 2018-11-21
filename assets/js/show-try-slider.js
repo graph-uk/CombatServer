@@ -33,7 +33,7 @@ combat.renderSlider = (data, $target) => {
 	// 	combat._sliderInterval = setInterval(check, 10);
 	// 	check();
 	// } else {
-		combat._sliderInstace = new Glide($slider).mount();
+		combat._sliderInstace = new Glide($slider, { startAt: combat.slides.all-1 }).mount();
 	// }
 }
 
@@ -48,7 +48,9 @@ const createSliderMarkUp = data => {
     //         console.log(item,index)
     //     })
     // })
+	data.reverse()
 	data.forEach(({image, source, url}, index) => {
+        index = Math.abs(data.length-index)
 		const $slide = createTag('li', {class: `glide__slide ${LOG_SLIDE_CLASS}`});
 
 		if (url) {
@@ -85,13 +87,14 @@ const createSliderMarkUp = data => {
 				href: image,
 				target: '_blank', 
 				children: $img,
-				index: index
+				index: (index-1)
 			}));
 		}
 
-		$slides.append($slide);
-		$bullets.append(createTag('button', {'class': 'slider__bullet glide__bullet', 'data-glide-dir': "="+index}));
+		$slides.prepend($slide);
+		$bullets.prepend(createTag('button', {'class': 'slider__bullet glide__bullet', 'data-glide-dir': "="+(index-1)}));
 	});
+	data.reverse()
 
 	return createTag('div', {class: 'glide', id: LOG_SLIDE_ID, children: [
 		createTag('div', {class: 'glide__track', 'data-glide-el': 'track', children:
