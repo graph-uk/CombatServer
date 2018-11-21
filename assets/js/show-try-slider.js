@@ -43,11 +43,7 @@ const createSliderMarkUp = data => {
 	const $bullets = createTag('div', {class: 'slider__bullets glide__bullets', 'data-glide-el': 'controls[nav]'});
 
 	combat.slides = {all: 0, loaded: 0};
-    //     [].slice.call(document.querySelectorAll('.glide__bullets')).forEach(function (item,index) {
-    //     item.addEventListener('click', function () {
-    //         console.log(item,index)
-    //     })
-    // })
+
 	data.reverse()
 	data.forEach(({image, source, url}, index) => {
         index = Math.abs(data.length-index)
@@ -109,7 +105,7 @@ const createSliderMarkUp = data => {
 			})
 		]})
 		,$bullets,
-            createTag('span', { id: 'test_number_counter', children : '1 out of ' + combat.slides.all
+            createTag('span', { id: 'test_number_counter', children : combat.slides.all+ ' out of ' + combat.slides.all
             })
 	]});
 }
