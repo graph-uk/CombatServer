@@ -35,7 +35,7 @@ combat.renderTable = function($target, logs) {
 					createTag('td', {children:
 						createTag('div', {class: `icon icon--${status}`})
 					}),
-                    createTag('td', {class:'test_name_span', children:
+                    createTag('td', {class:'test_tries_span', children:
                             createTag('span', {children: tries===null? 'pending' : tries.length})}),
 					createTag('td', {class:'test_name_span', children:
 							createTag('span', {children: title})})
@@ -68,7 +68,7 @@ combat.renderTable = function($target, logs) {
 					createTag('table', {class: 'table table-hover', children: [
 						createTag('thead', {class: 'thead-light', children:
 							createTag('tr', {class: 'thead-light', children: [
-								createTag('th', {cls: 'col', scope: 'col', children: '#'}),
+								createTag('th', {css: 'col', scope: 'col', children: '#'}),
 								createTag('th', {css: 'col', scope: 'col', children: 'Status'}),
 								createTag('th', {css: 'col', scope: 'col', children: 'Tries'}),
 								createTag('th', {cas: 'col-10', scope: 'col', children: 'Test name'})
