@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/graph-uk/combat-server/server/api/configs"
 	"github.com/graph-uk/combat-server/server/api/jobs"
 	sessionsAPI "github.com/graph-uk/combat-server/server/api/sessions"
 	"github.com/graph-uk/combat-server/server/api/tries"
@@ -85,6 +86,9 @@ func (t *CombatServer) Start() error {
 	e.POST("/api/v1/jobs/acquire", jobs.Acquire)
 
 	e.POST("/api/v1/cases/:id/tries", tries.Post)
+
+	e.GET("/api/v1/config", configs.Get)
+	e.PUT("/api/v1/config", configs.Put)
 
 	e.Logger.Fatal(e.Start(":" + strconv.Itoa(utils.GetApplicationConfig().Port)))
 

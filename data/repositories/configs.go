@@ -12,26 +12,26 @@ type Configs struct {
 }
 
 // Create ...
-func (t *Configs) Create(sessionCase *models.Case) error {
+func (t *Configs) Create(config *models.Config) error {
 	query := func(db *gorm.DB) {
-		db.Create(sessionCase)
+		db.Create(config)
 	}
 
 	return t.context.Execute(query)
 }
 
-// Update ...
-func (t *Configs) Update(sessionCase *models.Case) error {
+// Update record
+func (t *Configs) Update(config *models.Config) error {
 	query := func(db *gorm.DB) {
-		db.Save(sessionCase)
+		db.Save(config)
 	}
 
 	return t.context.Execute(query)
 }
 
 // Find config. It is always has id=1.
-func (t *Configs) Find() *models.Case {
-	var result models.Case
+func (t *Configs) Find() *models.Config {
+	var result models.Config
 
 	query := func(db *gorm.DB) {
 		db.Find(&result, 1)

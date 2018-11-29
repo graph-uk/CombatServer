@@ -6,7 +6,7 @@ import (
 
 // Config model
 type Config struct {
-	ID            int `gorm:"primary_key"`
-	MuteTimestamp time.Time
-	MuteEnabled   bool
+	ID                  int `gorm:"primary_key"`
+	MuteTimestamp       time.Time
+	NotificationEnabled bool
 }
