@@ -18,7 +18,7 @@ func Get(c echo.Context) error {
 		MuteTimestamp:       dbConfig.MuteTimestamp,
 	}
 
-	return c.JSON(http.StatusOK, result)
+	return c.JSONPretty(http.StatusOK, result, ` `)
 }
 
 func Put(c echo.Context) error {
