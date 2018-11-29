@@ -33,112 +33,57 @@ if (typeof window.combatLogs === 'object') {
 	setTimeout(() => combat.renderTable($app, window.combatLogs), 0);
 }
 
-// window.onload = function() {
-//     var xhttp = new XMLHttpRequest();
-//     xhttp.onreadystatechange = function() {
-//         if (this.readyState === 4 && this.status === 200) {
-//             var notificationParameters = JSON.parse(this.responseText);
-//             setInitialStatus(notificationParameters);
-//         }
-//     };
-//     xhttp.open("GET", "/api/v1/config");
-//     xhttp.send();
-// };
-
-// window.onload= () =>{
-//     http.get('/api/v1/config', (resp) => {
-//         let data = '';
-//         // A chunk of data has been recieved.
-//         resp.on('data', (chunk) => {
-//             data += chunk;
-//         });
-//         // The whole response has been received. Print out the result.
-//         resp.on('end', () => {
-//            setInitialStatus(data)
-//         });
-//
-//     }).on("error", (err) => {
-//         console.log("Error: " + err.message);
-//     });
-// }
-
-document.addEventListener("DOMContentLoaded", (event) =>{
-    var notificationParameters = getNotificationParameters()
-});
 
 
-function getNotificationParameters() {
-    fetch(`/api/v1/config`, {
-        method: "GET"
-    })
-        .then(resp => (setInitialStatus(JSON.parse(resp))))
-        .catch(()=>console.log("GET failed"))
-}
+
 
 function setInitialStatus(notificationParameters) {
+    console.log("setting status")
+	console.log(notificationParameters)
     var notificationButton = document.getElementById("notification");
-	var status = Boolean(notificationParameters.NotificationEnabled);
-   	if (status){
+    var status = notificationParameters.NotificationEnabled;
+    console.log(status)
+    if (status){
         notificationButton.setAttribute("class", "notificationEnabled");
         notificationButton.innerHTML= "Disable notification";
 
     }
-   	else{
+    else{
         notificationButton.setAttribute("class", "notificationDisabled")
         notificationButton.innerHTML= "Enable notification";
 
     }
 }
 
-// function changeNotificationStatus(notificationButton) {
-//     var xhttp = new XMLHttpRequest();
-//     xhttp.onreadystatechange = function() {
-//         if (this.readyState === 4 && this.status === 200) {
-//             var notificationParameters = JSON.parse(this.responseText);
-//             if (Boolean(notificationParameters[1])===true){
-//                 xhttp.open("PUT", "/api/v1/config")
-//                 xhttp.send( JSON.stringify({"MuteTimestamp":"null", "MutedEnable":"null"}))
-//                 notificationButton.setAttribute("class", "notificationEnabled")            }
-//             else{
-//                 if (Boolean(notificationParameters[1])===true){
-//                     xhttp.open("PUT", "/api/v1/config")
-//                     xhttp.send( JSON.stringify({"MuteTimestamp":"null", "MutedEnable":"true"}))
-//                     notificationButton.setAttribute("class", "notificationDisabled")
-//                 }
-//             }
-//         }
-//     };
-//     xhttp.open("GET", "/api/v1/config");
-//     xhttp.send();
-// }
+document.addEventListener("DOMContentLoaded", (event) =>{
+	console.log("here")
+    fetch(`/api/v1/config`, {
+        method: "GET"
+    })
+        .then((resp) => (resp.json().then((data) => {
+            setInitialStatus(data)
+        })))
+        .catch((error)=>console.log("GET failed " + error))
+});
 
-// function changeNotificationStatus(notificationButton) {
-//     xhttp.onreadystatechange = function() {
-//         if (this.readyState === 4 && this.status === 200) {
-//             var notificationParameters = JSON.parse(this.responseText);
-//             if (Boolean(notificationParameters[1])===true){
-//                 xhttp.open("PUT", "/api/v1/config")
-//                 xhttp.send( JSON.stringify({"MuteTimestamp":"null", "MutedEnable":"null"}))
-//                 notificationButton.setAttribute("class", "notificationEnabled")            }
-//             else{
-//                 if (Boolean(notificationParameters[1])===true){
-//                     xhttp.open("PUT", "/api/v1/config")
-//                     xhttp.send( JSON.stringify({"MuteTimestamp":"null", "MutedEnable":"true"}))
-//                     notificationButton.setAttribute("class", "notificationDisabled")
-//                 }
-//             }
-//         }
-//     };
-//     xhttp.open("GET", "/api/v1/config");
-//     xhttp.send();
-// }
+
+function getNotificationParameters() {
+   fetch(`/api/v1/config`, {
+        method: "GET"
+    })
+       .then((resp) => (resp.json().then((data) => {
+           changeNotificationStatus(data)
+       })))
+        .catch((error)=>console.log("GET failed " + error))
+}
+
 var notificationButton = document.getElementById("notification");
 
-function changeNotificationStatus() {
-    var notificationParameters = getNotificationParameters();
-    var data = notificationParameters.NotificationEnabled? {"MuteTimestamp":"null", "NotificationEnabled":"null"}:{"MuteTimestamp":"null", "NotificationEnabled":"true"}
+function changeNotificationStatus(notificationParameters) {
+        var data = notificationParameters.NotificationEnabled? {"MuteTimestamp":null, "NotificationEnabled":false}:{"MuteTimestamp":null, "NotificationEnabled":true}
     fetch(`/api/v1/config`, {
         method: "PUT",
+		headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
     })
         .then(() => {
@@ -157,5 +102,5 @@ function changeNotificationStatus() {
 }
 
 notificationButton.addEventListener("click", function () {
-    changeNotificationStatus();
+    getNotificationParameters()
 });
