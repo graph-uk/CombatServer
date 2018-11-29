@@ -11,6 +11,18 @@ import (
 	"github.com/graph-uk/combat-server/utils"
 )
 
+func checkNotificationEnabled(config *utils.Config) {
+	configsRepo := &repositories.Configs{}
+	dbConfig := configsRepo.Find()
+	if !dbConfig.NotificationEnabled {
+		fmt.Println(time.Now().Sub(dbConfig.MuteTimestamp))
+		if time.Now().After(dbConfig.MuteTimestamp.Add(time.Duration(config.NotificationMuteDurationMinutes) * time.Minute)) { // if mute time has left
+			dbConfig.NotificationEnabled = true
+			configsRepo.Update(dbConfig)
+		}
+	}
+}
+
 func checkCases() {
 	casesRepo := &repositories.Cases{}
 
@@ -27,9 +39,10 @@ func checkCases() {
 }
 
 // TimeoutWatcher ...
-func TimeoutWatcher() {
+func TimeoutWatcher(config *utils.Config) {
 	for {
 		checkCases()
+		checkNotificationEnabled(config)
 		time.Sleep(10 * time.Second)
 	}
 }

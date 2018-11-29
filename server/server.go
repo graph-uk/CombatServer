@@ -57,8 +57,8 @@ func parseTemplates() (*template.Template, error) {
 }
 
 // Start web server
-func (t *CombatServer) Start() error {
-	go TimeoutWatcher()
+func (t *CombatServer) Start(config *utils.Config) error {
+	go TimeoutWatcher(config)
 
 	templates, _ := parseTemplates()
 

@@ -41,7 +41,7 @@ func (t *Migrations) migrateConfig() error {
 
 		//insert default config.
 		query = func(db *gorm.DB) {
-			db.Save(&models.Config{1, time.Now(), false})
+			db.Save(&models.Config{1, time.Now(), true})
 		}
 		err = t.context.Execute(query)
 		if err != nil {

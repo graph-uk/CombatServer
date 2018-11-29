@@ -12,6 +12,7 @@ set PATH=%PATH%;%GOPATH%\combat-dev-utils\Nodejs.Redist.x64\tools
 @echo on
 
 del /F /S /Q assets\_
+del /F /S /Q combat-server.exe
 
 call npm install
 call npm run build

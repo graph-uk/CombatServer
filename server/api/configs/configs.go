@@ -2,6 +2,7 @@ package configs
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/graph-uk/combat-server/data/repositories"
 	"github.com/graph-uk/combat-server/server/api/configs/models"
@@ -18,7 +19,7 @@ func Get(c echo.Context) error {
 		MuteTimestamp:       dbConfig.MuteTimestamp,
 	}
 
-	return c.JSONPretty(http.StatusOK, result, ` `)
+	return c.JSON(http.StatusOK, result)
 }
 
 func Put(c echo.Context) error {
@@ -31,7 +32,7 @@ func Put(c echo.Context) error {
 
 	dbConfig := configsRepo.Find()
 	dbConfig.NotificationEnabled = model.NotificationEnabled
-	dbConfig.MuteTimestamp = model.MuteTimestamp
+	dbConfig.MuteTimestamp = time.Now()
 
 	configsRepo.Update(dbConfig)
 

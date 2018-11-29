@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -66,10 +67,16 @@ func (t *Sessions) UpdateSessionStatus(id string) error {
 
 	err := t.Update(session)
 
-	notificationRepositories := notifications.GetNotificationRepositories(session.Status)
+	configsRepo := &Configs{}
+	dbConfig := configsRepo.Find()
+	if dbConfig.NotificationEnabled {
+		notificationRepositories := notifications.GetNotificationRepositories(session.Status)
 
-	for _, notificationRepository := range notificationRepositories {
-		notificationRepository.Notify(*session, session.Status, failedCases, totalCasesCount, failedCasesCount)
+		for _, notificationRepository := range notificationRepositories {
+			notificationRepository.Notify(*session, session.Status, failedCases, totalCasesCount, failedCasesCount)
+		}
+	} else {
+		fmt.Println(`Notifications temporary disabled. Alerting sending skipped.`)
 	}
 
 	return err
