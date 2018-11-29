@@ -80,11 +80,15 @@ function setInitialStatus(notificationParameters) {
     var notificationButton = document.getElementById("notification");
 	var status = Boolean(notificationParameters.NotificationEnabled);
    	if (status){
-        notificationButton.setAttribute("class", "notificationEnabled")
-   	}
+        notificationButton.setAttribute("class", "notificationEnabled");
+        notificationButton.innerHTML= "Disable notification";
+
+    }
    	else{
         notificationButton.setAttribute("class", "notificationDisabled")
-   	}
+        notificationButton.innerHTML= "Enable notification";
+
+    }
 }
 
 // function changeNotificationStatus(notificationButton) {
@@ -138,7 +142,18 @@ function changeNotificationStatus() {
         method: "PUT",
         body: JSON.stringify(data)
     })
-        .then(() => {notificationParameters.NotificationEnabled? notificationButton.setAttribute("class", "notificationDisabled"):notificationButton.setAttribute("class", "notificationEnabled")})
+        .then(() => {
+        	if(notificationParameters.NotificationEnabled){
+
+			 notificationButton.setAttribute("class", "notificationDisabled");
+			 notificationButton.innerHTML= "Enable notification";
+
+        	}
+        	else {
+        		notificationButton.setAttribute("class", "notificationEnabled");
+                notificationButton.innerHTML= "Disable notification";
+
+            }})
         .catch(()=>console.log("GET failed"))
 }
 
