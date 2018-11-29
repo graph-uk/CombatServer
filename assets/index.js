@@ -64,7 +64,6 @@ if (typeof window.combatLogs === 'object') {
 
 document.addEventListener("DOMContentLoaded", (event) =>{
     var notificationParameters = getNotificationParameters()
-    setInitialStatus(notificationParameters)
 });
 
 
