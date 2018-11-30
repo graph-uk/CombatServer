@@ -9,8 +9,8 @@
 	"notificationGateways": [{
 			"type": "slack",
 			"statuses": "3,4",
-			"url": "https://hooks.slack.com/services/...",
-			"channel": "#channel"
+			"url": "",
+			"channel": "#slack_debug"
 		},{
 			"type": "email",
 			"statuses": "3,4",
@@ -19,5 +19,6 @@
 			"fromemail": "...@....com",
 			"toemail": "...@gmail.com"
 		}
-	]
+	],
+	"NotificationMuteDurationMinutes":1
 }

@@ -29,7 +29,7 @@ func main() {
 		sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
 	}
 
-	err = combatServer.Start()
+	err = combatServer.Start(config)
 	if err != nil {
 		fmt.Println("Cannot serve")
 		fmt.Println(err.Error())

@@ -318,14 +318,14 @@ func main() {
 	//server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)
 	server.WaitingForStdOutContains(`http server started on`, 10*time.Second)
 	server.WaitingForStdOutContains(`Created:  _data/sessions`, 10*time.Second)
-	server.WaitingForStdOutContains(`TestFail -InternalIP=192.168.1.1`, 20*time.Second)
-	server.WaitingForStdOutContains(`TestSuccess -InternalIP=192.168.1.1`, 20*time.Second)
+	server.WaitingForStdOutContains(`TestFail -InternalIP=192.168.1.1`, 40*time.Second)
+	server.WaitingForStdOutContains(`TestSuccess -InternalIP=192.168.1.1`, 40*time.Second)
 	server.WaitingForStdOutContains(`Try status: Failed`, 200*time.Second)
 
 	//Check worker's output
-	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, time.Minute)
+	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, 2*time.Minute)
 	worker.WaitingForStdOutContains(`Run case... Ok`, time.Minute)
-	worker.WaitingForStdOutContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, time.Minute)
+	worker.WaitingForStdOutContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, 2*time.Minute)
 	worker.WaitingForStdOutContains(`Run case... Fail`, time.Minute)
 	worker.WaitingForStdOutContains(`Failed here for example`, time.Minute)
 
@@ -335,8 +335,8 @@ func main() {
 	client.WaitingForStdOutContains(`Uploading session`, 10*time.Second)
 	client.WaitingForStdOutContains(` - Pending`, 10*time.Second)
 	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
-	client.WaitingForStdOutContains(` - Processing`, 20*time.Second)
-	client.WaitingForStdOutContains(`Processed 0 of 2 tests`, 20*time.Second)
+	client.WaitingForStdOutContains(` - Processing`, 40*time.Second)
+	client.WaitingForStdOutContains(`Processed 0 of 3 tests`, 40*time.Second)
 	//client.WaitingForExitWithCode(40*time.Second, 0)
 	//time.Sleep(20*time.Second)
 

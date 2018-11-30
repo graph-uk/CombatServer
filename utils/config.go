@@ -17,7 +17,8 @@ type Config struct {
 	CaseTimeoutSec    int
 	ServerAddress     string
 
-	NotificationGateways []map[string]string
+	NotificationGateways            []map[string]string
+	NotificationMuteDurationMinutes int
 
 	FalseNegativePatterns []string
 }
@@ -55,7 +56,8 @@ func defaultConfig() string {
 			"fromemail": "...@....com",
 			"toemail": "...@gmail.com"
 		}
-	]
+	],
+	"NotificationMuteDurationMinutes":1
 }`
 }
 

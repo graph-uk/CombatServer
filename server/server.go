@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/graph-uk/combat-server/server/api/configs"
 	"github.com/graph-uk/combat-server/server/api/jobs"
 	sessionsAPI "github.com/graph-uk/combat-server/server/api/sessions"
 	"github.com/graph-uk/combat-server/server/api/tries"
@@ -56,8 +57,8 @@ func parseTemplates() (*template.Template, error) {
 }
 
 // Start web server
-func (t *CombatServer) Start() error {
-	go TimeoutWatcher()
+func (t *CombatServer) Start(config *utils.Config) error {
+	go TimeoutWatcher(config)
 
 	templates, _ := parseTemplates()
 
@@ -76,6 +77,7 @@ func (t *CombatServer) Start() error {
 	e.Use(middleware.Logger())
 
 	e.GET("/sessions/", sessions.Index)
+	e.GET("/", sessions.Index)
 	e.GET("/sessions/:id", sessions.View)
 
 	e.GET("/api/v1/sessions", sessionsAPI.Get)
@@ -85,6 +87,9 @@ func (t *CombatServer) Start() error {
 	e.POST("/api/v1/jobs/acquire", jobs.Acquire)
 
 	e.POST("/api/v1/cases/:id/tries", tries.Post)
+
+	e.GET("/api/v1/config", configs.Get)
+	e.PUT("/api/v1/config", configs.Put)
 
 	e.Logger.Fatal(e.Start(":" + strconv.Itoa(utils.GetApplicationConfig().Port)))
 

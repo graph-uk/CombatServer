@@ -65,10 +65,12 @@
   cursor: -moz-grabbing;
   cursor: -webkit-grabbing; }
 
+
+//Added by Nikita Mirolyubov
 .test_name_span{
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 400px;
+  max-width: 300px;
 }
 
 #test_number_counter{
@@ -79,3 +81,42 @@
 #disable_slack{
   margin-bottom: 20px;
 }
+.test_tries_span{
+  max-width: 50px;
+}
+.notificationDisabled{
+  //background-color: greenyellow;
+  //border-radius: 20px;
+  padding: 7px;
+  border: 2px solid lightslategrey;
+  outline: none;
+  //text-transform: uppercase;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1);
+
+}
+.notificationEnabled{
+  //background-color: tomato;
+  //border-radius: 20px;
+  padding: 7px;
+  border: 2px solid lightslategrey;
+  outline: none;
+  //text-transform: uppercase;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.1);
+
+}
+.button_container{
+  text-align: center;
+  margin: 0px 0px 5px 0px;
+}
+
+#notification{
+  outline: none;
+  margin-bottom: 1em;
+
+}
+
+
+button:hover{
+  box-shadow: 0 2px 10px rgba(0,0,0,0.16), 5px 5px 5px #888888;
+}
+
