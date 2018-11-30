@@ -77,6 +77,7 @@ func (t *CombatServer) Start(config *utils.Config) error {
 	e.Use(middleware.Logger())
 
 	e.GET("/sessions/", sessions.Index)
+	e.GET("/", sessions.Index)
 	e.GET("/sessions/:id", sessions.View)
 
 	e.GET("/api/v1/sessions", sessionsAPI.Get)
