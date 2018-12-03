@@ -6,6 +6,7 @@ import (
 
 	"github.com/graph-uk/combat-server/data/repositories"
 	"github.com/graph-uk/combat-server/server/api/configs/models"
+	"github.com/graph-uk/combat-server/utils"
 	"github.com/labstack/echo"
 )
 
@@ -14,9 +15,12 @@ func Get(c echo.Context) error {
 	configsRepo := &repositories.Configs{}
 	dbConfig := configsRepo.Find()
 
+	appConfig := utils.GetApplicationConfig()
+
 	result := &configs.ConfigModel{
 		NotificationEnabled: dbConfig.NotificationEnabled,
 		MuteTimestamp:       dbConfig.MuteTimestamp,
+		MuteDurationMinutes: appConfig.NotificationMuteDurationMinutes,
 	}
 
 	return c.JSON(http.StatusOK, result)
