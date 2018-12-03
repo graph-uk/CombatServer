@@ -34,29 +34,27 @@ if (typeof window.combatLogs === 'object') {
 }
 
 
-
-
+var theTimer=null;
 
 function setInitialStatus(notificationParameters) {
-    console.log("setting status")
-	console.log(notificationParameters)
     var notificationButton = document.getElementById("notification");
     var status = notificationParameters.NotificationEnabled;
-    console.log(status)
     if (status){
+        console.log("Setting initial status: notification enabled");
         notificationButton.setAttribute("class", "notificationEnabled");
         notificationButton.innerHTML= "Disable notification";
-
     }
     else{
-        notificationButton.setAttribute("class", "notificationDisabled")
+        clearInterval(theTimer);
+        showTimer(notificationParameters);
+        console.log("Setting initial status: notification disabled");
+        notificationButton.setAttribute("class", "notificationDisabled");
         notificationButton.innerHTML= "Enable notification";
 
     }
 }
 
 document.addEventListener("DOMContentLoaded", (event) =>{
-	console.log("here")
     fetch(`/api/v1/config`, {
         method: "GET"
     })
@@ -72,35 +70,81 @@ function getNotificationParameters() {
         method: "GET"
     })
        .then((resp) => (resp.json().then((data) => {
-           changeNotificationStatus(data)
+           changeNotificationStatus(data);
        })))
         .catch((error)=>console.log("GET failed " + error))
 }
 
+
 var notificationButton = document.getElementById("notification");
 
 function changeNotificationStatus(notificationParameters) {
-        var data = notificationParameters.NotificationEnabled? {"MuteTimestamp":null, "NotificationEnabled":false}:{"MuteTimestamp":null, "NotificationEnabled":true}
+    let data = notificationParameters.NotificationEnabled? {"MuteTimestamp":null, "NotificationEnabled":false}:{"MuteTimestamp":null, "NotificationEnabled":true}
     fetch(`/api/v1/config`, {
         method: "PUT",
 		headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(data)
     })
         .then(() => {
-        	if(notificationParameters.NotificationEnabled){
+            fetch(`/api/v1/config`, {
+                method: "GET"
+            })
+                .then((resp) => (resp.json().then((data) => {
+                    console.log(data)
+                    if(!data.NotificationEnabled){
+                        console.log("Changing status: notification disabled");
+                        notificationButton.setAttribute("class", "notificationDisabled");
+                        notificationButton.innerHTML= "Enable notification";
+                        clearInterval(theTimer);
+                        showTimer(data);
+                    }
+                    else {
+                        notificationButton.setAttribute("class", "notificationEnabled");
+                        notificationButton.innerHTML= "Disable notification";
+                        var display = document.querySelector('#time');
+                        console.log("Changing status: notification enabled");
+                        clearInterval(theTimer);
+                        display.innerHTML = "You have enabled notification.";
 
-			 notificationButton.setAttribute("class", "notificationDisabled");
-			 notificationButton.innerHTML= "Enable notification";
+                    }
+                })))
+                .catch((error)=>console.log("GET failed " + error))
 
-        	}
-        	else {
-        		notificationButton.setAttribute("class", "notificationEnabled");
-                notificationButton.innerHTML= "Disable notification";
-
-            }})
+        })
         .catch(()=>console.log("GET failed"))
 }
 
 notificationButton.addEventListener("click", function () {
     getNotificationParameters()
 });
+
+
+var endTime, now, hours, minutes, seconds, duration;
+
+function showTimer(notificationParameters){
+    console.log("Showing the timer");
+        let display = document.querySelector('#time');
+        theTimer = setInterval(function() {
+            endTime = (Date.parse(notificationParameters.MuteTimestamp)) + notificationParameters.MuteDurationMinutes * 60 * 1000;
+            console.log(notificationParameters.MuteDurationMinutes + " is the duration in minutes");
+            console.log(endTime + " end time");
+            now = new Date().getTime();
+            console.log(now + " now");
+            duration = (endTime - now) / 1000;
+            console.log(duration + " should be the duration");
+
+            hours = parseInt(duration / 3600, 10);
+            minutes = Math.floor((duration %= 3600) / 60);
+            seconds = parseInt(duration % 60, 10);
+
+            hours = hours < 10 ? "0" + hours : hours;
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+            display.innerHTML = "Muted for " + notificationParameters.MuteDurationMinutes + " minutes. \n Time left : " + hours + "h " + minutes + "m " + seconds + "s";
+            console.log(duration + "is the duration");
+            if(duration <=0){
+                clearInterval(theTimer)
+            }
+        }, 1000);
+}
+
