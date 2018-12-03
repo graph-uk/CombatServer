@@ -144,6 +144,9 @@ function showTimer(notificationParameters){
             console.log(duration + "is the duration");
             if(duration <=0){
                 clearInterval(theTimer)
+                notificationButton.setAttribute("class", "notificationEnabled");
+                notificationButton.innerHTML= "Disable notification";
+                display.innerHTML = "You have enabled notification.";
             }
         }, 1000);
 }
