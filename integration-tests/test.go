@@ -274,8 +274,8 @@ func main() {
 	check(CopyFile(`config.json`, `server`+sl+`config.json`))
 	check(CopyFile(`..`+sl+`..`+sl+`combat-client`+sl+`combat-client.exe`, `client`+sl+`combat-client.exe`))
 	check(CopyFile(`..`+sl+`..`+sl+`combat-worker`+sl+`combat-worker.exe`, `worker`+sl+`combat-worker.exe`))
-	check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`server`, `server`+sl+`server`))
-	check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`assets`, `server`+sl+`assets`))
+	//check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`server`, `server`+sl+`server`))
+	//check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`assets`, `server`+sl+`assets`))
 
 	//Configure environment variable for the server and workers
 	env := envRewrite(os.Environ(), `GOPATH`, curdir+sl+`CombatTestsExample`+sl)

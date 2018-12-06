@@ -49,12 +49,7 @@ set GOPATH=%cd%\..\..\..\..
 set GOROOT=%GOPATH%\combat-dev-utils\combat-dev-go
 set PATH=%PATH%;%GOROOT%\bin
 
-pushd vendor\github.com\elazarl\go-bindata-assetfs\go-bindata-assetfs
-go build
-popd
-pushd vendor\github.com\jteeuwen\go-bindata\go-bindata
-go build
-popd
+go install github.com/gobuffalo/packr/packr
 
 :: get client and worker
 go get github.com/graph-uk/combat
