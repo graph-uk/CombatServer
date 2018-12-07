@@ -49,7 +49,9 @@ set GOPATH=%cd%\..\..\..\..
 set GOROOT=%GOPATH%\combat-dev-utils\combat-dev-go
 set PATH=%PATH%;%GOROOT%\bin
 
-go install github.com/gobuffalo/packr/packr
+cd vendor/github.com/gobuffalo/packr/packr
+go build
+move packr.exe %GOPATH%\bin\
 
 :: get client and worker
 go get github.com/graph-uk/combat
