@@ -16,7 +16,7 @@ var _ io.Writer = &virtualFile{}
 var _ fmt.Stringer = &virtualFile{}
 
 type virtualFile struct {
-	buf      *bytes.Buffer
+	io.Reader
 	name     string
 	info     fileInfo
 	original []byte
@@ -28,10 +28,10 @@ func (f virtualFile) Name() string {
 
 func (f *virtualFile) Seek(offset int64, whence int) (int64, error) {
 	if offset == 0 && whence == io.SeekStart {
-		f.buf = bytes.NewBuffer(f.original)
+		f.Reader = bytes.NewReader(f.original)
 		return 0, nil
 	}
-	return -1, errors.New("Unsuported Seek operation")
+	return -1, errors.New("unsuported Seek operation")
 }
 
 func (f virtualFile) FileInfo() (os.FileInfo, error) {
@@ -55,10 +55,13 @@ func (f virtualFile) String() string {
 }
 
 func (s *virtualFile) Read(p []byte) (int, error) {
-	i, err := s.buf.Read(p)
+	if s.Reader == nil {
+		s.Reader = bytes.NewReader(s.original)
+	}
+	i, err := s.Reader.Read(p)
 
 	if i == 0 || err == io.EOF {
-		s.buf = bytes.NewBuffer(s.original)
+		s.Reader = bytes.NewReader(s.original)
 	}
 	return i, err
 }
@@ -69,48 +72,42 @@ func (s *virtualFile) Write(p []byte) (int, error) {
 	if err != nil {
 		return i, errors.WithStack(err)
 	}
-	s.buf = bb
 	s.original = bb.Bytes()
 	s.info = fileInfo{
-		Path:     s.name,
-		Contents: bb.Bytes(),
-		size:     int64(bb.Len()),
-		modTime:  time.Now(),
+		Path:    s.name,
+		size:    int64(bb.Len()),
+		modTime: time.Now(),
 	}
 	return i, nil
 }
 
 // NewDir returns a new "virtual" file
 func NewFile(name string, r io.Reader) (File, error) {
+	return buildFile(name, r)
+}
+
+// NewDir returns a new "virtual" directory
+func NewDir(name string) (File, error) {
+	v, err := buildFile(name, nil)
+	if err != nil {
+		return v, errors.WithStack(err)
+	}
+	v.info.isDir = true
+	return v, nil
+}
+
+func buildFile(name string, r io.Reader) (*virtualFile, error) {
 	bb := &bytes.Buffer{}
 	if r != nil {
 		io.Copy(bb, r)
 	}
 	return &virtualFile{
-		buf:      bb,
 		name:     name,
 		original: bb.Bytes(),
 		info: fileInfo{
-			Path:     name,
-			Contents: bb.Bytes(),
-			size:     int64(bb.Len()),
-			modTime:  time.Now(),
-		},
-	}, nil
-}
-
-// NewDir returns a new "virtual" directory
-func NewDir(name string) (File, error) {
-	bb := &bytes.Buffer{}
-	return &virtualFile{
-		buf:  bb,
-		name: name,
-		info: fileInfo{
-			Path:     name,
-			Contents: bb.Bytes(),
-			size:     int64(bb.Len()),
-			modTime:  time.Now(),
-			isDir:    true,
+			Path:    name,
+			size:    int64(bb.Len()),
+			modTime: time.Now(),
 		},
 	}, nil
 }
