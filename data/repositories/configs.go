@@ -29,7 +29,7 @@ func (t *Configs) Update(config *models.Config) error {
 	return t.context.Execute(query)
 }
 
-// Find config. It is always has id=1.
+// Find config. It always has id=1.
 func (t *Configs) Find() *models.Config {
 	var result models.Config
 

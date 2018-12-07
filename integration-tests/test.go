@@ -337,6 +337,7 @@ func main() {
 	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
 	client.WaitingForStdOutContains(` - Processing`, 40*time.Second)
 	client.WaitingForStdOutContains(`Processed 0 of 3 tests`, 40*time.Second)
+
 	//client.WaitingForExitWithCode(40*time.Second, 0)
 	//time.Sleep(20*time.Second)
 

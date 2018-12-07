@@ -18,7 +18,7 @@ combat.showTryDetails = (tryData, $placeholder, $target) => {
 			$prevActive.className = $prevActive.className.replace(` ${NAVIGATION_ITEM_ACTIVE_CLASS}`, '');
 		}
 
-		$target.className += ` ${NAVIGATION_ITEM_ACTIVE_CLASS}`
+		$target.className += ` ${NAVIGATION_ITEM_ACTIVE_CLASS}`;
 
 		renderTry($placeholder, tryData);
 	}
