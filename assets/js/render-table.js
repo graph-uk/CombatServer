@@ -52,7 +52,7 @@ combat.renderTable = function($target, logs) {
 					}
 
 					target.closest('tr').className += parsedClassName;
-					showTries($tries, tries, lastSuccessfulRun);
+					showTries($tries, tries, lastSuccessfulRun, status);
 				}, false);
 			}
 

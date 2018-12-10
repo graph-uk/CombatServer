@@ -5,7 +5,7 @@ const NAVIGATION_ITEM_CLASS = 'log-navigation__item';
 const NAVIGATION_ITEM_ACTIVE_CLASS = 'log-navigation__item--active';
 const LOG_CONTAINER_CLASS = 'log';
 
-const renderTriesNavigation = (tries, lastSuccessfulRun, $tryPlaceholder) => {
+const renderTriesNavigation = (tries, lastSuccessfulRun, $tryPlaceholder, caseStatus) => {
 	const {createTag, showTryDetails} = combat;
 	const $buttons = tries.map((item, index) => {
 		console.log(item);
@@ -26,9 +26,10 @@ const renderTriesNavigation = (tries, lastSuccessfulRun, $tryPlaceholder) => {
             class: `${NAVIGATION_ITEM_CLASS}`,
 			children: "Last successful run"
         });
+    if (lastSuccessfulRun.steps==null||caseStatus == "success"){console.log("No successful runs")}else{
     	lastSuccessfulRunElem.addEventListener('click', ({target}) => showTryDetails(lastSuccessfulRun, $tryPlaceholder, target), false);
 		$buttons.push(lastSuccessfulRunElem);
-		console.log($buttons);
+		console.log($buttons);}
 	return {
 		'$triesNavigation': createTag('div', {class: NAVIGATION_LIST_CLASS, children: [
 			createTag('div', {class: NAVIGATION_TITLE_CLASS, children: 'Logs:'}),
@@ -38,12 +39,12 @@ const renderTriesNavigation = (tries, lastSuccessfulRun, $tryPlaceholder) => {
 	};
 };
 
-combat.showTries = ($el, tries, lastSuccessfulRun) => {
+combat.showTries = ($el, tries, lastSuccessfulRun, caseStatus) => {
     console.log("Data in show tries");
     console.log(tries);
 	const {createTag, showTryDetails} = combat;
 	const $tryPlaceholder = createTag('div', {className: LOG_CONTAINER_CLASS});
-	const {$triesNavigation, $buttons} = renderTriesNavigation(tries,lastSuccessfulRun, $tryPlaceholder);
+	const {$triesNavigation, $buttons} = renderTriesNavigation(tries,lastSuccessfulRun, $tryPlaceholder, caseStatus);
 
 	$el.innerHTML = '';
 	$el.append(
