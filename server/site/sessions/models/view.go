@@ -5,4 +5,5 @@ type View struct {
 	ProjectName string
 	Title       string
 	Cases       string
+	SilentTries bool
 }

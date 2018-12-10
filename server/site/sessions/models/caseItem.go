@@ -6,7 +6,6 @@ type CaseItem struct {
 	Status            string    `json:"status"`
 	Tries             []TryItem `json:"tries"`
 	LastSuccessfulRun TryItem   `json:"lastSuccessfulRun"`
-	SilentTries       bool      `json:"silentTries"`
 }
 
 // TryItem ...
