@@ -55,6 +55,8 @@ func getCasesJSON(sessionID string) string {
 
 	cases := casesRepo.FindBySessionID(sessionID)
 
+	appConfig := utils.GetApplicationConfig()
+
 	for _, sessionCase := range cases {
 		var tries []sessions.TryItem
 		id := fmt.Sprintf("case%d", sessionCase.ID)
@@ -102,6 +104,7 @@ func getCasesJSON(sessionID string) string {
 			Title:             sessionCase.Title,
 			Tries:             tries,
 			LastSuccessfulRun: lastSuccessfulRunTryItem,
+			SilentTries:       appConfig.SilentTries,
 		}
 	}
 

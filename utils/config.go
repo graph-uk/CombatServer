@@ -14,6 +14,7 @@ type Config struct {
 	Port              int
 	MaxStoredSessions int
 	MaxRetries        int
+	SilentTries       bool
 	CaseTimeoutSec    int
 	ServerAddress     string
 
@@ -40,6 +41,7 @@ func defaultConfig() string {
 	"maxStoredSessions":10,
 	"projectName": "TestProject",
 	"maxRetries": 3,
+	"silentTries": false,
 	"caseTimeoutSec": 300,
 	"serverAddress":"http://localhost:3133",
 	"falseNegativePatterns":[],
