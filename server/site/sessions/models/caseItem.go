@@ -2,9 +2,10 @@ package sessions
 
 // CaseItem ...
 type CaseItem struct {
-	Title  string    `json:"title"`
-	Status string    `json:"status"`
-	Tries  []TryItem `json:"tries"`
+	Title             string    `json:"title"`
+	Status            string    `json:"status"`
+	Tries             []TryItem `json:"tries"`
+	LastSuccessfulRun TryItem   `json:"lastSuccessfulRun"`
 }
 
 // TryItem ...

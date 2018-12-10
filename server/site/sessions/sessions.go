@@ -60,6 +60,7 @@ func getCasesJSON(sessionID string) string {
 		id := fmt.Sprintf("case%d", sessionCase.ID)
 		caseTries := triesRepo.FindByCaseID(sessionCase.ID)
 
+		//
 		for _, try := range caseTries {
 			var steps []sessions.TryStepItem
 			rawSteps := triesRepo.FindTrySteps(try.ID)
@@ -79,10 +80,29 @@ func getCasesJSON(sessionID string) string {
 				Steps:  steps})
 		}
 
+		var steps []sessions.TryStepItem
+		lastSuccessfulRun := triesRepo.FindLastSuccessfulTry(sessionCase.ID)
+		rawSteps := triesRepo.FindTrySteps(lastSuccessfulRun.ID)
+		for _, step := range rawSteps {
+			stepUrlBuff, _ := ioutil.ReadFile(fmt.Sprintf("./_data/tries/%d/_/out/%s.txt", lastSuccessfulRun.ID, step))
+
+			steps = append(steps, sessions.TryStepItem{
+				Image:  fmt.Sprintf("/tries/%d/%s.png", lastSuccessfulRun.ID, step),
+				Source: fmt.Sprintf("/tries/%d/%s.html", lastSuccessfulRun.ID, step),
+				URL:    string(stepUrlBuff),
+			})
+		}
+
+		lastSuccessfulRunTryItem := sessions.TryItem{}
+		lastSuccessfulRunTryItem.Output = lastSuccessfulRun.Output
+		lastSuccessfulRunTryItem.Steps = steps
+
 		model[id] = sessions.CaseItem{
-			Status: strings.ToLower(sessionCase.Status.String()),
-			Title:  sessionCase.Title,
-			Tries:  tries}
+			Status:            strings.ToLower(sessionCase.Status.String()),
+			Title:             sessionCase.Title,
+			Tries:             tries,
+			LastSuccessfulRun: lastSuccessfulRunTryItem,
+		}
 	}
 
 	result, _ := json.Marshal(model)

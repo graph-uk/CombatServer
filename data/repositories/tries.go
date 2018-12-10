@@ -53,9 +53,7 @@ func (t *Tries) Create(try *models.Try, content []byte) error {
 	}
 
 	utils.Unzip(archivedPath, unarchivedPath)
-
 	err = t.setCaseStatus(try)
-
 	return err
 }
 
@@ -182,4 +180,21 @@ func (t *Tries) FindTrySteps(tryID int) []string {
 	}
 
 	return result
+}
+
+// Find last successful try by case id
+func (t *Tries) FindLastSuccessfulTry(caseID int) *models.Try {
+	var try models.Try
+	query := func(db *gorm.DB) {
+		db.Raw("SELECT * from tries where case_id in ( SELECT id from cases where command_line=(SELECT command_line FROM cases where ID=?)) and exit_status = '0' ORDER BY id desc limit 1", caseID).Scan(&try)
+		//		db.First(&try,)
+		//		db
+	}
+
+	error := t.context.Execute(query)
+
+	if error != nil {
+		return nil
+	}
+	return &try
 }

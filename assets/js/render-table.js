@@ -25,7 +25,7 @@ combat.renderTable = function($target, logs) {
 
 	const $tbody = createTag('tbody', {
 		children: items.map((item, index) => {
-			const {status, title, tries, key} = item;
+			const {status, title, tries, lastSuccessfulRun} = item;
 
 			const hasBehaviour = tries && tries.length > 0;
 			const $tr = createTag('tr', {
@@ -52,7 +52,7 @@ combat.renderTable = function($target, logs) {
 					}
 
 					target.closest('tr').className += parsedClassName;
-					showTries($tries, tries);
+					showTries($tries, tries, lastSuccessfulRun, status);
 				}, false);
 			}
 

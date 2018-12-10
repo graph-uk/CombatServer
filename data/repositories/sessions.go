@@ -78,7 +78,6 @@ func (t *Sessions) UpdateSessionStatus(id string) error {
 	} else {
 		fmt.Println(`Notifications temporary disabled. Alerting sending skipped.`)
 	}
-
 	return err
 }
 
