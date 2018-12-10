@@ -28,19 +28,56 @@ combat.renderTable = function($target, logs) {
 			const {status, title, tries, lastSuccessfulRun} = item;
 
 			const hasBehaviour = tries && tries.length > 0;
-			const $tr = createTag('tr', {
-				class: hasBehaviour ? TR_HAS_TRIES_CLASS : '',
-				children: [
-					createTag('th', {scope: 'row', children: 1 + index}),
-					createTag('td', {children:
-						createTag('div', {class: `icon icon--${status}`})
-					}),
-                    createTag('td', {class:'test_tries_span', children:
-                            createTag('span', {children: tries===null? 'pending' : tries.length})}),
-					createTag('td', {class:'test_name_span', children:
-							createTag('span', {children: title})})
-				]
-			});
+			// var triesSection= [];
+			// if (combat.config.silentTries){
+			// 	triesSection.push(
+			// 		createTag('td', {class:'test_tries_span', children:
+            //                 createTag('span', {children: tries===null? 'pending' : tries.length})}),
+            //         createTag('td', {class:'test_name_span', children:
+            //                 createTag('span', {children: title})}))
+			// }else {
+            //     triesSection.push(
+            //     	createTag('td', {class:'test_tries_span'}),
+            //         createTag('td', {class:'test_name_span', children:
+            //                 createTag('span', {children: title})}))
+			// }
+            var $tr;
+            if (window.silentTries) {
+                 $tr = createTag('tr', {
+                    class: hasBehaviour ? TR_HAS_TRIES_CLASS : '',
+                    children: [
+                        createTag('th', {scope: 'row', children: 1 + index}),
+                        createTag('td', {
+                            children:
+                                createTag('div', {class: `icon icon--${status}`})
+                        }),
+                        createTag('td', {
+                            class: 'test_name_span', children:
+                                createTag('span', {children: title})
+                        })
+                    ]
+                });
+            }
+            else {
+                 $tr = createTag('tr', {
+                    class: hasBehaviour ? TR_HAS_TRIES_CLASS : '',
+                    children: [
+                        createTag('th', {scope: 'row', children: 1 + index}),
+                        createTag('td', {
+                            children:
+                                createTag('div', {class: `icon icon--${status}`})
+                        }),
+                        createTag('td', {
+                            class: 'test_tries_span', children:
+                                createTag('span', {children: tries === null ? 'pending' : tries.length})
+                        }),
+                        createTag('td', {
+                            class: 'test_name_span', children:
+                                createTag('span', {children: title})
+                        })
+                    ]
+                });
+            }
 
 			if (hasBehaviour) {
 				$tr.addEventListener('click', ({target}) => {
@@ -60,26 +97,87 @@ combat.renderTable = function($target, logs) {
 		})
 	});
 
-	$target.append(
-		createTag('div', {class: 'container', children:
-			createTag('div', {class: 'row', children: [
-				createTag('div', {class: 'col-6', children:[
-					// createTag('button', { id: 'disable_slack', children : 'Disable slack notification (8 hours)'}),
-					createTag('table', {class: 'table table-hover', children: [
-						createTag('thead', {class: 'thead-light', children:
-							createTag('tr', {class: 'thead-light', children: [
-								createTag('th', {css: 'col', scope: 'col', children: '#'}),
-								createTag('th', {css: 'col', scope: 'col', children: 'Status'}),
-								createTag('th', {css: 'col', scope: 'col', children: 'Tries'}),
-								createTag('th', {cas: 'col-10', scope: 'col', children: 'Test name'})
-							]})
-						}),
-						$tbody
-					]})]
-				}),
-				$tries
-			]})
-		})
-	);
+	if(window.silentTries) {
+        $target.append(
+            createTag('div', {
+                class: 'container', children:
+                    createTag('div', {
+                        class: 'row', children: [
+                            createTag('div', {
+                                class: 'col-6', children: [
+                                    // createTag('button', { id: 'disable_slack', children : 'Disable slack notification (8 hours)'}),
+                                    createTag('table', {
+                                        class: 'table table-hover', children: [
+                                            createTag('thead', {
+                                                class: 'thead-light', children:
+                                                    createTag('tr', {
+                                                        class: 'thead-light', children: [
+                                                            createTag('th', {css: 'col', scope: 'col', children: '#'}),
+                                                            createTag('th', {
+                                                                css: 'col',
+                                                                scope: 'col',
+                                                                children: 'Status'
+                                                            }),
+                                                            createTag('th', {
+                                                                cas: 'col-10',
+                                                                scope: 'col',
+                                                                children: 'Test name'
+                                                            })
+                                                        ]
+                                                    })
+                                            }),
+                                            $tbody
+                                        ]
+                                    })]
+                            }),
+                            $tries
+                        ]
+                    })
+            })
+        );
+    }
+    else {
+        $target.append(
+            createTag('div', {
+                class: 'container', children:
+                    createTag('div', {
+                        class: 'row', children: [
+                            createTag('div', {
+                                class: 'col-6', children: [
+                                    createTag('table', {
+                                        class: 'table table-hover', children: [
+                                            createTag('thead', {
+                                                class: 'thead-light', children:
+                                                    createTag('tr', {
+                                                        class: 'thead-light', children: [
+                                                            createTag('th', {css: 'col', scope: 'col', children: '#'}),
+                                                            createTag('th', {
+                                                                css: 'col',
+                                                                scope: 'col',
+                                                                children: 'Status'
+                                                            }),
+                                                            createTag('th', {
+                                                                css: 'col',
+                                                                scope: 'col',
+                                                                children: 'Tries'
+                                                            }),
+                                                            createTag('th', {
+                                                                cas: 'col-10',
+                                                                scope: 'col',
+                                                                children: 'Test name'
+                                                            })
+                                                        ]
+                                                    })
+                                            }),
+                                            $tbody
+                                        ]
+                                    })]
+                            }),
+                            $tries
+                        ]
+                    })
+            })
+        );
+	}
 }
 

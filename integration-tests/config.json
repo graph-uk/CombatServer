@@ -3,6 +3,7 @@
 	"maxStoredSessions":10,
 	"projectName": "TestProject",
 	"maxRetries": 3,
+	"silentTries": false,
 	"caseTimeoutSec": 300,
 	"serverAddress":"http://localhost:3133",
 	"falseNegativePatterns":[],

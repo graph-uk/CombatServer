@@ -153,8 +153,7 @@ func (t *Tries) Find(id int) *models.Try {
 	return &try
 }
 
-// FindTrySteps ...
-func (t *Tries) FindTrySteps(tryID int) []string {
+func (t *Tries) FindRawTrySteps(tryID int) []string {
 	var result []string
 
 	unarchivedPath := fmt.Sprintf(triesUnarchivedPathTemplate, tryID)
