@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/graph-uk/combat-server/data/models"
 	"github.com/graph-uk/combat-server/data/models/status"
+
 	"github.com/graph-uk/combat-server/data/repositories"
 	sessions "github.com/graph-uk/combat-server/server/site/sessions/models"
 	"github.com/graph-uk/combat-server/utils"
@@ -49,6 +51,25 @@ func Index(c echo.Context) error {
 	return c.Render(http.StatusOK, "sessions/views/index.html", model)
 }
 
+func getSteps(try *models.Try) []sessions.TryStepItem {
+	steps := []sessions.TryStepItem{}
+
+	triesRepo := &repositories.Tries{}
+	rawSteps := triesRepo.FindRawTrySteps(try.ID)
+
+	for _, step := range rawSteps {
+		stepUrlBuff, _ := ioutil.ReadFile(fmt.Sprintf("./_data/tries/%d/_/out/%s.txt", try.ID, step))
+
+		steps = append(steps, sessions.TryStepItem{
+			Image:  fmt.Sprintf("/tries/%d/%s.png", try.ID, step),
+			Source: fmt.Sprintf("/tries/%d/%s.html", try.ID, step),
+			URL:    string(stepUrlBuff),
+		})
+	}
+
+	return steps
+}
+
 func getCasesJSON(sessionID string) string {
 	model := map[string]sessions.CaseItem{}
 	triesRepo := &repositories.Tries{}
@@ -66,61 +87,24 @@ func getCasesJSON(sessionID string) string {
 		if appConfig.SilentTries {
 			if sessionCase.Status == status.Success || sessionCase.Status == status.Failed { // if case finished
 				try := caseTries[len(caseTries)-1]
-				var steps []sessions.TryStepItem
-				rawSteps := triesRepo.FindRawTrySteps(try.ID)
-
-				for _, step := range rawSteps {
-					stepUrlBuff, _ := ioutil.ReadFile(fmt.Sprintf("./_data/tries/%d/_/out/%s.txt", try.ID, step))
-
-					steps = append(steps, sessions.TryStepItem{
-						Image:  fmt.Sprintf("/tries/%d/%s.png", try.ID, step),
-						Source: fmt.Sprintf("/tries/%d/%s.html", try.ID, step),
-						URL:    string(stepUrlBuff),
-					})
-				}
 
 				tries = append(tries, sessions.TryItem{
 					Output: try.Output,
-					Steps:  steps})
+					Steps:  getSteps(&try)})
 			}
 		} else { //if silentTries==false
 			for _, try := range caseTries {
-
-				var steps []sessions.TryStepItem
-				rawSteps := triesRepo.FindRawTrySteps(try.ID)
-
-				for _, step := range rawSteps {
-					stepUrlBuff, _ := ioutil.ReadFile(fmt.Sprintf("./_data/tries/%d/_/out/%s.txt", try.ID, step))
-
-					steps = append(steps, sessions.TryStepItem{
-						Image:  fmt.Sprintf("/tries/%d/%s.png", try.ID, step),
-						Source: fmt.Sprintf("/tries/%d/%s.html", try.ID, step),
-						URL:    string(stepUrlBuff),
-					})
-				}
-
 				tries = append(tries, sessions.TryItem{
 					Output: try.Output,
-					Steps:  steps})
+					Steps:  getSteps(&try)})
 			}
 		}
 
-		var steps []sessions.TryStepItem
 		lastSuccessfulRun := triesRepo.FindLastSuccessfulTry(sessionCase.ID)
-		rawSteps := triesRepo.FindRawTrySteps(lastSuccessfulRun.ID)
-		for _, step := range rawSteps {
-			stepUrlBuff, _ := ioutil.ReadFile(fmt.Sprintf("./_data/tries/%d/_/out/%s.txt", lastSuccessfulRun.ID, step))
-
-			steps = append(steps, sessions.TryStepItem{
-				Image:  fmt.Sprintf("/tries/%d/%s.png", lastSuccessfulRun.ID, step),
-				Source: fmt.Sprintf("/tries/%d/%s.html", lastSuccessfulRun.ID, step),
-				URL:    string(stepUrlBuff),
-			})
-		}
 
 		lastSuccessfulRunTryItem := sessions.TryItem{}
 		lastSuccessfulRunTryItem.Output = lastSuccessfulRun.Output
-		lastSuccessfulRunTryItem.Steps = steps
+		lastSuccessfulRunTryItem.Steps = getSteps(lastSuccessfulRun)
 
 		model[id] = sessions.CaseItem{
 			Status:            strings.ToLower(sessionCase.Status.String()),
