@@ -90,7 +90,6 @@ function changeNotificationStatus(notificationParameters) {
                 method: "GET"
             })
                 .then((resp) => (resp.json().then((data) => {
-                    console.log(data)
                     if(!data.NotificationEnabled){
                         console.log("Changing status: notification disabled");
                         notificationButton.setAttribute("class", "notificationDisabled");
@@ -143,7 +142,7 @@ function showTimer(notificationParameters){
             display.innerHTML = "Muted for " + notificationParameters.MuteDurationMinutes + " minutes. \n Time left : " + hours + "h " + minutes + "m " + seconds + "s";
             console.log(duration + "is the duration");
             if(duration <=0){
-                clearInterval(theTimer)
+                clearInterval(theTimer);
                 notificationButton.setAttribute("class", "notificationEnabled");
                 notificationButton.innerHTML= "Disable notification";
                 display.innerHTML = "You have enabled notification.";
@@ -151,3 +150,24 @@ function showTimer(notificationParameters){
         }, 1000);
 }
 
+
+
+
+
+
+// window.onscroll = function() {myFunction()};
+//
+// // Get the navbar
+// var myCol = document.getElementById("stickyElement");
+//
+// // Get the offset position of the navbar
+// var sticky = myCol.offsetTop;
+//
+// // Add the sticky class to the navbar when you reach its scroll position. Remove "sticky" when you leave the scroll position
+// function myFunction() {
+//     if (window.pageYOffset >= sticky) {
+//         myCol.classList.add("sticky")
+//     } else {
+//         myCol.classList.remove("sticky");
+//     }
+// }

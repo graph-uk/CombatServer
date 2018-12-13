@@ -45,11 +45,13 @@ combat.showTries = ($el, tries, lastSuccessfulRun, caseStatus) => {
 	const {createTag, showTryDetails} = combat;
 	const $tryPlaceholder = createTag('div', {className: LOG_CONTAINER_CLASS});
 	const {$triesNavigation, $buttons} = renderTriesNavigation(tries,lastSuccessfulRun, $tryPlaceholder, caseStatus);
-
+	const stickyElem = createTag('div', {id: 'stickyElement'});
+	stickyElem.append(
+		$triesNavigation,
+        $tryPlaceholder);
 	$el.innerHTML = '';
 	$el.append(
-		$triesNavigation,
-		$tryPlaceholder
+		stickyElem
 	);
 
 	showTryDetails(tries[0], $tryPlaceholder);
