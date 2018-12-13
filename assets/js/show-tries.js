@@ -26,7 +26,7 @@ const renderTriesNavigation = (tries, lastSuccessfulRun, $tryPlaceholder, caseSt
             class: `${NAVIGATION_ITEM_CLASS}`,
 			children: "Last successful run"
         });
-    if (lastSuccessfulRun.steps==null||caseStatus == "success"){console.log("No successful runs")}else{
+    if (lastSuccessfulRun.steps==null||lastSuccessfulRun.steps.length == 0||caseStatus == "success"){console.log("No successful runs")}else{
     	lastSuccessfulRunElem.addEventListener('click', ({target}) => showTryDetails(lastSuccessfulRun, $tryPlaceholder, target), false);
 		$buttons.push(lastSuccessfulRunElem);
 		console.log($buttons);}
