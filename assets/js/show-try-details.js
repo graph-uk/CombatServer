@@ -36,10 +36,9 @@ const renderTry = ($placeholder, data) => {
 	);
 
 	const firstKey = Object.keys(data)[0];
-
 	renderDetails(data[firstKey], $detailsPlaceholder);
 	onTabClick($buttons, firstKey);
-}
+};
 
 const onTabClick = ($buttons, dataKey) => {
 	const $lastActive = $buttons.querySelector(`.${LOG_NAV_ACTIVE_CLASS}`);
@@ -73,7 +72,7 @@ const renderTabs = (data, $detailsPlaceholder, onTabClick) => {
 			$buttons
 		})
 	});
-}
+};
 
 const renderDetails = (data, $placeholder) => {
 	const {createTag, renderSlider} = combat;
@@ -87,6 +86,6 @@ const renderDetails = (data, $placeholder) => {
 	}
 
 	if (data && data.constructor === Array) {
-		return renderSlider(data, $placeholder);
+		return renderSlider(data, $placeholder, );
 	}
 }
