@@ -259,6 +259,20 @@ func CopyDir(src, dst string) error {
 	//log.Printf("Running cp -a")
 	return cmd.Run()
 }
+func createFailTrigger() {
+	file := os.TempDir() + `\testSuccessOrFailure.txt`
+	f, _ := os.OpenFile(file, os.O_RDONLY|os.O_CREATE, 0666)
+	f.Close()
+}
+
+func deleteFailTrigger() {
+	file := os.TempDir() + `\testSuccessOrFailure.txt`
+	//	var err error
+	os.RemoveAll(file)
+	//fmt.Println(err.Error())
+	os.Remove(file)
+	//fmt.Println(err.Error())
+}
 
 func main() {
 	//Re-create (clear) folders for test binaries
@@ -268,6 +282,7 @@ func main() {
 	check(os.MkdirAll(`server`, 0777))
 	check(os.MkdirAll(`client`, 0777))
 	check(os.MkdirAll(`worker`, 0777))
+	createFailTrigger()
 
 	//Copy compiled binaries to correspond test folders
 	check(CopyFile(`..`+sl+`..`+sl+`combat-server`+sl+`combat-server.exe`, `server`+sl+`combat-server.exe`))
@@ -289,6 +304,7 @@ func main() {
 	//run server, client worker. Kill before quit.
 	server := startCmd(curdir+sl+`server`, &env, `.`+sl+`combat-server.exe`)
 	client := startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+
 	worker := startCmd(curdir+sl+`worker`, &env, `.`+sl+`combat-worker.exe`, `http://localhost:3133`)
 
 	defer func() {
@@ -336,7 +352,14 @@ func main() {
 	client.WaitingForStdOutContains(` - Pending`, 10*time.Second)
 	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
 	client.WaitingForStdOutContains(` - Processing`, 40*time.Second)
-	client.WaitingForStdOutContains(`Processed 0 of 3 tests`, 40*time.Second)
+	client.WaitingForStdOutContains(`Processed 0 of 4 tests`, 40*time.Second)
+	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
+	//Time of testing
+	//panic(`test`)
+
+	deleteFailTrigger()
+	client = startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
 
 	//client.WaitingForExitWithCode(40*time.Second, 0)
 	//time.Sleep(20*time.Second)

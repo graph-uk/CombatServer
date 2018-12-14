@@ -30,7 +30,6 @@ const renderTriesNavigation = (tries, lastSuccessfulRun, $tryPlaceholder, caseSt
     	lastSuccessfulRunElem.addEventListener('click', ({target}) => showTryDetails(lastSuccessfulRun, $tryPlaceholder, target), false);
 		$buttons.push(lastSuccessfulRunElem);
 		console.log($buttons);
-    	currentSliderIndex=combat._sliderInstace.index;
 
     }
 	return {
