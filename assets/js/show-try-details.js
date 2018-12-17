@@ -28,14 +28,23 @@ const renderTry = ($placeholder, data) => {
 	const {createTag} = combat;
 	const $detailsPlaceholder = combat.createTag('div', {class: LOG_SLIDER_CLASS});
 	const $buttons = renderTabs(data, $detailsPlaceholder, key => onTabClick($buttons, key));
+	for(var i = $buttons.length - 1; i >= 0; i--) {
+        if($buttons[i] == "undefined") {
+            $buttons.splice(i, 1);
+        }
+    }
 
 	$placeholder.innerHTML = '';
 	$placeholder.append(
 		$buttons,
 		$detailsPlaceholder
 	);
-
-	const firstKey = Object.keys(data)[0];
+	var firstKey;
+    if (data.steps.length ==0){
+	 firstKey = Object.keys(data)[1];
+	} else {
+    	firstKey = Object.keys(data)[0];
+    }
 	renderDetails(data[firstKey], $detailsPlaceholder);
 	onTabClick($buttons, firstKey);
 };
@@ -52,20 +61,41 @@ const onTabClick = ($buttons, dataKey) => {
 
 const renderTabs = (data, $detailsPlaceholder, onTabClick) => {
 	const {createTag} = combat;
-	const $buttons = Object.keys(data).map(key => {
-		const $btn = createTag('div', {
-			class: `col ${LOG_NAV_ITEM_CLASS}`,
-			'data-key': key,
-			children: key
-		});
+	// const $buttons = Object.keys(data).map(key => {
+    // 	//
+    // 	// 	const $btn = createTag('div', {
+    // 	// 		class: `col ${LOG_NAV_ITEM_CLASS}`,
+    // 	// 		'data-key': key,
+    // 	// 		children: key
+    // 	// 	});
+    // 	//
+    // 	// 	$btn.addEventListener('click', () => {
+    // 	// 		renderDetails(data[key], $detailsPlaceholder);
+    // 	// 		onTabClick(key);
+    // 	// 	}, false);
+    // 	//
+    // 	// 	return $btn;
+    // 	// });
+    const $buttons = Object.keys(data).filter(key=>{
+    	if (key=="steps" && data.steps.length ==0){
+    		return false;
+		}
+		return true;
+	}).map(key => {
 
-		$btn.addEventListener('click', () => {
-			renderDetails(data[key], $detailsPlaceholder);
-			onTabClick(key);
-		}, false);
+        const $btn = createTag('div', {
+            class: `col ${LOG_NAV_ITEM_CLASS}`,
+            'data-key': key,
+            children: key
+        });
 
-		return $btn;
-	});
+        $btn.addEventListener('click', () => {
+            renderDetails(data[key], $detailsPlaceholder);
+            onTabClick(key);
+        }, false);
+
+        return $btn;
+    });
 
 	return createTag('div', {class: LOG_TABS_CLASS, children:
 		createTag('div', {class: 'row no-gutters', children:
@@ -85,7 +115,7 @@ const renderDetails = (data, $placeholder) => {
 		);
 	}
 
-	if (data && data.constructor === Array) {
+	if (data && data.constructor === Array&& data.length!=0) {
 		return renderSlider(data, $placeholder, );
 	}
 }

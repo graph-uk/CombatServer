@@ -352,7 +352,7 @@ func main() {
 	client.WaitingForStdOutContains(` - Pending`, 10*time.Second)
 	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
 	client.WaitingForStdOutContains(` - Processing`, 40*time.Second)
-	client.WaitingForStdOutContains(`Processed 0 of 4 tests`, 40*time.Second)
+	client.WaitingForStdOutContains(`Processed 0 of 5 tests`, 40*time.Second)
 	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
 	//Time of testing
 	//panic(`test`)
