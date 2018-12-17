@@ -91,7 +91,9 @@ const createSliderMarkUp = data => {
 		$bullets.prepend(createTag('button', {'class': 'slider__bullet glide__bullet', 'data-glide-dir': "="+(index-1)}));
 	});
 	data.reverse();
-
+	if(currentSliderIndex>combat.slides.all) {
+        currentSliderIndex = combat.slides.all;
+    }
 	return createTag('div', {class: 'glide', id: LOG_SLIDE_ID, children: [
 		createTag('div', {class: 'glide__track', 'data-glide-el': 'track', children:
 			$slides
@@ -105,7 +107,7 @@ const createSliderMarkUp = data => {
 			})
 		]})
 		,$bullets,
-            createTag('span', { id: 'test_number_counter', children : currentSliderIndex==null? combat.slides.all+ ' out of ' + combat.slides.all: currentSliderIndex+1 + ' out of ' + combat.slides.all
+            createTag('span', { id: 'test_number_counter', children : currentSliderIndex==null? combat.slides.all+ ' out of ' + combat.slides.all: currentSliderIndex >combat.slides.all?  combat.slides.all+ ' out of ' + combat.slides.all : currentSliderIndex+1 + ' out of ' + combat.slides.all
             })
 	]});
 };
