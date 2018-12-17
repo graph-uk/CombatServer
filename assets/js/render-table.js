@@ -89,6 +89,7 @@ combat.renderTable = function($target, logs) {
 					}
 
 					target.closest('tr').className += parsedClassName;
+					currentSliderIndex =null;
 					showTries($tries, tries, lastSuccessfulRun, status);
 				}, false);
 			}
