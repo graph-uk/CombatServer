@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+	"os"
 )
 
 type theTest struct {
@@ -36,6 +37,10 @@ func check(err error) {
 
 func main() {
 	theTest := createNewTest()
+
+	f, _ := os.Create("out/SeleniumSessionID.txt")
+    defer f.Close()
+
 	defer func() {
 		if r := recover(); r != nil {
 			aTest.PrintSourceAndContinuePanic(r)
