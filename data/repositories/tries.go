@@ -6,6 +6,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/graph-uk/combat-server/data"
 	"github.com/graph-uk/combat-server/data/models"
@@ -168,6 +169,11 @@ func (t *Tries) FindRawTrySteps(tryID int) []string {
 
 	for _, file := range files {
 		filename := path.Base(file.Name())
+
+		if strings.Contains(filename, `SeleniumSessionID`) {
+			continue
+		}
+
 		extension := filepath.Ext(filename)
 
 		entry := filename[0 : len(filename)-len(extension)]
