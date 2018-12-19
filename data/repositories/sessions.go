@@ -168,7 +168,7 @@ func (t *Sessions) DeleteOldSessions(maxSessionsCount int) error {
 
 	query := func(db *gorm.DB) {
 		db.Order("id desc").Limit(math.MaxInt32).Offset(maxSessionsCount).Find(&sessions)
-		for session := range sessions {
+		for _, session := range sessions {
 			db.Delete(session)
 		}
 	}

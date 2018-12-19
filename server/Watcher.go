@@ -38,11 +38,18 @@ func checkCases() {
 	}
 }
 
+func deleteSessionsOutOfRange(config *utils.Config) {
+	sessionsRepo := &repositories.Sessions{}
+	sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
+
+}
+
 // TimeoutWatcher ...
 func TimeoutWatcher(config *utils.Config) {
 	for {
 		checkCases()
 		checkNotificationEnabled(config)
+		deleteSessionsOutOfRange(config)
 		time.Sleep(10 * time.Second)
 	}
 }
