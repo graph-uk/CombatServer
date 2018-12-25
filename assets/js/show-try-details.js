@@ -6,6 +6,9 @@ const LOG_NAV_ACTIVE_CLASS = 'log__tabs-nav--active';
 const LOG_SLIDER_CLASS = 'log__details';
 const LOG_TERMINAL_CLASS = 'log__terminal';
 
+var outputOnly;
+var showOutputFirst = false;
+
 combat.showTryDetails = (tryData, $placeholder, $target) => {
 	if (!$target) {
 		return renderTry($placeholder, tryData);
@@ -22,14 +25,15 @@ combat.showTryDetails = (tryData, $placeholder, $target) => {
 
 		renderTry($placeholder, tryData);
 	}
-}
+};
 
 const renderTry = ($placeholder, data) => {
 	const {createTag} = combat;
 	const $detailsPlaceholder = combat.createTag('div', {class: LOG_SLIDER_CLASS});
+
 	const $buttons = renderTabs(data, $detailsPlaceholder, key => onTabClick($buttons, key));
 	for(var i = $buttons.length - 1; i >= 0; i--) {
-        if($buttons[i] == "undefined") {
+        if($buttons[i] === "undefined") {
             $buttons.splice(i, 1);
         }
     }
@@ -40,13 +44,21 @@ const renderTry = ($placeholder, data) => {
 		$detailsPlaceholder
 	);
 	var firstKey;
-    if (data.steps.length ==0){
+    if (data.steps.length ===0){
 	 firstKey = Object.keys(data)[1];
 	} else {
     	firstKey = Object.keys(data)[0];
     }
-	renderDetails(data[firstKey], $detailsPlaceholder);
-	onTabClick($buttons, firstKey);
+
+    if (showOutputFirst){
+    	renderDetails(data["output"], $detailsPlaceholder);
+    	onTabClick($buttons, "output");
+
+	}
+	else {
+        renderDetails(data[firstKey], $detailsPlaceholder);
+        onTabClick($buttons, firstKey);
+    }
 };
 
 const onTabClick = ($buttons, dataKey) => {
@@ -57,29 +69,21 @@ const onTabClick = ($buttons, dataKey) => {
 		$lastActive.className = $lastActive.className.replace(classString, '');
 	}
 	$buttons.querySelector(`[data-key=${dataKey}]`).className += classString;
+	if (dataKey==="output"){
+		showOutputFirst=true;
+	} else{
+		showOutputFirst=false;
+	}
 };
 
 const renderTabs = (data, $detailsPlaceholder, onTabClick) => {
 	const {createTag} = combat;
-	// const $buttons = Object.keys(data).map(key => {
-    // 	//
-    // 	// 	const $btn = createTag('div', {
-    // 	// 		class: `col ${LOG_NAV_ITEM_CLASS}`,
-    // 	// 		'data-key': key,
-    // 	// 		children: key
-    // 	// 	});
-    // 	//
-    // 	// 	$btn.addEventListener('click', () => {
-    // 	// 		renderDetails(data[key], $detailsPlaceholder);
-    // 	// 		onTabClick(key);
-    // 	// 	}, false);
-    // 	//
-    // 	// 	return $btn;
-    // 	// });
     const $buttons = Object.keys(data).filter(key=>{
-    	if (key=="steps" && data.steps.length ==0){
+    	if (key==="steps" && data.steps.length ===0){
+    		outputOnly =true;
     		return false;
 		}
+        outputOnly =false;
 		return true;
 	}).map(key => {
 
@@ -115,7 +119,7 @@ const renderDetails = (data, $placeholder) => {
 		);
 	}
 
-	if (data && data.constructor === Array&& data.length!=0) {
+	if (data && data.constructor === Array&& data.length!==0) {
 		return renderSlider(data, $placeholder, );
 	}
-}
+};
