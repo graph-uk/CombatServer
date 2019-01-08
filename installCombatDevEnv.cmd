@@ -24,6 +24,18 @@ if %errorLevel% == 0 (
 	exit 1
 )
 
+::check docker available
+docker ps >nul 2>&1
+if %errorLevel% == 0 (
+        echo Success: Docker available confirmed.
+) else (
+        echo Failure: Cannot run "docker ps". Please check docker installed and available!
+	pause >nul
+	exit 1
+)
+
+
+
 ::install chocolatey if command not found
 choco.exe -v 2>NUL || @"%SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe" -NoProfile -InputFormat None -ExecutionPolicy Bypass -Command "iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))" && SET "PATH=%PATH%;%ALLUSERSPROFILE%\chocolatey\bin"
 
@@ -41,6 +53,7 @@ nuget.exe install combat-dev-liteide -ExcludeVersion
 nuget.exe install combat-dev-go -ExcludeVersion
 nuget.exe install combat-dev-mingw64 -ExcludeVersion
 nuget.exe install Nodejs.Redist.x64 -ExcludeVersion -Version 11.1.0
+nuget.exe install combat-dev-upx -ExcludeVersion
 
 :: build bindata builder
 cd /D %~dp0
