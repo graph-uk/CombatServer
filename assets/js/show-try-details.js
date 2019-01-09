@@ -8,6 +8,7 @@ const LOG_TERMINAL_CLASS = 'log__terminal';
 
 var outputOnly;
 var showOutputFirst = false;
+var stepsActive;
 
 combat.showTryDetails = (tryData, $placeholder, $target) => {
 	if (!$target) {
@@ -50,9 +51,21 @@ const renderTry = ($placeholder, data) => {
     	firstKey = Object.keys(data)[0];
     }
 
+    console.log("output only is " + outputOnly);
+
     if (showOutputFirst){
-    	renderDetails(data["output"], $detailsPlaceholder);
-    	onTabClick($buttons, "output");
+    	if(outputOnly) {
+            renderDetails(data["output"], $detailsPlaceholder);
+            onTabClick($buttons, "output");
+        }
+        else if (stepsActive){
+            renderDetails(data[firstKey], $detailsPlaceholder);
+            onTabClick($buttons, firstKey);
+		}
+		else {
+            renderDetails(data["output"], $detailsPlaceholder);
+            onTabClick($buttons, "output");
+		}
 
 	}
 	else {
@@ -64,6 +77,8 @@ const renderTry = ($placeholder, data) => {
 const onTabClick = ($buttons, dataKey) => {
 	const $lastActive = $buttons.querySelector(`.${LOG_NAV_ACTIVE_CLASS}`);
 	const classString = ` ${LOG_NAV_ACTIVE_CLASS}`;
+	const numberOfButtons = $buttons.querySelectorAll(`.${LOG_NAV_ITEM_CLASS}`);
+	console.log(numberOfButtons.length);
 
 	if ($lastActive) {
 		$lastActive.className = $lastActive.className.replace(classString, '');
@@ -71,20 +86,29 @@ const onTabClick = ($buttons, dataKey) => {
 	$buttons.querySelector(`[data-key=${dataKey}]`).className += classString;
 	if (dataKey==="output"){
 		showOutputFirst=true;
+		if(numberOfButtons.length>1){
+			stepsActive=false;
+		}
+		else{
+			outputOnly=true;
+		}
 	} else{
 		showOutputFirst=false;
+		stepsActive = true;
 	}
 };
 
 const renderTabs = (data, $detailsPlaceholder, onTabClick) => {
+	outputOnly=false;
 	const {createTag} = combat;
     const $buttons = Object.keys(data).filter(key=>{
     	if (key==="steps" && data.steps.length ===0){
     		outputOnly =true;
     		return false;
-		}
-        outputOnly =false;
-		return true;
+    	}
+		else{
+            return true;
+        }
 	}).map(key => {
 
         const $btn = createTag('div', {
