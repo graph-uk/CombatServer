@@ -54,7 +54,7 @@ copy %GOPATH%\src\github.com\graph-uk\combat-client\combat-client.exe assets\_\d
 copy %GOPATH%\src\github.com\graph-uk\combat-worker\combat-worker.exe assets\_\dist\win64\
 
 docker rm -f combat-builder
-docker run --rm --name combat-builder -v D:\PET\combat_server_current\src:/go/src golang:1.9.2 bash -c "cd /go/src/github.com/graph-uk/combat-server && apt-get update && apt-get -y install upx &&./build_linux_binaries.sh"
+docker run --rm --name combat-builder -v %GOPATH%\src:/go/src golang:1.9.2 bash -c "cd /go/src/github.com/graph-uk/combat-server && apt-get update && apt-get -y install upx dos2unix && dos2unix ./*.sh &&./build_linux_binaries.sh"
 
 copy %GOPATH%\src\github.com\graph-uk\combat\combat assets\_\dist\linux64\
 copy %GOPATH%\src\github.com\graph-uk\combat-client\combat-client assets\_\dist\linux64\
