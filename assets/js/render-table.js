@@ -69,7 +69,8 @@ combat.renderTable = function($target, logs) {
                         }),
                         createTag('td', {
                             class: 'test_tries_span', children:
-                                createTag('span', {children: tries === null ? 'pending' : tries.length})
+                                createTag('span', {children: tries != null ? tries.length:status})
+
                         }),
                         createTag('td', {
                             class: 'test_name_span', children:

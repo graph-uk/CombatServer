@@ -145,7 +145,7 @@ function showTimer(notificationParameters){
                 clearInterval(theTimer);
                 notificationButton.setAttribute("class", "notificationEnabled");
                 notificationButton.innerHTML= "Disable notification";
-                display.innerHTML = "You have enabled notification.";
+                display.innerHTML = "Notification was enabled.";
             }
         }, 1000);
 }
@@ -154,20 +154,3 @@ function showTimer(notificationParameters){
 
 
 
-
-// window.onscroll = function() {myFunction()};
-//
-// // Get the navbar
-// var myCol = document.getElementById("stickyElement");
-//
-// // Get the offset position of the navbar
-// var sticky = myCol.offsetTop;
-//
-// // Add the sticky class to the navbar when you reach its scroll position. Remove "sticky" when you leave the scroll position
-// function myFunction() {
-//     if (window.pageYOffset >= sticky) {
-//         myCol.classList.add("sticky")
-//     } else {
-//         myCol.classList.remove("sticky");
-//     }
-// }
