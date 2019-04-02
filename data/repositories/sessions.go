@@ -165,11 +165,46 @@ func (t *Sessions) FindLast() *models.Session {
 // DeleteOldSessions session
 func (t *Sessions) DeleteOldSessions(maxSessionsCount int) error {
 	var sessions []models.Session
-
 	query := func(db *gorm.DB) {
 		db.Order("id desc").Limit(math.MaxInt32).Offset(maxSessionsCount).Find(&sessions)
-		for _, session := range sessions {
-			db.Delete(session)
+		var cases []models.Case
+		for _, curSession := range sessions {
+			db.Where(&models.Case{SessionID: curSession.ID}).Find(&cases)
+			curSessionHasNoNewestTries := true
+			for _, curCase := range cases {
+				//				fmt.Println(`1111111111111111111111111111111111111111111111111111111111111111`)
+				//				fmt.Println(curSession.ID)
+				//				fmt.Println(curCase.CommandLine)
+				//				fmt.Println(curCase.ID)
+				//				fmt.Println(`2222222222222222222222222222222222222222222222222222222222222222`)
+
+				var casesNewerSuccessTries []models.Case
+				db.Where("command_line = ? AND status = ? AND id > ?", curCase.CommandLine, status.Success, curCase.ID).Find(&casesNewerSuccessTries)
+				fmt.Println(`1111111111111111111111111111111111111111111111111111111111111111`)
+				fmt.Println(curSession.ID)
+				fmt.Println(curCase.CommandLine)
+				fmt.Println(curCase.ID)
+				fmt.Println(len(casesNewerSuccessTries))
+				fmt.Println(`2222222222222222222222222222222222222222222222222222222222222222`)
+
+				if len(casesNewerSuccessTries) == 0 {
+					curSessionHasNoNewestTries = false
+					break
+				}
+				fmt.Println(`-------------------------------------------------------------------------------------------------------------`)
+				fmt.Println(len(casesNewerSuccessTries))
+
+				fmt.Println(curCase.CommandLine)
+				fmt.Println(`=============================================================================================================`)
+			}
+			if !curSessionHasNoNewestTries {
+				fmt.Println(`******************************************************`)
+				fmt.Println(curSession.ID)
+				fmt.Println(`######################################################`)
+				//db.Delete(curSession)
+			} else {
+				db.Delete(curSession)
+			}
 		}
 	}
 

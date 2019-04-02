@@ -1,8 +1,8 @@
 {
 	"port":3133,
-	"maxStoredSessions":10,
+	"maxStoredSessions":2,
 	"projectName": "TestProject",
-	"maxRetries": 3,
+	"maxRetries": 1,
 	"silentTries": false,
 	"caseTimeoutSec": 300,
 	"serverAddress":"http://localhost:3133",

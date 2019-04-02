@@ -261,6 +261,7 @@ func CopyDir(src, dst string) error {
 }
 func createFailTrigger() {
 	file := os.TempDir() + `\testSuccessOrFailure.txt`
+	fmt.Println(os.TempDir())
 	f, _ := os.OpenFile(file, os.O_RDONLY|os.O_CREATE, 0666)
 	f.Close()
 }
@@ -307,27 +308,6 @@ func main() {
 
 	worker := startCmd(curdir+sl+`worker`, &env, `.`+sl+`combat-worker.exe`, `http://localhost:3133`)
 
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println(`----------------------------------------Server stdout-----------------------------------------`)
-			fmt.Println(string(server.StdOutBuf))
-			fmt.Println(`----------------------------------------Server stderr-----------------------------------------`)
-			fmt.Println(string(server.StdErrBuf))
-			fmt.Println(`----------------------------------------Client stdout-----------------------------------------`)
-			fmt.Println(string(client.StdOutBuf))
-			fmt.Println(`----------------------------------------Client stderr-----------------------------------------`)
-			fmt.Println(string(client.StdErrBuf))
-			fmt.Println(`----------------------------------------Worker stdout-----------------------------------------`)
-			fmt.Println(string(worker.StdOutBuf))
-			fmt.Println(`----------------------------------------Worker stderr-----------------------------------------`)
-			fmt.Println(string(worker.StdErrBuf))
-		}
-	}()
-
-	//defer server.Cmd.Process.Kill()
-	defer client.Cmd.Process.Kill()
-	//defer worker.Cmd.Process.Kill()
-
 	//time.Sleep(10 * time.Second)
 
 	//Check server's output
@@ -366,6 +346,35 @@ func main() {
 
 	//server.WaitingForStdOutContains(`Slack alert sent. Response:  ok`, 40*time.Second)
 
-	//panic(`test`)
+	client = startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
+
+	deleteFailTrigger()
+
+	client = startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
+
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println(`----------------------------------------Server stdout-----------------------------------------`)
+			fmt.Println(string(server.StdOutBuf))
+			fmt.Println(`----------------------------------------Server stderr-----------------------------------------`)
+			fmt.Println(string(server.StdErrBuf))
+			fmt.Println(`----------------------------------------Client stdout-----------------------------------------`)
+			fmt.Println(string(client.StdOutBuf))
+			fmt.Println(`----------------------------------------Client stderr-----------------------------------------`)
+			fmt.Println(string(client.StdErrBuf))
+			fmt.Println(`----------------------------------------Worker stdout-----------------------------------------`)
+			fmt.Println(string(worker.StdOutBuf))
+			fmt.Println(`----------------------------------------Worker stderr-----------------------------------------`)
+			fmt.Println(string(worker.StdErrBuf))
+		}
+	}()
+
+	//defer server.Cmd.Process.Kill()
+	defer client.Cmd.Process.Kill()
+	//defer worker.Cmd.Process.Kill()
+
+	panic(`test`)
 	log.Println(`The test finished succeed.`)
 }
