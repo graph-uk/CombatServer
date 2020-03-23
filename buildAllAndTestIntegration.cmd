@@ -5,11 +5,11 @@ cd /D %~dp0
 
 @echo off
 set GOPATH=%cd%\..\..\..\..\
-set GOROOT=%GOPATH%\combat-dev-utils\combat-dev-go
+set GOROOT=%GOPATH%\node_modules\combat-dev-go
 set PATH=%PATH%;%GOROOT%\bin
 set PATH=%PATH%;%GOPATH%\bin
-set PATH=%PATH%;%GOPATH%\combat-dev-utils\combat-dev-mingw64\mingw64\bin
-set PATH=%PATH%;%GOPATH%\combat-dev-utils\Nodejs.Redist.x64\tools
+set PATH=%PATH%;%GOPATH%\node_modules\combat-dev-mingw64\mingw64\bin
+set PATH=%PATH%;%GOPATH%\node_modules\Nodejs.Redist.x64\tools
 @echo on
 
 del /F /S /Q assets\_

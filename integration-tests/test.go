@@ -294,9 +294,9 @@ func main() {
 
 	//Configure environment variable for the server and workers
 	env := envRewrite(os.Environ(), `GOPATH`, curdir+sl+`CombatTestsExample`+sl)
-	env = envRewrite(env, `GOROOT`, curdir+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`combat-dev-utils`+sl+`combat-dev-go`)
+	env = envRewrite(env, `GOROOT`, curdir+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`node_modules`+sl+`combat-dev-go`)
 	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`combat`)
-	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`combat-dev-utils`+sl+`combat-dev-go`+sl+`bin`)
+	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`node_modules`+sl+`combat-dev-go`+sl+`bin`)
 
 	//fmt.Println(env)
 	//return
