@@ -3,11 +3,12 @@ package notifications
 import (
 	"fmt"
 
-	"github.com/graph-uk/combat-server/data/models"
+	"malibu-server/data/models"
 
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/utils"
 
-	"github.com/graph-uk/combat-server/data/models/status"
+	"malibu-server/data/models/status"
+
 	resty "gopkg.in/resty.v1"
 )
 

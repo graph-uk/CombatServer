@@ -4,12 +4,13 @@ import (
 	"encoding/base64"
 	"net/http"
 
-	"github.com/graph-uk/combat-server/data/models/status"
+	"malibu-server/data/models/status"
 
-	"github.com/graph-uk/combat-server/data/models"
+	"malibu-server/data/models"
 
-	"github.com/graph-uk/combat-server/data/repositories"
-	"github.com/graph-uk/combat-server/server/api/sessions/models"
+	"malibu-server/data/repositories"
+	"malibu-server/server/api/sessions/models"
+
 	"github.com/labstack/echo"
 )
 

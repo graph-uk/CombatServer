@@ -7,11 +7,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/graph-uk/combat-server/data/repositories/notifications"
+	"malibu-server/data/repositories/notifications"
 
-	"github.com/graph-uk/combat-server/data"
-	"github.com/graph-uk/combat-server/data/models"
-	"github.com/graph-uk/combat-server/data/models/status"
+	"malibu-server/data"
+	"malibu-server/data/models"
+	"malibu-server/data/models/status"
+
 	"github.com/jinzhu/gorm"
 )
 

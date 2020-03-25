@@ -6,15 +6,16 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/graph-uk/combat-server/data/models/status"
+	"malibu-server/data/models/status"
 
-	"github.com/graph-uk/combat-server/data/repositories"
+	"malibu-server/data/repositories"
 
-	"github.com/graph-uk/combat-server/data/models"
+	"malibu-server/data/models"
 
-	tries "github.com/graph-uk/combat-server/server/api/tries/models"
+	tries "malibu-server/server/api/tries/models"
 
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/utils"
+
 	"github.com/labstack/echo"
 )
 

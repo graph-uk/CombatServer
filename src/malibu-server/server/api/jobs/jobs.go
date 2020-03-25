@@ -4,8 +4,9 @@ import (
 	"encoding/base64"
 	"net/http"
 
-	"github.com/graph-uk/combat-server/data/repositories"
-	jobs "github.com/graph-uk/combat-server/server/api/jobs/models"
+	"malibu-server/data/repositories"
+	jobs "malibu-server/server/api/jobs/models"
+
 	"github.com/labstack/echo"
 )
 

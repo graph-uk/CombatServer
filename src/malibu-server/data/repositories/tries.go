@@ -8,10 +8,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/graph-uk/combat-server/data"
-	"github.com/graph-uk/combat-server/data/models"
-	"github.com/graph-uk/combat-server/data/models/status"
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/data"
+	"malibu-server/data/models"
+	"malibu-server/data/models/status"
+	"malibu-server/utils"
+
 	"github.com/jinzhu/gorm"
 )
 

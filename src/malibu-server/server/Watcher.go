@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/graph-uk/combat-server/data/models/status"
+	"malibu-server/data/models/status"
 
-	"github.com/graph-uk/combat-server/data/repositories"
+	"malibu-server/data/repositories"
 
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/utils"
 )
 
 func checkNotificationEnabled(config *utils.Config) {

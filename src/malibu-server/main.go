@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/utils"
 
-	"github.com/graph-uk/combat-server/data/repositories"
+	"malibu-server/data/repositories"
 
-	"github.com/graph-uk/combat-server/server"
+	"malibu-server/server"
 )
 
 func main() {

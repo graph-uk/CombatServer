@@ -19,6 +19,7 @@ module.exports = class Env {
         process.env['PATH'] += 					sep+process.env['GOROOT']+'/bin'
         process.env['PATH'] += 					sep+process.env['REPO']+'/node_modules/.bin'
         process.env['PATH'] += 					sep+process.env['REPO']+'/node_modules/liteide-win/bin'
+        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/mingw64-win/bin'
 
         process.env['ENVISSET'] = 				'TRUE'
 

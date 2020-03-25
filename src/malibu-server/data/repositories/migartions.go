@@ -5,8 +5,9 @@ import (
 	//	"fmt"
 	//	"time"
 
-	"github.com/graph-uk/combat-server/data"
-	"github.com/graph-uk/combat-server/data/models"
+	"malibu-server/data"
+	"malibu-server/data/models"
+
 	"github.com/jinzhu/gorm"
 )
 

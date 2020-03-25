@@ -6,14 +6,15 @@ import (
 	"strconv"
 	"strings"
 
+	"malibu-server/server/api/configs"
+	"malibu-server/server/api/jobs"
+	sessionsAPI "malibu-server/server/api/sessions"
+	"malibu-server/server/api/tries"
+	"malibu-server/server/site"
+	"malibu-server/server/site/sessions"
+	"malibu-server/utils"
+
 	"github.com/gobuffalo/packr"
-	"github.com/graph-uk/combat-server/server/api/configs"
-	"github.com/graph-uk/combat-server/server/api/jobs"
-	sessionsAPI "github.com/graph-uk/combat-server/server/api/sessions"
-	"github.com/graph-uk/combat-server/server/api/tries"
-	"github.com/graph-uk/combat-server/server/site"
-	"github.com/graph-uk/combat-server/server/site/sessions"
-	"github.com/graph-uk/combat-server/utils"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )

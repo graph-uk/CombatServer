@@ -6,11 +6,11 @@ import (
 	"net/smtp"
 	"strconv"
 
-	"github.com/graph-uk/combat-server/data/models"
+	"malibu-server/data/models"
 
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/utils"
 
-	"github.com/graph-uk/combat-server/data/models/status"
+	"malibu-server/data/models/status"
 )
 
 type EmailNotificationsRepository struct {

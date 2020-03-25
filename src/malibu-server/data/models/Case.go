@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/graph-uk/combat-server/data/models/status"
+	"malibu-server/data/models/status"
 )
 
 // Case model

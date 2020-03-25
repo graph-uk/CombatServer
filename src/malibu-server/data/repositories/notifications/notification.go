@@ -4,10 +4,10 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/graph-uk/combat-server/data/models"
+	"malibu-server/data/models"
 
-	"github.com/graph-uk/combat-server/data/models/status"
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/data/models/status"
+	"malibu-server/utils"
 )
 
 // Repository ...

@@ -7,12 +7,13 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/graph-uk/combat-server/data/models"
-	"github.com/graph-uk/combat-server/data/models/status"
+	"malibu-server/data/models"
+	"malibu-server/data/models/status"
 
-	"github.com/graph-uk/combat-server/data/repositories"
-	sessions "github.com/graph-uk/combat-server/server/site/sessions/models"
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/data/repositories"
+	sessions "malibu-server/server/site/sessions/models"
+	"malibu-server/utils"
+
 	"github.com/labstack/echo"
 )
 

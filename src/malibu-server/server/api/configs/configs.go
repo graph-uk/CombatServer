@@ -4,9 +4,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/graph-uk/combat-server/data/repositories"
-	"github.com/graph-uk/combat-server/server/api/configs/models"
-	"github.com/graph-uk/combat-server/utils"
+	"malibu-server/data/repositories"
+	"malibu-server/server/api/configs/models"
+	"malibu-server/utils"
+
 	"github.com/labstack/echo"
 )
 
