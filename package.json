@@ -15,7 +15,8 @@
     "build-js": "node ./node_modules/babel-cli/bin/babel ./assets/ --out-file ./assets/_/index.js --source-maps",
     "watch-js": "node ./node_modules/babel-cli/bin/babel ./assets/ --watch --out-file ./assets/_/index.js",
     "build": "npm run build-less && npm run uglifycss && npm run build-js",
-    "test": ""
+    "test": "",
+    "start-ide": "node scripts/start-ide.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -23,7 +24,10 @@
     "babel-preset-env": "^1.7.0",
     "less": "^3.8.0",
     "uglifycss": "0.0.29",
-    "less-watch-compiler": "^1.11.3"
+    "less-watch-compiler": "^1.11.3",
+    "go-win": "1.13.8",
+    "liteide-win": "0.36.3",
+    "mingw64-win": "0.0.1"
   },
   "babel": {
     "presets": [
