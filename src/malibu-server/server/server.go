@@ -22,7 +22,6 @@ import (
 // CombatServer ...
 type CombatServer struct {
 	startPath string
-	// mdb       mutexedDB.MutexedDB
 }
 
 func parseTemplates() (*template.Template, error) {
@@ -30,6 +29,7 @@ func parseTemplates() (*template.Template, error) {
 	tempBox := packr.NewBox("site")
 
 	err := tempBox.Walk(func(path string, file packr.File) error {
+		path = strings.Replace(path, `\`, `/`, -1)
 		if strings.HasSuffix(path, ".html") {
 			b := file.String()
 

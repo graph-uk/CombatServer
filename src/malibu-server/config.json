@@ -1,0 +1,11 @@
+{
+	"Port":3133,
+	"CountOfStoredSessions":10,
+	"ProjectName": "TestProject",
+	"CountOfRetries": 3,
+	"CaseTimeoutSec": 300,
+	"ServerHostname":"http://localhost",
+	"FirstSessionFailSlackHook":"",
+	"FirstSessionFailSlackChannel":"",
+	"FalseNegativePatterns":[]
+}
