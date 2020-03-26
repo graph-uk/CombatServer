@@ -1,0 +1,8 @@
+25.03 Minimum useful application. Pass to Alexey.E for code-review. Correction.
+
+08.04 Example tests on curate.
+I'll write some examples with different dificult level.
+After that - I will create tickets for developers, to writing tests. For the beginning - short tests. Every developer will write test for another's code.
+I will assist developers, and I will try not to write tests, until I finish parallel execution of tests.
+
+25.04 Parallel execution of tests on EC2.

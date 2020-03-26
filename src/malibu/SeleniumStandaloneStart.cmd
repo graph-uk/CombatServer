@@ -1,0 +1,1 @@
+start java -jar D:\Environment\Utils\Selenium\selenium-server-standalone-2.45.0.jar -Dwebdriver.chrome.driver="D:\Environment\Utils\ChromeWebDriver\win32_2.14\chromedriver.exe" -browserSessionReuse -forcedBrowserModeRestOfLine chrome
