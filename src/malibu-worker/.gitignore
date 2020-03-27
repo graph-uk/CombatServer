@@ -1,0 +1,7 @@
+*.exe
+*.exe~
+/job
+
+#idea
+.idea
+*.iml

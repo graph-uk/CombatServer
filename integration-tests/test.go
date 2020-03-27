@@ -71,8 +71,8 @@ func (t *cmdProcess) refreshErrBufLoop() {
 }
 
 // this function returns cut filepath on t.Command, and return short command
-//D:\combat_server_current\src\github.com\graph-uk\combat-server\integration-tests\client\combat-client.exe
-//combat-client.exe
+//D:\malibu_server_current\src\github.com\graph-uk\malibu-server\integration-tests\client\malibu-client.exe
+//malibu-client.exe
 func (t *cmdProcess) GetShortCommand() string {
 	arr := strings.Split(t.Command, sl) // split by '/' or '\'
 	if len(arr) > 0 {
@@ -190,32 +190,6 @@ func startCmd(dir string, env *[]string, command string, args ...string) *cmdPro
 	return &res
 }
 
-// add value to environment using separator (like PATH, GOPATH, GOROOT)
-// if value not exist - create new
-func envAdd(env []string, name, value string) []string {
-	for curVarIndex, curVarValue := range env {
-		if strings.HasPrefix(curVarValue, name+`=`) {
-			env[curVarIndex] = env[curVarIndex] + string(os.PathListSeparator) + value
-			return env
-		}
-	}
-	env = append(env, name+`=`+value)
-	return env
-}
-
-// clear and rewrite exist value by new
-// if value not exist - create new
-func envRewrite(env []string, name, value string) []string {
-	for curVarIndex, curVarValue := range env {
-		if strings.HasPrefix(curVarValue, name+`=`) {
-			env[curVarIndex] = name + `=` + value
-			return env
-		}
-	}
-	env = append(env, name+`=`+value)
-	return env
-}
-
 // Copy the src file to dst. Any existing file will be overwritten and will not
 // copy file attributes.
 func CopyFile(src, dst string) error {
@@ -277,35 +251,20 @@ func deleteFailTrigger() {
 func main() {
 	//Re-create (clear) folders for test binaries
 	os.RemoveAll(`server`)
-	os.RemoveAll(`client`)
 	os.RemoveAll(`worker`)
 	check(os.MkdirAll(`server`, 0777))
-	check(os.MkdirAll(`client`, 0777))
 	check(os.MkdirAll(`worker`, 0777))
 	createFailTrigger()
 
 	//Copy compiled binaries to correspond test folders
-	check(CopyFile(`..`+sl+`..`+sl+`combat-server`+sl+`combat-server.exe`, `server`+sl+`combat-server.exe`))
+	check(CopyFile(`..`+sl+`src`+sl+`malibu-server`+sl+`malibu-server.exe`, `server`+sl+`malibu-server.exe`))
 	check(CopyFile(`config.json`, `server`+sl+`config.json`))
-	check(CopyFile(`..`+sl+`..`+sl+`combat-client`+sl+`combat-client.exe`, `client`+sl+`combat-client.exe`))
-	check(CopyFile(`..`+sl+`..`+sl+`combat-worker`+sl+`combat-worker.exe`, `worker`+sl+`combat-worker.exe`))
-	//check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`server`, `server`+sl+`server`))
-	//check(CopyDir(`..`+sl+`..`+sl+`combat-server`+sl+`assets`, `server`+sl+`assets`))
-
-	//Configure environment variable for the server and workers
-	env := envRewrite(os.Environ(), `GOPATH`, curdir+sl+`CombatTestsExample`+sl)
-	env = envRewrite(env, `GOROOT`, curdir+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`node_modules`+sl+`combat-dev-go`)
-	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`combat`)
-	env = envAdd(env, `PATH`, curdir+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`..`+sl+`node_modules`+sl+`combat-dev-go`+sl+`bin`)
-
-	//fmt.Println(env)
-	//return
+	check(CopyFile(`..`+sl+`src`+sl+`malibu-worker`+sl+`malibu-worker.exe`, `worker`+sl+`malibu-worker.exe`))
 
 	//run server, client worker. Kill before quit.
-	server := startCmd(curdir+sl+`server`, &env, `.`+sl+`combat-server.exe`)
-	client := startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
-
-	worker := startCmd(curdir+sl+`worker`, &env, `.`+sl+`combat-worker.exe`, `http://localhost:3133`)
+	server := startCmd(curdir+sl+`server`, nil, `.`+sl+`malibu-server`)
+	client := startCmd(curdir+sl+`malibuTestsExample`+sl+`src`+sl+`Tests`, nil, `malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	worker := startCmd(curdir+sl+`worker`, nil, `.`+sl+`malibu-worker.exe`, `http://localhost:3133`)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -324,9 +283,9 @@ func main() {
 		}
 	}()
 
-	//defer server.Cmd.Process.Kill()
+	defer server.Cmd.Process.Kill()
 	defer client.Cmd.Process.Kill()
-	//defer worker.Cmd.Process.Kill()
+	defer worker.Cmd.Process.Kill()
 
 	//time.Sleep(10 * time.Second)
 
@@ -358,7 +317,7 @@ func main() {
 	//panic(`test`)
 
 	deleteFailTrigger()
-	client = startCmd(curdir+sl+`CombatTestsExample`+sl+`src`+sl+`Tests`, nil, curdir+sl+`client`+sl+`combat-client.exe`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	client = startCmd(curdir+sl+`malibuTestsExample`+sl+`src`+sl+`Tests`, nil, `malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
 	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
 
 	//client.WaitingForExitWithCode(40*time.Second, 0)

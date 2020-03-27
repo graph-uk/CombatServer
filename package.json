@@ -9,13 +9,20 @@
   ],
   "license": "ISC",
   "scripts": {
-    "build-less": "node ./node_modules/less/bin/lessc ./assets/index.less ./assets/_/index.css",
+    "build-less": "node ./node_modules/less/bin/lessc ./src/malibu-server/assets/index.less ./src/malibu-server/assets/_/index.css",
     "watch-less": "node ./node_modules/less-watch-compiler/dist/less-watch-compiler ./assets-src ./assets-dist index.less",
-    "uglifycss": "node ./node_modules/uglifycss/uglifycss ./assets/_/index.css --output ./assets/_/index.css",
-    "build-js": "node ./node_modules/@babel/cli/bin/babel ./assets/ --ignore \"./assets/_/index.js\" --out-file ./assets/_/index.js --source-maps",
-    "watch-js": "node ./node_modules/@babel/cli/bin/babel ./assets/ --ignore \"./assets/_/index.js\" --watch --out-file ./assets/_/index.js",
-    "build": "npm run build-less && npm run uglifycss && npm run build-js",
-    "test": ""
+    "uglifycss": "node ./node_modules/uglifycss/uglifycss ./src/malibu-server/assets/_/index.css --output ./src/malibu-server/assets/_/index.css",
+    "build-js": "node ./node_modules/@babel/cli/bin/babel ./src/malibu-server/assets/ --ignore \"./src/malibu-server/assets/_/index.js\" --out-file ./src/malibu-server/assets/_/index.js --source-maps",
+    "watch-js": "node ./node_modules/@babel/cli/bin/babel ./src/malibu-server/assets/ --ignore \"./src/malibu-server/assets/_/index.js\" --watch --out-file ./src/malibu-server/assets/_/index.js",
+    "build-assets": "npm run build-less && npm run uglifycss && npm run build-js",
+    "build-malibu": "cd ./src/malibu && go build",
+    "build-malibu-client": "cd ./src/malibu-client && go build",
+    "build-malibu-worker": "cd ./src/malibu-worker && go build",
+    "build-malibu-server": "cd ./src/malibu-server && packr build",
+    "build": "npm run build-assets && npm run build-malibu && npm run build-malibu-client && npm run build-malibu-worker && npm run build-malibu-server",
+    "test": "cd ./integration-tests && go run test.go",
+    "iter": "npm run build && npm run test",
+    "start-ide": "node scripts/start-ide.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",
@@ -23,7 +30,11 @@
     "babel-minify": "^0.4.3",
     "less": "^3.8.0",
     "less-watch-compiler": "^1.11.3",
-    "uglifycss": "0.0.29"
+    "uglifycss": "0.0.29",
+    "go-win": "1.13.8",
+    "liteide-win": "0.36.3",
+    "mingw64-win": "0.0.1",
+    "packr-win": "0.0.1"
   },
   "babel": {
     "presets": [
