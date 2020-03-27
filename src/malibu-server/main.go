@@ -23,13 +23,13 @@ func main() {
 		panic(err)
 	}
 
-	combatServer := &server.CombatServer{}
+	malibuServer := &server.MalibuServer{}
 
 	if config.MaxStoredSessions > 0 {
 		sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
 	}
 
-	err = combatServer.Start(config)
+	err = malibuServer.Start(config)
 	if err != nil {
 		fmt.Println("Cannot serve")
 		fmt.Println(err.Error())

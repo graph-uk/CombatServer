@@ -1,4 +1,4 @@
-package combatClient
+package malibuClient
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 	"time"
 )
 
-type CombatClient struct {
+type MalibuClient struct {
 	serverURL             string
 	sessionID             string
 	sessionBeginTimestamp time.Time
@@ -18,14 +18,14 @@ type CombatClient struct {
 	SessionTimeout        time.Duration
 }
 
-func (t *CombatClient) getServerUrlFromCLI() (string, error) {
+func (t *MalibuClient) getServerUrlFromCLI() (string, error) {
 	if len(os.Args) < 2 {
 		return "", errors.New("Server URL is required")
 	}
 	return os.Args[1], nil
 }
 
-func (t *CombatClient) getSessionTimeoutFromCLI() (time.Duration, error) {
+func (t *MalibuClient) getSessionTimeoutFromCLI() (time.Duration, error) {
 	mins, err := strconv.Atoi(os.Args[3])
 	if err != nil {
 		return time.Millisecond, errors.New(`Cannot parse session timeout. It should be int.`)
@@ -34,15 +34,15 @@ func (t *CombatClient) getSessionTimeoutFromCLI() (time.Duration, error) {
 	return result, nil
 }
 
-func (t *CombatClient) getTestsFolder() string {
+func (t *MalibuClient) getTestsFolder() string {
 	if len(os.Args) < 3 {
 		return "./../.."
 	}
 	return os.Args[2]
 }
 
-func NewCombatClient() (*CombatClient, error) {
-	var result CombatClient
+func NewMalibuClient() (*MalibuClient, error) {
+	var result MalibuClient
 	var err error
 
 	result.serverURL, err = result.getServerUrlFromCLI()
@@ -59,9 +59,9 @@ func NewCombatClient() (*CombatClient, error) {
 	return &result, nil
 }
 
-func (t *CombatClient) packTests() (string, error) {
+func (t *MalibuClient) packTests() (string, error) {
 	fmt.Println("Packing tests")
-	tmpFile, err := ioutil.TempFile("", "combatSession")
+	tmpFile, err := ioutil.TempFile("", "malibuSession")
 	if err != nil {
 		panic(err)
 	}
@@ -70,12 +70,12 @@ func (t *CombatClient) packTests() (string, error) {
 	return tmpFile.Name(), nil
 }
 
-func (t *CombatClient) cleanupTests() error {
+func (t *MalibuClient) cleanupTests() error {
 	fmt.Println("Cleanup tests")
 	return nil
 }
 
-func (t *CombatClient) getParams() string {
+func (t *MalibuClient) getParams() string {
 	params := ""
 	for curArgIndex, curArg := range os.Args {
 		if curArgIndex > 2 {
@@ -85,7 +85,7 @@ func (t *CombatClient) getParams() string {
 	return params
 }
 
-func (t *CombatClient) createSessionOnServer(archiveFileName string) string {
+func (t *MalibuClient) createSessionOnServer(archiveFileName string) string {
 	fmt.Print("Uploading session")
 	sessionName := ""
 
@@ -99,7 +99,7 @@ func (t *CombatClient) createSessionOnServer(archiveFileName string) string {
 }
 
 // CreateNewSession ...
-func (t *CombatClient) CreateNewSession() (string, error) {
+func (t *MalibuClient) CreateNewSession() (string, error) {
 	t.sessionBeginTimestamp = time.Now()
 	err := t.cleanupTests()
 	if err != nil {
@@ -124,7 +124,7 @@ func (t *CombatClient) CreateNewSession() (string, error) {
 	return "", nil
 }
 
-func (t *CombatClient) GetSessionResult(sessionID string) int {
+func (t *MalibuClient) GetSessionResult(sessionID string) int {
 	countOfErrors := 1
 	for {
 		sessionStatusJSON, err := t.getSessionStatusJSON(sessionID)

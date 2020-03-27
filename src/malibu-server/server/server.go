@@ -19,8 +19,8 @@ import (
 	"github.com/labstack/echo/middleware"
 )
 
-// CombatServer ...
-type CombatServer struct {
+// MalibuServer ...
+type MalibuServer struct {
 	startPath string
 }
 
@@ -46,7 +46,7 @@ func parseTemplates() (*template.Template, error) {
 }
 
 // Start web server
-func (t *CombatServer) Start(config *utils.Config) error {
+func (t *MalibuServer) Start(config *utils.Config) error {
 	go TimeoutWatcher(config)
 
 	templates, _ := parseTemplates()

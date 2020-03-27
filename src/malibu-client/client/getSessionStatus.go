@@ -1,4 +1,4 @@
-package combatClient
+package malibuClient
 
 import (
 	"encoding/json"
@@ -18,7 +18,7 @@ type SessionStatus struct {
 	CasesFailed         []string
 }
 
-func (t *CombatClient) getSessionStatusJSON(sessionID string) (string, error) {
+func (t *MalibuClient) getSessionStatusJSON(sessionID string) (string, error) {
 	resp, err := http.Get(t.serverURL + "/api/v1/sessions")
 	if err != nil {
 		return err.Error(), err
@@ -32,7 +32,7 @@ func (t *CombatClient) getSessionStatusJSON(sessionID string) (string, error) {
 	return string(body), nil
 }
 
-func (t *CombatClient) printSessionStatusByJSON(sessionStatusJSON string) (bool, int, error) {
+func (t *MalibuClient) printSessionStatusByJSON(sessionStatusJSON string) (bool, int, error) {
 	msg := ""
 	var sessionStatus SessionStatus
 	err := json.Unmarshal([]byte(sessionStatusJSON), &sessionStatus)

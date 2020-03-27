@@ -39,7 +39,7 @@ func main() {
 		os.Chdir(curDirectory)
 		os.Exit(totalFailed)
 	default:
-		println("Incorrect action. Please run \"Combat help\" for find available actions.")
+		println("Incorrect action. Please run \"malibu help\" for find available actions.")
 		os.Exit(1)
 	}
 	os.Exit(0)

@@ -8,9 +8,9 @@ import (
 )
 
 func main() {
-	worker, err := worker.NewCombatWorker()
+	worker, err := worker.NewMalibuWorker()
 	if err != nil {
-		fmt.Println("Cannot init combat worker")
+		fmt.Println("Cannot init malibu worker")
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}

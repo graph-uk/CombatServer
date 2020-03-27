@@ -1,7 +1,7 @@
 package webPage
 
 import (
-	"combat/Tests/Tests_shared/aas/browser"
+	"malibu/Tests/Tests_shared/aas/browser"
 	//"TestBot/aas"
 	"errors"
 	"log"

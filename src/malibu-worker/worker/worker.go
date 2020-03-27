@@ -19,22 +19,22 @@ import (
 	resty "gopkg.in/resty.v1"
 )
 
-// CombatWorker ...
-type CombatWorker struct {
+// MalibuWorker ...
+type MalibuWorker struct {
 	startPath string
 	serverURL string
 }
 
-func (t *CombatWorker) getServerURLFromCLI() (string, error) {
+func (t *MalibuWorker) getServerURLFromCLI() (string, error) {
 	if len(os.Args) < 2 {
 		return "", errors.New("Server URL is required")
 	}
 	return os.Args[1], nil
 }
 
-// NewCombatWorker ...
-func NewCombatWorker() (*CombatWorker, error) {
-	var result CombatWorker
+// NewMalibuWorker ...
+func NewMalibuWorker() (*MalibuWorker, error) {
+	var result MalibuWorker
 	var err error
 
 	result.startPath, err = os.Getwd()
@@ -51,9 +51,9 @@ func NewCombatWorker() (*CombatWorker, error) {
 	return &result, nil
 }
 
-func (t *CombatWorker) packOutputToTemp() string {
+func (t *MalibuWorker) packOutputToTemp() string {
 	fmt.Println("Packing output")
-	tmpFile, err := ioutil.TempFile("", "combatOutput")
+	tmpFile, err := ioutil.TempFile("", "malibuOutput")
 	if err != nil {
 		panic(err)
 	}
@@ -69,7 +69,7 @@ func handleError(err error) (command models.Command, params string, caseID int) 
 	return models.Idle, "", 0
 }
 
-func (t *CombatWorker) getJob(host string) (command models.Command, params string, caseID int) {
+func (t *MalibuWorker) getJob(host string) (command models.Command, params string, caseID int) {
 
 	url := fmt.Sprintf("%s/api/v1/jobs/acquire", host)
 
@@ -103,7 +103,7 @@ func (t *CombatWorker) getJob(host string) (command models.Command, params strin
 	return models.RunCase, model.CommandLine, model.CaseID
 }
 
-func (t *CombatWorker) addToGOPath(pathExtention string) []string {
+func (t *MalibuWorker) addToGOPath(pathExtention string) []string {
 	result := os.Environ()
 	for curVarIndex, curVarValue := range result {
 		if strings.HasPrefix(curVarValue, "GOPATH=") {
@@ -114,7 +114,7 @@ func (t *CombatWorker) addToGOPath(pathExtention string) []string {
 	return result
 }
 
-func (t *CombatWorker) doRunCase(params string, caseID int) {
+func (t *MalibuWorker) doRunCase(params string, caseID int) {
 	fmt.Println("CaseRunning " + params)
 
 	err := utils.Unzip(`./job/archived.zip`, `./job/unarch`)
@@ -163,7 +163,7 @@ func (t *CombatWorker) doRunCase(params string, caseID int) {
 	//return
 }
 
-func (t *CombatWorker) postCaseResult(caseID int, exitStatus, stdout string) error {
+func (t *MalibuWorker) postCaseResult(caseID int, exitStatus, stdout string) error {
 	var content string
 
 	if _, err := os.Stat("out"); err != nil { // if we don't have "out" directory - create it
@@ -230,7 +230,7 @@ func cleanupJob() error {
 }
 
 // Process ...
-func (t *CombatWorker) Process() {
+func (t *MalibuWorker) Process() {
 	os.Chdir(t.startPath)
 	cleanupJob()
 	command, params, caseID := t.getJob(t.serverURL)

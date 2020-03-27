@@ -74,7 +74,7 @@ func (t *SessionsFS) extractTestCases(session *models.Session) []models.Case {
 		}
 	}
 
-	output, err := commandHandler.ExecuteCommand("combat", commandArguments, path)
+	output, err := commandHandler.ExecuteCommand("malibu", commandArguments, path)
 
 	if err == nil {
 		return parseCasesOutput(session, output)

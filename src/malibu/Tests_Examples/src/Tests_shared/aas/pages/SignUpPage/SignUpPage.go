@@ -1,8 +1,8 @@
 package SignUpPage
 
 import (
-	"combat/Tests/Tests_shared/aas/browser"
-	"combat/Tests/Tests_shared/aas/pages/webPage"
+	"malibu/Tests/Tests_shared/aas/browser"
+	"malibu/Tests/Tests_shared/aas/pages/webPage"
 	//"runtime/debug"
 	//"TestBot/tracer"
 	//	"log"

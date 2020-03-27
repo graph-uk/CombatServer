@@ -1,8 +1,8 @@
 package aas
 
 import (
-	"combat/Tests/Tests_shared/aas/browser"
-	"combat/Tests/Tests_shared/aas/pages"
+	"malibu/Tests/Tests_shared/aas/browser"
+	"malibu/Tests/Tests_shared/aas/pages"
 	//	"errors"
 	//	"fmt"
 	//	"log"

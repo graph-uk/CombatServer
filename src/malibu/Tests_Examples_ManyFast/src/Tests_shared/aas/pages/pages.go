@@ -1,9 +1,9 @@
 package pages
 
 import (
-	"combat/Tests/Tests_shared/aas/browser"
-	"combat/Tests/Tests_shared/aas/pages/SignUpPage"
-	"combat/Tests/Tests_shared/aas/pages/mainPage"
+	"malibu/Tests/Tests_shared/aas/browser"
+	"malibu/Tests/Tests_shared/aas/pages/SignUpPage"
+	"malibu/Tests/Tests_shared/aas/pages/mainPage"
 )
 
 type Pages struct {

@@ -50,7 +50,7 @@ func (t *Test) LoadTagsAndParams() error {
 	var out, outErr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &outErr
-	cmd.Run()
+	log.Println(cmd.Run())
 	//	if err != nil {
 	//		log.Fatal(err)
 	//	}
@@ -60,6 +60,7 @@ func (t *Test) LoadTagsAndParams() error {
 		log.Println("Cannot parse json for test: " + t.name)
 		log.Println("JSON data: " + out.String())
 		fmt.Println(outErr.String())
+		fmt.Println(cmd.Env)
 		panic(err)
 	}
 	t.tags = TestParams.Tags

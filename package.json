@@ -20,7 +20,8 @@
     "build-malibu-worker": "cd ./src/malibu-worker && go build",
     "build-malibu-server": "cd ./src/malibu-server && packr build",
     "build": "npm run build-assets && npm run build-malibu && npm run build-malibu-client && npm run build-malibu-worker && npm run build-malibu-server",
-    "test": "",
+    "test": "cd ./integration-tests && go run test.go",
+    "iter": "npm run build && npm run test",
     "start-ide": "node scripts/start-ide.js"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-package combatClient
+package malibuClient
 
 import (
 	"archive/zip"

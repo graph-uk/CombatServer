@@ -9,16 +9,16 @@ import (
 
 func main() {
 
-	client, err := combatClient.NewCombatClient()
+	client, err := malibuClient.NewMalibuClient()
 	if err != nil {
-		fmt.Println("Cannot init combat client")
+		fmt.Println("Cannot init malibu client")
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
 
 	sessionID, err := client.CreateNewSession()
 	if err != nil {
-		fmt.Println("Cannot create combat session")
+		fmt.Println("Cannot create malibu session")
 		fmt.Println(err.Error())
 		os.Exit(1)
 	}
