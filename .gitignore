@@ -13,5 +13,5 @@
 .idea
 /node_modules/
 /debug
-/assets/_/
+/src/malibu-server/assets/_/
 /_data/

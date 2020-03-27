@@ -9,11 +9,11 @@
   ],
   "license": "ISC",
   "scripts": {
-    "build-less": "node ./node_modules/less/bin/lessc ./assets/index.less ./assets/_/index.css",
+    "build-less": "node ./node_modules/less/bin/lessc ./src/malibu-server/assets/index.less ./src/malibu-server/assets/_/index.css",
     "watch-less": "node ./node_modules/less-watch-compiler/dist/less-watch-compiler ./assets-src ./assets-dist index.less",
-    "uglifycss": "node ./node_modules/uglifycss/uglifycss ./assets/_/index.css --output ./assets/_/index.css",
-    "build-js": "node ./node_modules/@babel/cli/bin/babel ./assets/ --ignore \"./assets/_/index.js\" --out-file ./assets/_/index.js --source-maps",
-    "watch-js": "node ./node_modules/@babel/cli/bin/babel ./assets/ --ignore \"./assets/_/index.js\" --watch --out-file ./assets/_/index.js",
+    "uglifycss": "node ./node_modules/uglifycss/uglifycss ./src/malibu-server/assets/_/index.css --output ./src/malibu-server/assets/_/index.css",
+    "build-js": "node ./node_modules/@babel/cli/bin/babel ./src/malibu-server/assets/ --ignore \"./src/malibu-server/assets/_/index.js\" --out-file ./src/malibu-server/assets/_/index.js --source-maps",
+    "watch-js": "node ./node_modules/@babel/cli/bin/babel ./src/malibu-server/assets/ --ignore \"./src/malibu-server/assets/_/index.js\" --watch --out-file ./src/malibu-server/assets/_/index.js",
     "build": "npm run build-less && npm run uglifycss && npm run build-js",
     "test": "",
     "start-ide": "node scripts/start-ide.js"
