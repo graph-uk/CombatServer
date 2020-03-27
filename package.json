@@ -12,19 +12,19 @@
     "build-less": "node ./node_modules/less/bin/lessc ./assets/index.less ./assets/_/index.css",
     "watch-less": "node ./node_modules/less-watch-compiler/dist/less-watch-compiler ./assets-src ./assets-dist index.less",
     "uglifycss": "node ./node_modules/uglifycss/uglifycss ./assets/_/index.css --output ./assets/_/index.css",
-    "build-js": "node ./node_modules/babel-cli/bin/babel ./assets/ --out-file ./assets/_/index.js --source-maps",
-    "watch-js": "node ./node_modules/babel-cli/bin/babel ./assets/ --watch --out-file ./assets/_/index.js",
+    "build-js": "node ./node_modules/@babel/cli/bin/babel ./assets/ --ignore \"./assets/_/index.js\" --out-file ./assets/_/index.js --source-maps",
+    "watch-js": "node ./node_modules/@babel/cli/bin/babel ./assets/ --ignore \"./assets/_/index.js\" --watch --out-file ./assets/_/index.js",
     "build": "npm run build-less && npm run uglifycss && npm run build-js",
     "test": "",
     "start-ide": "node scripts/start-ide.js"
   },
   "devDependencies": {
-    "babel-cli": "^6.26.0",
+    "@babel/cli": "^7.8.4",
+    "@babel/preset-env": "^7.9.0",
     "babel-minify": "^0.4.3",
-    "babel-preset-env": "^1.7.0",
     "less": "^3.8.0",
-    "uglifycss": "0.0.29",
     "less-watch-compiler": "^1.11.3",
+    "uglifycss": "0.0.29",
     "go-win": "1.13.8",
     "liteide-win": "0.36.3",
     "mingw64-win": "0.0.1"
@@ -33,7 +33,7 @@
     "presets": [
       "minify",
       [
-        "env",
+        "@babel/preset-env",
         {
           "targets": {
             "browsers": [
