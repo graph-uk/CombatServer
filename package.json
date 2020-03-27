@@ -14,7 +14,12 @@
     "uglifycss": "node ./node_modules/uglifycss/uglifycss ./src/malibu-server/assets/_/index.css --output ./src/malibu-server/assets/_/index.css",
     "build-js": "node ./node_modules/@babel/cli/bin/babel ./src/malibu-server/assets/ --ignore \"./src/malibu-server/assets/_/index.js\" --out-file ./src/malibu-server/assets/_/index.js --source-maps",
     "watch-js": "node ./node_modules/@babel/cli/bin/babel ./src/malibu-server/assets/ --ignore \"./src/malibu-server/assets/_/index.js\" --watch --out-file ./src/malibu-server/assets/_/index.js",
-    "build": "npm run build-less && npm run uglifycss && npm run build-js",
+    "build-assets": "npm run build-less && npm run uglifycss && npm run build-js",
+    "build-malibu": "cd ./src/malibu && go build",
+    "build-malibu-client": "cd ./src/malibu-client && go build",
+    "build-malibu-worker": "cd ./src/malibu-worker && go build",
+    "build-malibu-server": "cd ./src/malibu-server && packr build",
+    "build": "npm run build-assets && npm run build-malibu && npm run build-malibu-client && npm run build-malibu-worker && npm run build-malibu-server",
     "test": "",
     "start-ide": "node scripts/start-ide.js"
   },
@@ -27,7 +32,8 @@
     "uglifycss": "0.0.29",
     "go-win": "1.13.8",
     "liteide-win": "0.36.3",
-    "mingw64-win": "0.0.1"
+    "mingw64-win": "0.0.1",
+    "packr-win": "0.0.1"
   },
   "babel": {
     "presets": [
