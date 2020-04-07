@@ -13,6 +13,7 @@ module.exports = class Env {
     	process.env['REPO'] = 					require('path').resolve(__dirname+'/..')
 
         process.env['GOPATH'] = 				process.env['REPO']
+        process.env['GOPATH'] +=                sep+process.env['REPO']+'/int-tests'        
         process.env['GOROOT'] = 				process.env['REPO']+'/node_modules/go-win'
 
         process.env['PATH'] += 					sep+process.env['GOPATH']+'/bin'

@@ -46,10 +46,10 @@ func main() {
 	for i := 0; i < 100; i++ {
 		if i < 10 {
 			fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(0) + strconv.Itoa(i))
-			time.Sleep(20 * time.Millisecond)
+			//time.Sleep(20 * time.Millisecond)
 		} else {
 			fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(i))
-			time.Sleep(20 * time.Millisecond)
+			//time.Sleep(20 * time.Millisecond)
 		}
 	}
 	//	fakescreenshots.MakeFakeSetpArtifacts(theTest.timestamp)
