@@ -76,5 +76,4 @@ func main() {
 	if err != nil {
 		panic("Panicking")
 	}
-
 }

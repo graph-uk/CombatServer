@@ -22,8 +22,7 @@ module.exports = class Env {
         process.env['PATH'] += 					sep+process.env['REPO']+'/node_modules/liteide-win/bin'
         process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/mingw64-win/bin'
         process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/packr-win'
-        process.env['PATH'] +=                  sep+process.env['REPO']+'/src/malibu'
-        process.env['PATH'] +=                  sep+process.env['REPO']+'/src/malibu-client'
+        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/malibu-win'
 
         process.env['ENVISSET'] = 				'TRUE'
 

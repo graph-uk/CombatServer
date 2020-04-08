@@ -1,0 +1,25 @@
+{
+	"port":3133,
+	"maxStoredSessions":10,
+	"projectName": "TestProject",
+	"maxRetries": 3,
+	"silentTries": false,
+	"caseTimeoutSec": 300,
+	"serverAddress":"http://localhost:3133",
+	"falseNegativePatterns":[],
+	"notificationGateways": [{
+			"type": "slack",
+			"statuses": "3,4",
+			"url": "",
+			"channel": "#slack_debug"
+		},{
+			"type": "email",
+			"statuses": "3,4",
+			"smtpserverurl": "127.0.0.1",
+			"smtpserverport": "25",
+			"fromemail": "...@....com",
+			"toemail": "...@gmail.com"
+		}
+	],
+	"NotificationMuteDurationMinutes":1
+}

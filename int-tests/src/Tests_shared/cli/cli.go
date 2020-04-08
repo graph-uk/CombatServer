@@ -1,6 +1,4 @@
-//This file is download or/and update dependencies, and build binaries.
-//Recommended to set env "GOPATH" to THIS_FILE_PATH/..
-package main
+package cli
 
 import (
 	"bytes"
@@ -74,7 +72,7 @@ func (t *cmdProcess) refreshErrBufLoop() {
 //D:\malibu_server_current\src\github.com\graph-uk\malibu-server\integration-tests\client\malibu-client.exe
 //malibu-client.exe
 func (t *cmdProcess) GetShortCommand() string {
-	arr := strings.Split(t.Command, sl) // split by '/' or '\'
+	arr := strings.Split(t.Command, Sl) // split by '/' or '\'
 	if len(arr) > 0 {
 		return arr[len(arr)-1]
 	} else {
@@ -160,7 +158,7 @@ func (t *cmdProcess) WaitingForExitWithCode(timeout time.Duration, expectedExitC
 	}
 }
 
-func startCmd(dir string, env *[]string, command string, args ...string) *cmdProcess {
+func StartCmd(dir string, env *[]string, command string, args ...string) *cmdProcess {
 	var res cmdProcess
 	res.Command = command
 
@@ -192,7 +190,7 @@ func startCmd(dir string, env *[]string, command string, args ...string) *cmdPro
 
 // Copy the src file to dst. Any existing file will be overwritten and will not
 // copy file attributes.
-func CopyFile(src, dst string) error {
+func copyFile(src, dst string) error {
 	in, err := os.Open(src)
 	if err != nil {
 		return err
@@ -212,6 +210,10 @@ func CopyFile(src, dst string) error {
 	return out.Close()
 }
 
+func CopyFile(src, dst string) {
+	check(copyFile(src, dst))
+}
+
 func check(err error) {
 	if err != nil {
 		panic(err)
@@ -219,112 +221,70 @@ func check(err error) {
 }
 
 func init() {
-	sl = string(os.PathSeparator)
+	Sl = string(os.PathSeparator)
 
 	var err error
 	curdir, err = os.Getwd()
 	check(err)
 }
 
-var sl, curdir string // system filepath separator (/ or \), dir which script started
+var Sl, curdir string // system filepath separator (/ or \), dir which script started
 
 func CopyDir(src, dst string) error {
 	cmd := exec.Command(`xcopy`, `/s`, `/e`, `/c`, `/h`, `/k`, `/y`, src, dst+`\`)
 	//log.Printf("Running cp -a")
 	return cmd.Run()
 }
-func createFailTrigger() {
-	file := os.TempDir() + `\testSuccessOrFailure.txt`
-	f, _ := os.OpenFile(file, os.O_RDONLY|os.O_CREATE, 0666)
-	f.Close()
+
+func RemoveAll(path string) error {
+	return os.RemoveAll(path)
 }
 
-func deleteFailTrigger() {
-	file := os.TempDir() + `\testSuccessOrFailure.txt`
-	//	var err error
+func MkDir(path string, perm os.FileMode) {
+	check(os.MkdirAll(path, perm))
+}
+
+func CreateFailTrigger(name string) {
+	file := os.TempDir() + `\` + name
+	f, err := os.OpenFile(file, os.O_RDONLY|os.O_CREATE, 0666)
+	check(err)
+	check(f.Close())
+}
+
+func DeleteFailTrigger(name string) {
+	file := os.TempDir() + `\` + name
 	os.RemoveAll(file)
-	//fmt.Println(err.Error())
-	os.Remove(file)
-	//fmt.Println(err.Error())
+	//os.Remove(file)
 }
 
-func main() {
-	//Re-create (clear) folders for test binaries
-	os.RemoveAll(`server`)
-	os.RemoveAll(`worker`)
-	check(os.MkdirAll(`server`, 0777))
-	check(os.MkdirAll(`worker`, 0777))
-	createFailTrigger()
+func Pwd() string {
+	dir, err := os.Getwd()
+	check(err)
+	return dir
+}
 
-	//Copy compiled binaries to correspond test folders
-	check(CopyFile(`..`+sl+`src`+sl+`malibu-server`+sl+`malibu-server.exe`, `server`+sl+`malibu-server.exe`))
-	check(CopyFile(`config.json`, `server`+sl+`config.json`))
-	check(CopyFile(`..`+sl+`src`+sl+`malibu-worker`+sl+`malibu-worker.exe`, `worker`+sl+`malibu-worker.exe`))
-
-	//run server, client worker. Kill before quit.
-	server := startCmd(curdir+sl+`server`, nil, `.`+sl+`malibu-server`)
-	client := startCmd(curdir+sl+`malibuTestsExample`+sl+`src`+sl+`Tests`, nil, `malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
-	worker := startCmd(curdir+sl+`worker`, nil, `.`+sl+`malibu-worker.exe`, `http://localhost:3133`)
-
-	defer func() {
-		if r := recover(); r != nil {
-			fmt.Println(`----------------------------------------Server stdout-----------------------------------------`)
-			fmt.Println(string(server.StdOutBuf))
-			fmt.Println(`----------------------------------------Server stderr-----------------------------------------`)
-			fmt.Println(string(server.StdErrBuf))
-			fmt.Println(`----------------------------------------Client stdout-----------------------------------------`)
-			fmt.Println(string(client.StdOutBuf))
-			fmt.Println(`----------------------------------------Client stderr-----------------------------------------`)
-			fmt.Println(string(client.StdErrBuf))
-			fmt.Println(`----------------------------------------Worker stdout-----------------------------------------`)
-			fmt.Println(string(worker.StdOutBuf))
-			fmt.Println(`----------------------------------------Worker stderr-----------------------------------------`)
-			fmt.Println(string(worker.StdErrBuf))
+// add item to environment variable with os-specified separator (like PATH, GOPATH, GOROOT)
+// if value not exist - create new
+func EnvExtend(env []string, name, value string) []string {
+	for curVarIndex, curVarValue := range env {
+		if strings.HasPrefix(curVarValue, name+`=`) {
+			env[curVarIndex] = env[curVarIndex] + string(os.PathListSeparator) + value
+			return env
 		}
-	}()
+	}
+	env = append(env, name+`=`+value)
+	return env
+}
 
-	defer server.Cmd.Process.Kill()
-	defer client.Cmd.Process.Kill()
-	defer worker.Cmd.Process.Kill()
-
-	//time.Sleep(10 * time.Second)
-
-	//Check server's output
-	//server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)
-	server.WaitingForStdOutContains(`http server started on`, 10*time.Second)
-	server.WaitingForStdOutContains(`Created:  _data/sessions`, 10*time.Second)
-	server.WaitingForStdOutContains(`TestFail -InternalIP=192.168.1.1`, 40*time.Second)
-	server.WaitingForStdOutContains(`TestSuccess -InternalIP=192.168.1.1`, 40*time.Second)
-	server.WaitingForStdOutContains(`Try status: Failed`, 200*time.Second)
-
-	//Check worker's output
-	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, 2*time.Minute)
-	worker.WaitingForStdOutContains(`Run case... Ok`, time.Minute)
-	worker.WaitingForStdOutContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, 2*time.Minute)
-	worker.WaitingForStdOutContains(`Run case... Fail`, time.Minute)
-	worker.WaitingForStdOutContains(`Failed here for example`, time.Minute)
-
-	//Check client's output
-	client.WaitingForStdOutContains(`Cleanup tests`, 10*time.Second)
-	client.WaitingForStdOutContains(`Packing tests`, 10*time.Second)
-	client.WaitingForStdOutContains(`Uploading session`, 10*time.Second)
-	client.WaitingForStdOutContains(` - Pending`, 10*time.Second)
-	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
-	client.WaitingForStdOutContains(` - Processing`, 40*time.Second)
-	client.WaitingForStdOutContains(`Processed 0 of 5 tests`, 40*time.Second)
-	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
-	//Time of testing
-	//panic(`test`)
-
-	deleteFailTrigger()
-	client = startCmd(curdir+sl+`malibuTestsExample`+sl+`src`+sl+`Tests`, nil, `malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
-	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
-
-	//client.WaitingForExitWithCode(40*time.Second, 0)
-	//time.Sleep(20*time.Second)
-
-	//server.WaitingForStdOutContains(`Slack alert sent. Response:  ok`, 40*time.Second)
-
-	//panic(`test`)
-	log.Println(`The test finished succeed.`)
+// clear and rewrite exist value by new
+// if value not exist - create new
+func EnvRewrite(env []string, name, value string) []string {
+	for curVarIndex, curVarValue := range env {
+		if strings.HasPrefix(curVarValue, name+`=`) {
+			env[curVarIndex] = name + `=` + value
+			return env
+		}
+	}
+	env = append(env, name+`=`+value)
+	return env
 }

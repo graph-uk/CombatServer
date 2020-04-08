@@ -27,6 +27,10 @@ type MalibuTest struct {
 	existSeleniumSessionID string
 }
 
+func (t *MalibuTest) startBrowser(filepath string) string {
+	return strings.Replace(filepath, `/`, `\`, -1)
+}
+
 // func (t *MalibuTest) loadSeleniumSession() {
 // 	t.existSeleniumSessionID = ``
 // 	f, err := os.Open(`out` + string(os.PathSeparator) + `SeleniumSessionID.txt`)
@@ -80,12 +84,6 @@ func NewMalibuTest() *MalibuTest {
 	//result.saveSeleniumSession()
 
 	// result.Params.CSIPassword.Value = decodeParam(result.Params.CSIPassword.Value)
-	// result.Params.CSIPassword1.Value = decodeParam(result.Params.CSIPassword1.Value)
-	// result.Params.CSIPassword2.Value = decodeParam(result.Params.CSIPassword2.Value)
-	// result.Params.CSIPassword3.Value = decodeParam(result.Params.CSIPassword3.Value)
-	// result.Params.CSIPassword4.Value = decodeParam(result.Params.CSIPassword4.Value)
-	// result.Params.CSIPassword5.Value = decodeParam(result.Params.CSIPassword5.Value)
-	// result.Params.CSIPassword6.Value = decodeParam(result.Params.CSIPassword6.Value)
 
 	return &result
 }
