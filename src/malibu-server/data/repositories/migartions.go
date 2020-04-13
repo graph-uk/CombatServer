@@ -1,12 +1,9 @@
 package repositories
 
 import (
-	"time"
-	//	"fmt"
-	//	"time"
-
 	"malibu-server/data"
 	"malibu-server/data/models"
+	"time"
 
 	"github.com/jinzhu/gorm"
 )
@@ -14,6 +11,12 @@ import (
 // Migrations is repsoitory creates db schema
 type Migrations struct {
 	context data.Context
+}
+
+func check(err error) {
+	if err != nil {
+		panic(err)
+	}
 }
 
 // migration for Configs table, contains notification-disabling etc...
@@ -53,14 +56,10 @@ func (t *Migrations) migrateConfig() error {
 }
 
 //Apply migrations to the repository
-func (t *Migrations) Apply() error {
+func (t *Migrations) Apply() {
 	query := func(db *gorm.DB) {
 		db.AutoMigrate(&models.Case{}, &models.Session{}, &models.Try{}, &models.Config{})
 	}
-	err := t.context.Execute(query)
-	if err != nil {
-		return err
-	}
-
-	return t.migrateConfig()
+	check(t.context.Execute(query))
+	check(t.migrateConfig())
 }

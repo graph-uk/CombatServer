@@ -4,32 +4,18 @@ import (
 	"fmt"
 	"os"
 
-	"malibu-server/utils"
-
-	"malibu-server/data/repositories"
-
 	"malibu-server/server"
+	"malibu-server/utils"
 )
 
 func main() {
-	repo := &repositories.Migrations{}
-	sessionsRepo := &repositories.Sessions{}
-
 	config := utils.GetApplicationConfig()
 
-	err := repo.Apply()
-
-	if err != nil {
-		panic(err)
-	}
+	db := utils.GetDB()
+	defer db.Close()
 
 	malibuServer := &server.MalibuServer{}
-
-	if config.MaxStoredSessions > 0 {
-		sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
-	}
-
-	err = malibuServer.Start(config)
+	err := malibuServer.Start(config, db)
 	if err != nil {
 		fmt.Println("Cannot serve")
 		fmt.Println(err.Error())
