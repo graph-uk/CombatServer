@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	//return
 	action := CLIParser.GetAction() //"run" action by default
 	if action == "" {
 		action = "run"

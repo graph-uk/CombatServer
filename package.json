@@ -20,7 +20,7 @@
     "build-malibu-worker": "cd ./src/malibu-worker && go build",
     "build-malibu-server": "cd ./src/malibu-server && packr build",
     "build": "npm run build-assets && npm run build-malibu && npm run build-malibu-client && npm run build-malibu-worker && npm run build-malibu-server",
-    "test": "cd ./int-tests/src/Tests && malibu -HostName=localhost",
+    "test": "node ./scripts/pass-binaries-to-tests.js && cd ./int-tests/src/Tests && malibu -HostName=localhost",
     "iter": "npm run build && npm run test",
     "start-ide": "node scripts/start-ide.js"
   },

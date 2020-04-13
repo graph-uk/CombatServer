@@ -1,6 +1,10 @@
 const t = new(require('./tools/tools.js'))
 
-//t.checkCmdAvailable('docker ps')
+const targetFolder = process.env['REPO']+'/int-tests/src/Tests_shared/target-app-binaries'
 
-t.startCmdDetached('cmd',['/c start cmd /k echo Hi! Run \'npm run iter\' for build and test locally. Update something in IDE, check it correct (ctrl+b), and run iter again.'])
-t.startCmdDetached('liteide', [process.env['REPO']+'/src/malibu-server/main.go'])
+t.rmdir(targetFolder)
+t.mkdir(targetFolder)
+t.mv(process.env['REPO']+'/src/malibu/malibu.exe', targetFolder+'/malibu.exe')
+t.mv(process.env['REPO']+'/src/malibu-client/malibu-client.exe', targetFolder+'/malibu-client.exe')
+t.mv(process.env['REPO']+'/src/malibu-server/malibu-server.exe', targetFolder+'/malibu-server.exe')
+t.mv(process.env['REPO']+'/src/malibu-worker/malibu-worker.exe', targetFolder+'/malibu-worker.exe')

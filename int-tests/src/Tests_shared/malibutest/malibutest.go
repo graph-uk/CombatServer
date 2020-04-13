@@ -2,7 +2,6 @@ package malibutest
 
 import (
 	"Tests_shared/aTest"
-	//"Tests_shared/browser"
 	"encoding/base64"
 	"fmt"
 
@@ -31,27 +30,6 @@ func (t *MalibuTest) startBrowser(filepath string) string {
 	return strings.Replace(filepath, `/`, `\`, -1)
 }
 
-// func (t *MalibuTest) loadSeleniumSession() {
-// 	t.existSeleniumSessionID = ``
-// 	f, err := os.Open(`out` + string(os.PathSeparator) + `SeleniumSessionID.txt`)
-// 	if err == nil {
-// 		buf := bytes.NewBuffer(nil)
-// 		_, err := io.Copy(buf, f) // Error handling elided for brevity.
-// 		f.Close()
-// 		if err == nil {
-// 			t.existSeleniumSessionID = strings.TrimSpace(string(buf.Bytes()))
-// 		}
-// 	}
-// }
-
-// func (t *MalibuTest) saveSeleniumSession() {
-// 	SeleniumSessionID := []byte(t.Browser.Selenium.SessionID())
-// 	err := ioutil.WriteFile(`out`+string(os.PathSeparator)+`SeleniumSessionID.txt`, SeleniumSessionID, 0644)
-// 	if err != nil {
-// 		fmt.Println(`Cannot write selenium session ID to file. Error: ` + err.Error())
-// 	}
-// }
-
 func (t *MalibuTest) pathToWindowsFormat(filepath string) string {
 	return strings.Replace(filepath, `/`, `\`, -1)
 }
@@ -76,14 +54,8 @@ func NewMalibuTest() *MalibuTest {
 	result.Timestamp = time.Now().Format("20060102150405")
 	fmt.Println("Timestamp: " + result.Timestamp)
 
-	//result.loadSeleniumSession()
 	fmt.Println("ExistSeleniumSessionID: " + result.existSeleniumSessionID)
 	result.ATest.CreateOutputFolder()
-	//result.Browser, err = browser.NewBrowser(result.existSeleniumSessionID) // attach to exist session, or create new if not exist.
-	//check(err)
-	//result.saveSeleniumSession()
-
-	// result.Params.CSIPassword.Value = decodeParam(result.Params.CSIPassword.Value)
 
 	return &result
 }

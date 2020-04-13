@@ -34,7 +34,7 @@ func main() {
 	env = cli.EnvExtend(env, `Path`, cli.Pwd()+`/../../../../node_modules/go-win/bin`)
 
 	//env := cli.EnvRewrite(os.Environ(), `GOPATH`, cli.Pwd()+`/../../Tests_shared/malibuTestsExample`)
-	log.Println(env)
+	//log.Println(env)
 	//return
 
 	server := cli.StartCmd(cli.Pwd()+`/server`, &env, `./malibu-server`)
@@ -55,12 +55,16 @@ func main() {
 			fmt.Println(string(worker.StdOutBuf))
 			fmt.Println(`----------------------------------------Worker stderr-----------------------------------------`)
 			fmt.Println(string(worker.StdErrBuf))
+			panic(r)
 		}
 	}()
 
 	defer server.Cmd.Process.Kill()
 	defer client.Cmd.Process.Kill()
 	defer worker.Cmd.Process.Kill()
+
+	// log.Println(env)
+	// panic(`env`)
 
 	//Check server's output
 	//server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)
@@ -92,7 +96,7 @@ func main() {
 	cli.DeleteFailTrigger(`testSuccessOrFailure.txt`)
 	client = cli.StartCmd(cli.Pwd()+`/../../Tests_shared/malibuTestsExample/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
 	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
-	//panic(`test`)
 
 	log.Println(`The test finished succeed.`)
+
 }

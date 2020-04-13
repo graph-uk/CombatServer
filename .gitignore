@@ -16,3 +16,5 @@
 /src/malibu-server/assets/_/
 /_data/
 _data
+/int-tests/src/Tests/twoSessions/worker
+*.sl3
