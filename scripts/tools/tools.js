@@ -1,3 +1,5 @@
+const fs = require('fs')
+
 module.exports = class Tools {
 	constructor()
     {
@@ -20,10 +22,26 @@ module.exports = class Tools {
 			this.cmd(cmd)
 		}catch{
 			console.log('The command "'+cmd+'" returned non-zero code. Check it installed and available')
-			console.log('Press any key to exit');
+			console.log('Press any key to exit')
 			
 			require('fs').readSync(process.stdin.fd, new Buffer(1), 0, 1)
 			throw 'check cmd available failed'
 		}
 	}
-};
+
+	rmdir(dir) {
+		if (fs.existsSync(dir)){
+			fs.rmdirSync(dir, {recursive: true})
+		}
+	}
+
+	mkdir(dir) {
+		if (!fs.existsSync(dir)){
+			fs.mkdirSync(dir)
+		}
+	}
+
+	mv(oldPath, newPath) {
+		fs.renameSync(oldPath,newPath)
+	}
+}

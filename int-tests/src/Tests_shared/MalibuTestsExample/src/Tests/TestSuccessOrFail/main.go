@@ -4,6 +4,7 @@ import (
 	"Tests_shared/aTest"
 	"Tests_shared/fakescreenshots"
 	"fmt"
+	"os"
 	"strconv"
 	"time"
 )
@@ -45,10 +46,10 @@ func main() {
 	for i := 0; i < 100; i++ {
 		if i < 10 {
 			fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(0) + strconv.Itoa(i))
-			time.Sleep(20 * time.Millisecond)
+			//time.Sleep(20 * time.Millisecond)
 		} else {
 			fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(i))
-			time.Sleep(20 * time.Millisecond)
+			//time.Sleep(20 * time.Millisecond)
 		}
 	}
 	//	fakescreenshots.MakeFakeSetpArtifacts(theTest.timestamp)
@@ -57,4 +58,22 @@ func main() {
 	//	time.Sleep(2 * time.Second)
 	//	fakescreenshots.MakeFakeSetpArtifacts(time.Now().Format("20060102150405"))
 
+	//	file := os.TempDir() + `\testSuccessOrFailure.txt`
+	//	_, err := os.Stat(file)
+	//	if err == nil {
+
+	//	} else if os.IsNotExist(err) {
+
+	//		_, err := os.OpenFile(file, os.O_RDONLY|os.O_CREATE, 0666)
+	//		fmt.Println(err.Error())
+	//		panic("File not found")
+	//	} else {
+	//		fmt.Printf("file %s stat error: %v", file, err)
+	//	}
+
+	file := os.TempDir() + `\testSuccessOrFailure.txt`
+	_, err := os.Stat(file)
+	if err != nil {
+		panic("Panicking")
+	}
 }

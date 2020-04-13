@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-	"os"
 )
 
 type theTest struct {
@@ -37,10 +36,6 @@ func check(err error) {
 
 func main() {
 	theTest := createNewTest()
-
-	f, _ := os.Create("out/SeleniumSessionID.txt")
-    defer f.Close()
-
 	defer func() {
 		if r := recover(); r != nil {
 			aTest.PrintSourceAndContinuePanic(r)
@@ -50,10 +45,10 @@ func main() {
 	for i := 0; i < 100; i++ {
 		if i < 10 {
 			fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(0) + strconv.Itoa(i))
-			time.Sleep(20 * time.Millisecond)
+			//time.Sleep(20 * time.Millisecond)
 		} else {
 			fakescreenshots.MakeFakeSetpArtifacts(strconv.Itoa(i))
-			time.Sleep(20 * time.Millisecond)
+			//time.Sleep(20 * time.Millisecond)
 		}
 	}
 	//	fakescreenshots.MakeFakeSetpArtifacts(theTest.timestamp)
@@ -62,5 +57,4 @@ func main() {
 	//	time.Sleep(2 * time.Second)
 	//	fakescreenshots.MakeFakeSetpArtifacts(time.Now().Format("20060102150405"))
 
-	panic(`Failed here for example`)
 }

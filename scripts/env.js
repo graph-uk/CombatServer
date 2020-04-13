@@ -13,6 +13,7 @@ module.exports = class Env {
     	process.env['REPO'] = 					require('path').resolve(__dirname+'/..')
 
         process.env['GOPATH'] = 				process.env['REPO']
+        process.env['GOPATH'] +=                sep+process.env['REPO']+'/int-tests'        
         process.env['GOROOT'] = 				process.env['REPO']+'/node_modules/go-win'
 
         process.env['PATH'] += 					sep+process.env['GOPATH']+'/bin'
@@ -21,8 +22,7 @@ module.exports = class Env {
         process.env['PATH'] += 					sep+process.env['REPO']+'/node_modules/liteide-win/bin'
         process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/mingw64-win/bin'
         process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/packr-win'
-        process.env['PATH'] +=                  sep+process.env['REPO']+'/src/malibu'
-        process.env['PATH'] +=                  sep+process.env['REPO']+'/src/malibu-client'
+        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/malibu-win'
 
         process.env['ENVISSET'] = 				'TRUE'
 
