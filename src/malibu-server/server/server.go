@@ -75,10 +75,10 @@ func processMigrations(db *storm.DB) {
 }
 
 // Start web server
-func (t *MalibuServer) Start(config *utils.Config, db *storm.DB) error {
+func (t *MalibuServer) Start(config *utils.Config) error {
 
 	//run migrations
-	processMigrations(db)
+	//processMigrations(db)
 
 	go TimeoutWatcher(config)
 

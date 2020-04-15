@@ -13,7 +13,7 @@ import (
 	"malibu-server/data/models/status"
 	"malibu-server/utils"
 
-	"github.com/jinzhu/gorm"
+	"github.com/asdine/storm"
 )
 
 const triesPathTemplate = "_data/tries/%d"
@@ -27,14 +27,14 @@ type Tries struct {
 
 // Create Try
 func (t *Tries) Create(try *models.Try, content []byte) error {
-	var session models.Session
-	var sessionCase models.Case
+	// var session models.Session
+	// var sessionCase models.Case
 
-	query := func(db *gorm.DB) {
-		db.Find(&sessionCase, try.CaseID)
-		db.Find(&session, sessionCase.SessionID)
-
-		db.Create(try)
+	query := func(db *storm.DB) {
+		// db.Find(&sessionCase, try.CaseID)
+		// db.Find(&session, sessionCase.SessionID)
+		//db.Create(try)
+		check(db.Save(try))
 	}
 
 	err := t.context.Execute(query)
@@ -75,7 +75,8 @@ func (t *Tries) setCaseStatus(try *models.Try) error {
 }
 
 func (t *Tries) getCaseStatus(try *models.Try) status.Status {
-	var casesTriesCount int
+	//var casesTriesCount int
+	var caseTries []models.Try
 
 	tryStatus := getTryStatus(try.ExitStatus)
 
@@ -85,13 +86,14 @@ func (t *Tries) getCaseStatus(try *models.Try) status.Status {
 
 	fmt.Printf("Try status: %s\n", tryStatus.String())
 
-	query := func(db *gorm.DB) {
-		db.Model(&models.Try{}).Where(&models.Try{CaseID: try.CaseID}).Count(&casesTriesCount)
+	query := func(db *storm.DB) {
+		//db.Model(&models.Try{}).Where(&models.Try{CaseID: try.CaseID}).Count(&casesTriesCount)
+		check(db.Find(`CaseID`, try.CaseID, caseTries))
 	}
 
 	t.context.Execute(query)
 
-	if casesTriesCount >= utils.GetApplicationConfig().MaxRetries {
+	if len(caseTries) >= utils.GetApplicationConfig().MaxRetries {
 		return status.Failed
 	}
 	return status.Pending
@@ -108,8 +110,9 @@ func getTryStatus(exitCode string) status.Status {
 func (t *Tries) FindAll() []models.Try {
 	var tries []models.Try
 
-	query := func(db *gorm.DB) {
-		db.Find(&tries)
+	query := func(db *storm.DB) {
+		//db.Find(&tries)
+		check(db.All(tries))
 	}
 
 	error := t.context.Execute(query)
@@ -125,8 +128,9 @@ func (t *Tries) FindAll() []models.Try {
 func (t *Tries) FindByCaseID(caseID int) []models.Try {
 	var tries []models.Try
 
-	query := func(db *gorm.DB) {
-		db.Where(&models.Try{CaseID: caseID}).Find(&tries)
+	query := func(db *storm.DB) {
+		//db.Where(&models.Try{CaseID: caseID}).Find(&tries)
+		check(db.Find(`CaseID`, caseID, tries))
 	}
 
 	error := t.context.Execute(query)
@@ -142,8 +146,9 @@ func (t *Tries) FindByCaseID(caseID int) []models.Try {
 func (t *Tries) Find(id int) *models.Try {
 	var try models.Try
 
-	query := func(db *gorm.DB) {
-		db.Find(&try, id)
+	query := func(db *storm.DB) {
+		//db.Find(&try, id)
+		check(db.One(`ID`, id, try))
 	}
 
 	error := t.context.Execute(query)
@@ -191,8 +196,8 @@ func (t *Tries) FindRawTrySteps(tryID int) []string {
 // Find last successful try by case id
 func (t *Tries) FindLastSuccessfulTry(caseID int) *models.Try {
 	var try models.Try
-	query := func(db *gorm.DB) {
-		db.Raw("SELECT * from tries where case_id in ( SELECT id from cases where command_line=(SELECT command_line FROM cases where ID=?)) and exit_status = '0' ORDER BY id desc limit 1", caseID).Scan(&try)
+	query := func(db *storm.DB) {
+		//db.Raw("SELECT * from tries where case_id in ( SELECT id from cases where command_line=(SELECT command_line FROM cases where ID=?)) and exit_status = '0' ORDER BY id desc limit 1", caseID).Scan(&try)
 		//		db.First(&try,)
 		//		db
 	}

@@ -1,14 +1,15 @@
 package repositories
 
 import (
-	"fmt"
 	"time"
+
+	"github.com/asdine/storm/q"
 
 	"malibu-server/data"
 	"malibu-server/data/models"
 	"malibu-server/data/models/status"
 
-	"github.com/jinzhu/gorm"
+	"github.com/asdine/storm"
 )
 
 // Cases repository
@@ -18,8 +19,8 @@ type Cases struct {
 
 // Create ...
 func (t *Cases) Create(sessionCase *models.Case) error {
-	query := func(db *gorm.DB) {
-		db.Create(sessionCase)
+	query := func(db *storm.DB) {
+		db.Save(sessionCase)
 	}
 
 	return t.context.Execute(query)
@@ -27,7 +28,7 @@ func (t *Cases) Create(sessionCase *models.Case) error {
 
 // Update ...
 func (t *Cases) Update(sessionCase *models.Case) error {
-	query := func(db *gorm.DB) {
+	query := func(db *storm.DB) {
 		db.Save(sessionCase)
 	}
 
@@ -38,8 +39,8 @@ func (t *Cases) Update(sessionCase *models.Case) error {
 func (t *Cases) FindAll() []models.Case {
 	var cases []models.Case
 
-	query := func(db *gorm.DB) {
-		db.Find(&cases)
+	query := func(db *storm.DB) {
+		db.All(&cases)
 	}
 
 	error := t.context.Execute(query)
@@ -55,8 +56,9 @@ func (t *Cases) FindAll() []models.Case {
 func (t *Cases) FindBySessionID(sessionID string) []models.Case {
 	var cases []models.Case
 
-	query := func(db *gorm.DB) {
-		db.Where(&models.Case{SessionID: sessionID}).Find(&cases)
+	query := func(db *storm.DB) {
+		//db.Where(&models.Case{SessionID: sessionID}).Find(&cases)
+		db.Find(`SessionID`, sessionID, cases)
 	}
 
 	error := t.context.Execute(query)
@@ -72,8 +74,9 @@ func (t *Cases) FindBySessionID(sessionID string) []models.Case {
 func (t *Cases) FindProcessingCases() []models.Case {
 	var cases []models.Case
 
-	query := func(db *gorm.DB) {
-		db.Where(&models.Case{Status: status.Processing}).Find(&cases)
+	query := func(db *storm.DB) {
+		//db.Where(&models.Case{Status: status.Processing}).Find(&cases)
+		db.Find(`Status`, status.Processing, cases)
 	}
 
 	error := t.context.Execute(query)
@@ -89,8 +92,9 @@ func (t *Cases) FindProcessingCases() []models.Case {
 func (t *Cases) Find(id int) *models.Case {
 	var result models.Case
 
-	query := func(db *gorm.DB) {
-		db.Find(&result, id)
+	query := func(db *storm.DB) {
+		//db.Find(&result, id)
+		db.One(`ID`, id, result)
 	}
 
 	error := t.context.Execute(query)
@@ -105,14 +109,15 @@ func (t *Cases) Find(id int) *models.Case {
 // StopCurrentCases marks all cases with Pending or Processing statuses to incomplete
 func (t *Cases) StopCurrentCases() error {
 
-	query := func(db *gorm.DB) {
+	query := func(db *storm.DB) {
 		var cases []models.Case
 		sessionIDs := map[string]bool{}
 
-		db.Where(&models.Case{Status: status.Pending}).Or(&models.Case{Status: status.Processing}).Find(&cases)
+		//db.Where(&models.Case{Status: status.Pending}).Or(&models.Case{Status: status.Processing}).Find(&cases)
+		db.Select(q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing))).Find(cases)
 
 		for _, sessionCase := range cases {
-			fmt.Println(sessionCase.ID)
+			//fmt.Println(sessionCase.ID)
 			sessionIDs[sessionCase.SessionID] = true
 			sessionCase.Status = status.Incomplete
 			db.Save(&sessionCase)
@@ -120,7 +125,8 @@ func (t *Cases) StopCurrentCases() error {
 
 		for sessionID := range sessionIDs {
 			var session models.Session
-			db.Find(&session, sessionID)
+			//db.Find(&session, sessionID)
+			db.One(`ID`, sessionID, session)
 			session.Status = status.Incomplete
 			db.Save(session)
 		}
@@ -134,15 +140,17 @@ func (t *Cases) AcquireFreeJob() *models.Case {
 	var result models.Case
 	var session models.Session
 
-	query := func(db *gorm.DB) {
-		// Where is string because of shitty gorm which can't filter by false :-(
-		db.Order("random()").Where(&models.Case{Status: status.Pending}).First(&result)
+	query := func(db *storm.DB) {
+		// Where is string because of shitty storm which can't filter by false :-(
+		//db.Order("random()").Where(&models.Case{Status: status.Pending}).First(&result)
+		db.One(`Status`, status.Pending, result)
 		if result.ID > 0 {
 			result.Status = status.Processing
 			result.DateStarted = time.Now()
 			db.Save(&result)
 
-			db.Find(&session, result.SessionID)
+			//db.Find(&session, result.SessionID)
+			db.One(`ID`, result.SessionID, session)
 			session.Status = status.Processing
 			db.Save(&session)
 		}
@@ -160,8 +168,9 @@ func (t *Cases) AcquireFreeJob() *models.Case {
 func (t *Cases) GetTotalCasesCountBySessionID(sessionID string) int {
 	var cases []models.Case
 
-	query := func(db *gorm.DB) {
-		db.Where(&models.Case{SessionID: sessionID}).Find(&cases)
+	query := func(db *storm.DB) {
+		//db.Where(&models.Case{SessionID: sessionID}).Find(&cases)
+		db.Find(`SessionID`, sessionID, cases)
 	}
 
 	err := t.context.Execute(query)
@@ -175,8 +184,9 @@ func (t *Cases) GetTotalCasesCountBySessionID(sessionID string) int {
 func (t *Cases) GetFailedCasesCountBySessionID(sessionID string) int {
 	var cases []models.Case
 
-	query := func(db *gorm.DB) {
-		db.Where(&models.Case{SessionID: sessionID, Status: status.Failed}).Find(&cases)
+	query := func(db *storm.DB) {
+		//db.Where(&models.Case{SessionID: sessionID, Status: status.Failed}).Find(&cases)
+		db.Select(q.And(q.Eq(`SessionID`, sessionID), q.Eq(`Status`, status.Failed))).Find(cases)
 	}
 
 	err := t.context.Execute(query)

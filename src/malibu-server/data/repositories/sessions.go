@@ -2,10 +2,12 @@ package repositories
 
 import (
 	"fmt"
-	"math"
+	//	"math"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/asdine/storm/q"
 
 	"malibu-server/data/repositories/notifications"
 
@@ -13,7 +15,7 @@ import (
 	"malibu-server/data/models"
 	"malibu-server/data/models/status"
 
-	"github.com/jinzhu/gorm"
+	"github.com/asdine/storm"
 )
 
 // Sessions repository
@@ -31,8 +33,8 @@ func (t *Sessions) Create(arguments string, content []byte) *models.Session {
 
 	sessionFs := SessionsFS{}
 
-	query := func(db *gorm.DB) {
-		db.Create(session)
+	query := func(db *storm.DB) {
+		db.Save(session)
 	}
 
 	error := t.context.Execute(query)
@@ -48,7 +50,7 @@ func (t *Sessions) Create(arguments string, content []byte) *models.Session {
 
 // Update ...
 func (t *Sessions) Update(session *models.Session) error {
-	query := func(db *gorm.DB) {
+	query := func(db *storm.DB) {
 		db.Save(session)
 	}
 
@@ -83,7 +85,8 @@ func (t *Sessions) UpdateSessionStatus(id string) error {
 }
 
 func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, string) {
-	var incompletedCasesCount int
+	//var incompletedCasesCount int
+	var incompletedCases []models.Case
 	var failedCases []models.Case
 	var failedCasesTitles []string
 
@@ -91,9 +94,13 @@ func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, str
 		return session.Status, ""
 	}
 
-	query := func(db *gorm.DB) {
-		db.Model(&models.Case{}).Where(&models.Case{SessionID: session.ID, Status: status.Pending}).Or(&models.Case{SessionID: session.ID, Status: status.Processing}).Count(&incompletedCasesCount)
-		db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Order("title").Find(&failedCases)
+	query := func(db *storm.DB) {
+		//db.Model(&models.Case{}).Where(&models.Case{SessionID: session.ID, Status: status.Pending}).Or(&models.Case{SessionID: session.ID, Status: status.Processing}).Count(&incompletedCasesCount)
+		//db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Order("title").Find(&failedCases)
+		//select cases with status pending or processing
+		//select cases with status failed, order by title
+		check(db.Select(q.And(q.Eq(`Id`, session.ID), q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing)))).Find(incompletedCases))
+		check(db.Select(q.And(q.Eq(`Id`, session.ID), q.Eq(`Status`, status.Failed))).OrderBy(`Title`).Find(failedCases))
 	}
 
 	t.context.Execute(query)
@@ -102,7 +109,7 @@ func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, str
 		failedCasesTitles = append(failedCasesTitles, failedCase.Title)
 	}
 
-	if incompletedCasesCount == 0 {
+	if len(incompletedCases) == 0 {
 		if len(failedCases) > 0 {
 			return status.Failed, strings.Join(failedCasesTitles, "\n")
 		}
@@ -116,8 +123,10 @@ func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, str
 func (t *Sessions) FindAll() []models.Session {
 	var sessions []models.Session
 
-	query := func(db *gorm.DB) {
-		db.Order("id desc").Find(&sessions)
+	query := func(db *storm.DB) {
+		//db.Order("id desc").Find(&sessions)
+		check(db.All(sessions))
+		//db.Select(q.)
 	}
 
 	error := t.context.Execute(query)
@@ -133,8 +142,9 @@ func (t *Sessions) FindAll() []models.Session {
 func (t *Sessions) Find(id string) *models.Session {
 	var session models.Session
 
-	query := func(db *gorm.DB) {
-		db.Find(&session, id)
+	query := func(db *storm.DB) {
+		//db.Find(&session, id)
+		db.One(`ID`, id, session)
 	}
 
 	error := t.context.Execute(query)
@@ -150,8 +160,9 @@ func (t *Sessions) Find(id string) *models.Session {
 func (t *Sessions) FindLast() *models.Session {
 	var session models.Session
 
-	query := func(db *gorm.DB) {
-		db.Order("id desc").First(&session)
+	query := func(db *storm.DB) {
+		//db.Order("id desc").First(&session)
+		check(db.Select(q.Gt(`Id`, 0)).Reverse().First(session))
 	}
 
 	error := t.context.Execute(query)
@@ -165,13 +176,13 @@ func (t *Sessions) FindLast() *models.Session {
 
 // DeleteOldSessions session
 func (t *Sessions) DeleteOldSessions(maxSessionsCount int) error {
-	var sessions []models.Session
+	//var sessions []models.Session
 
-	query := func(db *gorm.DB) {
-		db.Order("id desc").Limit(math.MaxInt32).Offset(maxSessionsCount).Find(&sessions)
-		for _, session := range sessions {
-			db.Delete(session)
-		}
+	query := func(db *storm.DB) {
+		// db.Order("id desc").Limit(math.MaxInt32).Offset(maxSessionsCount).Find(&sessions)
+		// for _, session := range sessions {
+		// 	db.Delete(session)
+		// }
 	}
 
 	return t.context.Execute(query)
