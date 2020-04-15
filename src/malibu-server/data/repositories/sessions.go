@@ -34,7 +34,7 @@ func (t *Sessions) Create(arguments string, content []byte) *models.Session {
 	sessionFs := SessionsFS{}
 
 	query := func(db *storm.DB) {
-		db.Save(session)
+		check(db.Save(session))
 	}
 
 	error := t.context.Execute(query)
@@ -51,7 +51,7 @@ func (t *Sessions) Create(arguments string, content []byte) *models.Session {
 // Update ...
 func (t *Sessions) Update(session *models.Session) error {
 	query := func(db *storm.DB) {
-		db.Save(session)
+		check(db.Save(session))
 	}
 
 	return t.context.Execute(query)
@@ -144,7 +144,7 @@ func (t *Sessions) Find(id string) *models.Session {
 
 	query := func(db *storm.DB) {
 		//db.Find(&session, id)
-		db.One(`ID`, id, session)
+		check(db.One(`ID`, id, session))
 	}
 
 	error := t.context.Execute(query)
@@ -158,7 +158,7 @@ func (t *Sessions) Find(id string) *models.Session {
 
 // FindLast session
 func (t *Sessions) FindLast() *models.Session {
-	var session models.Session
+	session := &models.Session{}
 
 	query := func(db *storm.DB) {
 		//db.Order("id desc").First(&session)
@@ -171,7 +171,7 @@ func (t *Sessions) FindLast() *models.Session {
 		return nil
 	}
 
-	return &session
+	return session
 }
 
 // DeleteOldSessions session

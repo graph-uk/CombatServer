@@ -64,7 +64,8 @@ func main() {
 	defer worker.Cmd.Process.Kill()
 
 	// log.Println(env)
-	// panic(`env`)
+	time.Sleep(5 * time.Second)
+	panic(`created`)
 
 	//Check server's output
 	//server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)

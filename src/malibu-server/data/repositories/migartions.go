@@ -26,7 +26,7 @@ func (t *Migrations) migrateConfig() error {
 	dbConfig := &models.Config{}
 	query := func(db *storm.DB) {
 		//db.First(dbConfig, nil)
-		db.One(`ID`, 1, dbConfig)
+		check(db.One(`ID`, 1, dbConfig))
 	}
 	err := t.context.Execute(query)
 	if err != nil {
@@ -47,7 +47,7 @@ func (t *Migrations) migrateConfig() error {
 
 		//insert default config.
 		query = func(db *storm.DB) {
-			db.Save(&models.Config{1, time.Now(), true})
+			check(db.Save(&models.Config{1, time.Now(), true}))
 		}
 		err = t.context.Execute(query)
 		if err != nil {

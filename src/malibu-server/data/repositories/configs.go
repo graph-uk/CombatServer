@@ -15,7 +15,7 @@ type Configs struct {
 // Create ...
 func (t *Configs) Create(config *models.Config) error {
 	query := func(db *storm.DB) {
-		db.Save(config)
+		check(db.Save(config))
 	}
 
 	return t.context.Execute(query)
@@ -24,7 +24,7 @@ func (t *Configs) Create(config *models.Config) error {
 // Update record
 func (t *Configs) Update(config *models.Config) error {
 	query := func(db *storm.DB) {
-		db.Save(config)
+		check(db.Save(config))
 	}
 
 	return t.context.Execute(query)
@@ -36,7 +36,7 @@ func (t *Configs) Find() *models.Config {
 
 	query := func(db *storm.DB) {
 		//db.Find(&result, 1)
-		db.One(`ID`, 1, result)
+		check(db.One(`ID`, 1, result))
 	}
 
 	error := t.context.Execute(query)

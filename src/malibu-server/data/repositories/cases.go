@@ -20,7 +20,7 @@ type Cases struct {
 // Create ...
 func (t *Cases) Create(sessionCase *models.Case) error {
 	query := func(db *storm.DB) {
-		db.Save(sessionCase)
+		check(db.Save(sessionCase))
 	}
 
 	return t.context.Execute(query)
@@ -29,7 +29,7 @@ func (t *Cases) Create(sessionCase *models.Case) error {
 // Update ...
 func (t *Cases) Update(sessionCase *models.Case) error {
 	query := func(db *storm.DB) {
-		db.Save(sessionCase)
+		check(db.Save(sessionCase))
 	}
 
 	return t.context.Execute(query)
@@ -40,7 +40,7 @@ func (t *Cases) FindAll() []models.Case {
 	var cases []models.Case
 
 	query := func(db *storm.DB) {
-		db.All(&cases)
+		check(db.All(&cases))
 	}
 
 	error := t.context.Execute(query)
@@ -58,7 +58,7 @@ func (t *Cases) FindBySessionID(sessionID string) []models.Case {
 
 	query := func(db *storm.DB) {
 		//db.Where(&models.Case{SessionID: sessionID}).Find(&cases)
-		db.Find(`SessionID`, sessionID, cases)
+		check(db.Find(`SessionID`, sessionID, cases))
 	}
 
 	error := t.context.Execute(query)
@@ -76,7 +76,7 @@ func (t *Cases) FindProcessingCases() []models.Case {
 
 	query := func(db *storm.DB) {
 		//db.Where(&models.Case{Status: status.Processing}).Find(&cases)
-		db.Find(`Status`, status.Processing, cases)
+		check(db.Find(`Status`, status.Processing, cases))
 	}
 
 	error := t.context.Execute(query)
@@ -94,7 +94,7 @@ func (t *Cases) Find(id int) *models.Case {
 
 	query := func(db *storm.DB) {
 		//db.Find(&result, id)
-		db.One(`ID`, id, result)
+		check(db.One(`ID`, id, result))
 	}
 
 	error := t.context.Execute(query)
@@ -114,21 +114,21 @@ func (t *Cases) StopCurrentCases() error {
 		sessionIDs := map[string]bool{}
 
 		//db.Where(&models.Case{Status: status.Pending}).Or(&models.Case{Status: status.Processing}).Find(&cases)
-		db.Select(q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing))).Find(cases)
+		check(db.Select(q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing))).Find(cases))
 
 		for _, sessionCase := range cases {
 			//fmt.Println(sessionCase.ID)
 			sessionIDs[sessionCase.SessionID] = true
 			sessionCase.Status = status.Incomplete
-			db.Save(&sessionCase)
+			check(db.Save(&sessionCase))
 		}
 
 		for sessionID := range sessionIDs {
 			var session models.Session
 			//db.Find(&session, sessionID)
-			db.One(`ID`, sessionID, session)
+			check(db.One(`ID`, sessionID, session))
 			session.Status = status.Incomplete
-			db.Save(session)
+			check(db.Save(session))
 		}
 	}
 
@@ -143,16 +143,16 @@ func (t *Cases) AcquireFreeJob() *models.Case {
 	query := func(db *storm.DB) {
 		// Where is string because of shitty storm which can't filter by false :-(
 		//db.Order("random()").Where(&models.Case{Status: status.Pending}).First(&result)
-		db.One(`Status`, status.Pending, result)
+		check(db.One(`Status`, status.Pending, result))
 		if result.ID > 0 {
 			result.Status = status.Processing
 			result.DateStarted = time.Now()
-			db.Save(&result)
+			check(db.Save(&result))
 
 			//db.Find(&session, result.SessionID)
-			db.One(`ID`, result.SessionID, session)
+			check(db.One(`ID`, result.SessionID, session))
 			session.Status = status.Processing
-			db.Save(&session)
+			check(db.Save(&session))
 		}
 	}
 
@@ -170,7 +170,7 @@ func (t *Cases) GetTotalCasesCountBySessionID(sessionID string) int {
 
 	query := func(db *storm.DB) {
 		//db.Where(&models.Case{SessionID: sessionID}).Find(&cases)
-		db.Find(`SessionID`, sessionID, cases)
+		check(db.Find(`SessionID`, sessionID, cases))
 	}
 
 	err := t.context.Execute(query)
@@ -186,7 +186,7 @@ func (t *Cases) GetFailedCasesCountBySessionID(sessionID string) int {
 
 	query := func(db *storm.DB) {
 		//db.Where(&models.Case{SessionID: sessionID, Status: status.Failed}).Find(&cases)
-		db.Select(q.And(q.Eq(`SessionID`, sessionID), q.Eq(`Status`, status.Failed))).Find(cases)
+		check(db.Select(q.And(q.Eq(`SessionID`, sessionID), q.Eq(`Status`, status.Failed))).Find(cases))
 	}
 
 	err := t.context.Execute(query)
