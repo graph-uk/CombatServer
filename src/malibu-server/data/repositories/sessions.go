@@ -2,7 +2,6 @@ package repositories
 
 import (
 	"fmt"
-	//	"math"
 	"strconv"
 	"strings"
 	"time"
@@ -85,7 +84,6 @@ func (t *Sessions) UpdateSessionStatus(id string) error {
 }
 
 func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, string) {
-	//var incompletedCasesCount int
 	incompletedCases := &[]models.Case{}
 	failedCases := &[]models.Case{}
 	var failedCasesTitles []string
@@ -95,10 +93,6 @@ func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, str
 	}
 
 	query := func(db *storm.DB) {
-		//db.Model(&models.Case{}).Where(&models.Case{SessionID: session.ID, Status: status.Pending}).Or(&models.Case{SessionID: session.ID, Status: status.Processing}).Count(&incompletedCasesCount)
-		//db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Order("title").Find(&failedCases)
-		//select cases with status pending or processing
-		//select cases with status failed, order by title
 		checkIgnore404(db.Select(q.And(q.Eq(`SessionID`, session.ID), q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing)))).Find(incompletedCases))
 		checkIgnore404(db.Select(q.And(q.Eq(`SessionID`, session.ID), q.Eq(`Status`, status.Failed))).OrderBy(`Title`).Find(failedCases))
 	}
@@ -124,9 +118,7 @@ func (t *Sessions) FindAll() []models.Session {
 	sessions := &[]models.Session{}
 
 	query := func(db *storm.DB) {
-		//db.Order("id desc").Find(&sessions)
 		check(db.All(sessions))
-		//db.Select(q.)
 	}
 
 	error := t.context.Execute(query)
@@ -143,7 +135,6 @@ func (t *Sessions) Find(id string) *models.Session {
 	session := &models.Session{}
 
 	query := func(db *storm.DB) {
-		//db.Find(&session, id)
 		checkIgnore404(db.One(`ID`, id, session))
 	}
 
@@ -161,8 +152,6 @@ func (t *Sessions) FindLast() *models.Session {
 	session := &models.Session{}
 
 	query := func(db *storm.DB) {
-		//db.Order("id desc").First(&session)
-		//checkIgnore404(db.Select(q.Gt(`ID`, 0)).Reverse().First(session))
 		checkIgnore404(db.Select().OrderBy(`ID`).Reverse().First(session))
 	}
 

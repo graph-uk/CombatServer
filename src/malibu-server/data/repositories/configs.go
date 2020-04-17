@@ -35,7 +35,6 @@ func (t *Configs) Find() *models.Config {
 	result := &models.Config{}
 
 	query := func(db *storm.DB) {
-		//db.Find(&result, 1)
 		check(db.One(`ID`, 1, result))
 	}
 
