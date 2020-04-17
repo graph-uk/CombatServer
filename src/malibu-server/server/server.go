@@ -6,8 +6,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/asdine/storm"
-
 	"malibu-server/server/api/configs"
 	"malibu-server/server/api/jobs"
 	sessionsAPI "malibu-server/server/api/sessions"
@@ -47,33 +45,6 @@ func parseTemplates() (*template.Template, error) {
 	return root, err
 }
 
-func processMigrations(db *storm.DB) {
-	// tx, err := db.Begin(true)
-	// if err != nil {
-	// 	return errors.Wrapf(err, `Cannot start transaction`)
-	// }
-	// defer tx.Rollback()
-
-	// if err = tx.Init(&models.Taskpack{}); err != nil {
-	// 	return errors.Wrapf(err, `Cannot init Taskpack collection`)
-	// }
-	// if err = tx.ReIndex(&models.Taskpack{}); err != nil {
-	// 	return errors.Wrapf(err, `Cannot reindex Taskpack collection`)
-	// }
-
-	// if err = tx.Init(&models.TaskpackHeavy{}); err != nil {
-	// 	return errors.Wrapf(err, `Cannot init TaskpackHeavy collection`)
-	// }
-	// if err = tx.ReIndex(&models.TaskpackHeavy{}); err != nil {
-	// 	return errors.Wrapf(err, `Cannot reindex TaskpackHeavy collection`)
-	// }
-
-	// if err = tx.Commit(); err != nil {
-	// 	return errors.Wrapf(err, `Cannot commit transaction`)
-	// }
-	// return nil
-}
-
 // Start web server
 func (t *MalibuServer) Start(config *utils.Config) error {
 
@@ -100,7 +71,7 @@ func (t *MalibuServer) Start(config *utils.Config) error {
 	e.Renderer = renderer
 	e.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", assetHandler)))
 	e.Static("/tries", "./_data/tries")
-	e.Use(middleware.Logger())
+	//e.Use(middleware.Logger())
 
 	e.GET("/sessions/", sessions.Index)
 	e.GET("/", sessions.Index)

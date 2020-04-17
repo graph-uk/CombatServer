@@ -39,7 +39,7 @@ func main() {
 
 	server := cli.StartCmd(cli.Pwd()+`/server`, &env, `./malibu-server`)
 	client := cli.StartCmd(cli.Pwd()+`/../../Tests_shared/malibuTestsExample/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
-	//worker := cli.StartCmd(cli.Pwd()+`/worker`, &env, `./malibu-worker`, `http://localhost:3133`)
+	worker := cli.StartCmd(cli.Pwd()+`/worker`, &env, `./malibu-worker`, `http://localhost:3133`)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -51,17 +51,17 @@ func main() {
 			fmt.Println(string(client.StdOutBuf))
 			fmt.Println(`----------------------------------------Client stderr-----------------------------------------`)
 			fmt.Println(string(client.StdErrBuf))
-			// fmt.Println(`----------------------------------------Worker stdout-----------------------------------------`)
-			// fmt.Println(string(worker.StdOutBuf))
-			// fmt.Println(`----------------------------------------Worker stderr-----------------------------------------`)
-			// fmt.Println(string(worker.StdErrBuf))
+			fmt.Println(`----------------------------------------Worker stdout-----------------------------------------`)
+			fmt.Println(string(worker.StdOutBuf))
+			fmt.Println(`----------------------------------------Worker stderr-----------------------------------------`)
+			fmt.Println(string(worker.StdErrBuf))
 			panic(r)
 		}
 	}()
 
 	defer server.Cmd.Process.Kill()
 	defer client.Cmd.Process.Kill()
-	//	defer worker.Cmd.Process.Kill()
+	defer worker.Cmd.Process.Kill()
 
 	// log.Println(env)
 
@@ -74,11 +74,11 @@ func main() {
 	server.WaitingForStdOutContains(`Try status: Failed`, 60*time.Second)
 
 	//Check worker's output
-	// worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, 2*time.Minute)
-	// worker.WaitingForStdOutContains(`Run case... Ok`, time.Minute)
-	// worker.WaitingForStdOutContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, 2*time.Minute)
-	// worker.WaitingForStdOutContains(`Run case... Fail`, time.Minute)
-	// worker.WaitingForStdOutContains(`Failed here for example`, time.Minute)
+	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, 2*time.Minute)
+	worker.WaitingForStdOutContains(`Run case... Ok`, time.Minute)
+	worker.WaitingForStdOutContains(`CaseRunning TestFail -InternalIP=192.168.1.1`, 2*time.Minute)
+	worker.WaitingForStdOutContains(`Run case... Fail`, time.Minute)
+	worker.WaitingForStdOutContains(`Failed here for example`, time.Minute)
 
 	//Check client's output
 	client.WaitingForStdOutContains(`Cleanup tests`, 10*time.Second)
@@ -88,16 +88,18 @@ func main() {
 	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
 	client.WaitingForStdOutContains(` - Processing`, 40*time.Second)
 	client.WaitingForStdOutContains(`Processed 0 of 5 tests`, 40*time.Second)
-	client.WaitingForStdOutContains(`Time of testing`, 60*time.Second)
+	client.WaitingForStdOutContains(`Processed 5 of 5 tests`, 400*time.Second)
+	client.WaitingForStdOutContains(`Time of testing`, 40*time.Second)
 	//return
-	//panic(`test`)
 
-	time.Sleep(5 * time.Second)
-	panic(`created`)
+	// time.Sleep(5 * time.Second)
+	// panic(`created`)
 
 	cli.DeleteFailTrigger(`testSuccessOrFailure.txt`)
 	client = cli.StartCmd(cli.Pwd()+`/../../Tests_shared/malibuTestsExample/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
 	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
+
+	//panic(`test`)
 
 	log.Println(`The test finished succeed.`)
 

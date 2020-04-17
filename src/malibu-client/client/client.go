@@ -90,8 +90,6 @@ func (t *MalibuClient) createSessionOnServer(archiveFileName string) string {
 	sessionName := ""
 
 	sessionName, err := postSession(archiveFileName, t.getParams(), t.serverURL+"/api/v1/sessions")
-	fmt.Println(`##` + sessionName)
-
 	if err != nil {
 		fmt.Println(err.Error())
 		return ""
@@ -118,7 +116,6 @@ func (t *MalibuClient) CreateNewSession() (string, error) {
 	sessionName := t.createSessionOnServer(testsArchiveFileName)
 	if sessionName != "" {
 		fmt.Println("Session status: " + t.serverURL + "/sessions/" + sessionName)
-		//t.sessionID = sessionName
 		return sessionName, nil
 	}
 

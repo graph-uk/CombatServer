@@ -99,8 +99,8 @@ func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, str
 		//db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Order("title").Find(&failedCases)
 		//select cases with status pending or processing
 		//select cases with status failed, order by title
-		checkIgnore404(db.Select(q.And(q.Eq(`ID`, session.ID), q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing)))).Find(incompletedCases))
-		checkIgnore404(db.Select(q.And(q.Eq(`ID`, session.ID), q.Eq(`Status`, status.Failed))).OrderBy(`Title`).Find(failedCases))
+		checkIgnore404(db.Select(q.And(q.Eq(`SessionID`, session.ID), q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing)))).Find(incompletedCases))
+		checkIgnore404(db.Select(q.And(q.Eq(`SessionID`, session.ID), q.Eq(`Status`, status.Failed))).OrderBy(`Title`).Find(failedCases))
 	}
 
 	t.context.Execute(query)
