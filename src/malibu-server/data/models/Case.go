@@ -10,11 +10,9 @@ import (
 type Case struct {
 	ID          int `storm:"id,increment"`
 	SessionID   string
-	Code        string 
-	Title       string 
-	CommandLine string 
+	Code        string
+	Title       string
+	CommandLine string
 	Status      status.Status
 	DateStarted time.Time
-
-	//Tries []Try 
 }

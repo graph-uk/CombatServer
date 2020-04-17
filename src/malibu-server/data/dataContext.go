@@ -27,15 +27,6 @@ func (t *Context) Execute(execute func(db *storm.DB)) error {
 	check(err)
 	execute(db)
 	db.Close()
-	//return db
-
-	//var db, err = gorm.Open("sqlite3", getDbPath())
-
-	// if err == nil {
-	// 	execute(db)
-	// }
-
-	// db.Close()
 
 	mutex.Unlock()
 	return err
