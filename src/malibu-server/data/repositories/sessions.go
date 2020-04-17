@@ -86,8 +86,8 @@ func (t *Sessions) UpdateSessionStatus(id string) error {
 
 func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, string) {
 	//var incompletedCasesCount int
-	var incompletedCases []models.Case
-	var failedCases []models.Case
+	incompletedCases := &[]models.Case{}
+	failedCases := &[]models.Case{}
 	var failedCasesTitles []string
 
 	if session.Status == status.Pending {
@@ -99,18 +99,18 @@ func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, str
 		//db.Where(&models.Case{SessionID: session.ID, Status: status.Failed}).Order("title").Find(&failedCases)
 		//select cases with status pending or processing
 		//select cases with status failed, order by title
-		check(db.Select(q.And(q.Eq(`Id`, session.ID), q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing)))).Find(incompletedCases))
-		check(db.Select(q.And(q.Eq(`Id`, session.ID), q.Eq(`Status`, status.Failed))).OrderBy(`Title`).Find(failedCases))
+		checkIgnore404(db.Select(q.And(q.Eq(`ID`, session.ID), q.Or(q.Eq(`Status`, status.Pending), q.Eq(`Status`, status.Processing)))).Find(incompletedCases))
+		checkIgnore404(db.Select(q.And(q.Eq(`ID`, session.ID), q.Eq(`Status`, status.Failed))).OrderBy(`Title`).Find(failedCases))
 	}
 
 	t.context.Execute(query)
 
-	for _, failedCase := range failedCases {
+	for _, failedCase := range *failedCases {
 		failedCasesTitles = append(failedCasesTitles, failedCase.Title)
 	}
 
-	if len(incompletedCases) == 0 {
-		if len(failedCases) > 0 {
+	if len(*incompletedCases) == 0 {
+		if len(*failedCases) > 0 {
 			return status.Failed, strings.Join(failedCasesTitles, "\n")
 		}
 		return status.Success, ""
@@ -121,7 +121,7 @@ func (t *Sessions) getSessionStatus(session *models.Session) (status.Status, str
 
 //FindAll returns all sessions from the database
 func (t *Sessions) FindAll() []models.Session {
-	var sessions []models.Session
+	sessions := &[]models.Session{}
 
 	query := func(db *storm.DB) {
 		//db.Order("id desc").Find(&sessions)
@@ -135,16 +135,16 @@ func (t *Sessions) FindAll() []models.Session {
 		return nil
 	}
 
-	return sessions
+	return *sessions
 }
 
 // Find session by id
 func (t *Sessions) Find(id string) *models.Session {
-	var session models.Session
+	session := &models.Session{}
 
 	query := func(db *storm.DB) {
 		//db.Find(&session, id)
-		check(db.One(`ID`, id, session))
+		checkIgnore404(db.One(`ID`, id, session))
 	}
 
 	error := t.context.Execute(query)
@@ -153,7 +153,7 @@ func (t *Sessions) Find(id string) *models.Session {
 		return nil
 	}
 
-	return &session
+	return session
 }
 
 // FindLast session
@@ -162,7 +162,8 @@ func (t *Sessions) FindLast() *models.Session {
 
 	query := func(db *storm.DB) {
 		//db.Order("id desc").First(&session)
-		check(db.Select(q.Gt(`Id`, 0)).Reverse().First(session))
+		//checkIgnore404(db.Select(q.Gt(`ID`, 0)).Reverse().First(session))
+		checkIgnore404(db.Select().OrderBy(`ID`).Reverse().First(session))
 	}
 
 	error := t.context.Execute(query)

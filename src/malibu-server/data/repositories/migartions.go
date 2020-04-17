@@ -19,6 +19,12 @@ func check(err error) {
 	}
 }
 
+func checkIgnore404(err error) {
+	if err != nil && err.Error() != `not found` {
+		panic(err)
+	}
+}
+
 // migration for Configs table, contains notification-disabling etc...
 func (t *Migrations) migrateConfig() error {
 	//defaultConfig = &models.Config{1,time.Now(), false}
@@ -26,7 +32,7 @@ func (t *Migrations) migrateConfig() error {
 	dbConfig := &models.Config{}
 	query := func(db *storm.DB) {
 		//db.First(dbConfig, nil)
-		check(db.One(`ID`, 1, dbConfig))
+		checkIgnore404(db.One(`ID`, 1, dbConfig))
 	}
 	err := t.context.Execute(query)
 	if err != nil {

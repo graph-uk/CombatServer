@@ -11,8 +11,8 @@ import (
 )
 
 type MalibuClient struct {
-	serverURL             string
-	sessionID             string
+	serverURL string
+	//sessionID             string
 	sessionBeginTimestamp time.Time
 	lastSTDOutMessage     string
 	SessionTimeout        time.Duration
@@ -90,8 +90,10 @@ func (t *MalibuClient) createSessionOnServer(archiveFileName string) string {
 	sessionName := ""
 
 	sessionName, err := postSession(archiveFileName, t.getParams(), t.serverURL+"/api/v1/sessions")
+	fmt.Println(`##` + sessionName)
 
 	if err != nil {
+		fmt.Println(err.Error())
 		return ""
 	}
 
@@ -114,10 +116,9 @@ func (t *MalibuClient) CreateNewSession() (string, error) {
 	}
 
 	sessionName := t.createSessionOnServer(testsArchiveFileName)
-
 	if sessionName != "" {
 		fmt.Println("Session status: " + t.serverURL + "/sessions/" + sessionName)
-		t.sessionID = sessionName
+		//t.sessionID = sessionName
 		return sessionName, nil
 	}
 
@@ -131,6 +132,7 @@ func (t *MalibuClient) GetSessionResult(sessionID string) int {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
+		fmt.Println(sessionStatusJSON)
 		var finished bool
 		finished, countOfErrors, err = t.printSessionStatusByJSON(sessionStatusJSON)
 		if err == nil {

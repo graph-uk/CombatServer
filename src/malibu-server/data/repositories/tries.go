@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/asdine/storm/q"
+
 	"malibu-server/data"
 	"malibu-server/data/models"
 	"malibu-server/data/models/status"
@@ -76,7 +78,7 @@ func (t *Tries) setCaseStatus(try *models.Try) error {
 
 func (t *Tries) getCaseStatus(try *models.Try) status.Status {
 	//var casesTriesCount int
-	var caseTries []models.Try
+	caseTries := &[]models.Try{}
 
 	tryStatus := getTryStatus(try.ExitStatus)
 
@@ -93,7 +95,7 @@ func (t *Tries) getCaseStatus(try *models.Try) status.Status {
 
 	t.context.Execute(query)
 
-	if len(caseTries) >= utils.GetApplicationConfig().MaxRetries {
+	if len(*caseTries) >= utils.GetApplicationConfig().MaxRetries {
 		return status.Failed
 	}
 	return status.Pending
@@ -108,7 +110,7 @@ func getTryStatus(exitCode string) status.Status {
 
 //FindAll returns all tries from the database
 func (t *Tries) FindAll() []models.Try {
-	var tries []models.Try
+	tries := &[]models.Try{}
 
 	query := func(db *storm.DB) {
 		//db.Find(&tries)
@@ -121,12 +123,12 @@ func (t *Tries) FindAll() []models.Try {
 		return nil
 	}
 
-	return tries
+	return *tries
 }
 
 //FindByCaseID returns all tries for case from the database
 func (t *Tries) FindByCaseID(caseID int) []models.Try {
-	var tries []models.Try
+	tries := &[]models.Try{}
 
 	query := func(db *storm.DB) {
 		//db.Where(&models.Try{CaseID: caseID}).Find(&tries)
@@ -139,12 +141,12 @@ func (t *Tries) FindByCaseID(caseID int) []models.Try {
 		return nil
 	}
 
-	return tries
+	return *tries
 }
 
 // Find try by id
 func (t *Tries) Find(id int) *models.Try {
-	var try models.Try
+	try := &models.Try{}
 
 	query := func(db *storm.DB) {
 		//db.Find(&try, id)
@@ -157,7 +159,7 @@ func (t *Tries) Find(id int) *models.Try {
 		return nil
 	}
 
-	return &try
+	return try
 }
 
 func (t *Tries) FindRawTrySteps(tryID int) []string {
@@ -195,11 +197,21 @@ func (t *Tries) FindRawTrySteps(tryID int) []string {
 
 // Find last successful try by case id
 func (t *Tries) FindLastSuccessfulTry(caseID int) *models.Try {
-	var try models.Try
+	try := &models.Try{}
 	query := func(db *storm.DB) {
 		//db.Raw("SELECT * from tries where case_id in ( SELECT id from cases where command_line=(SELECT command_line FROM cases where ID=?)) and exit_status = '0' ORDER BY id desc limit 1", caseID).Scan(&try)
-		//		db.First(&try,)
-		//		db
+		casee := &models.Case{}
+		checkIgnore404(db.One(`ID`, caseID, casee))
+
+		cases := &[]models.Case{}
+		checkIgnore404(db.Find(`CommandLine`, casee.CommandLine, &cases))
+
+		ids := []int{}
+		for _, curCase := range *cases {
+			ids = append(ids, curCase.ID)
+		}
+
+		checkIgnore404(db.Select(q.In(`ID`, ids)).OrderBy(`ID`).Reverse().First(try))
 	}
 
 	error := t.context.Execute(query)
@@ -207,5 +219,5 @@ func (t *Tries) FindLastSuccessfulTry(caseID int) *models.Try {
 	if error != nil {
 		return nil
 	}
-	return &try
+	return try
 }

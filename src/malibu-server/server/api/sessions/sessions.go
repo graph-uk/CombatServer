@@ -77,5 +77,6 @@ func Post(c echo.Context) error {
 	casesRepo.StopCurrentCases()
 	session := sessionsRepo.Create(model.Arguments, sessionContent)
 
-	return c.JSON(http.StatusCreated, session)
+	//return c.JSON(http.StatusCreated, session.ID)
+	return c.String(http.StatusCreated, session.ID)
 }

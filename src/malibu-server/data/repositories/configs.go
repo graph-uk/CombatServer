@@ -32,7 +32,7 @@ func (t *Configs) Update(config *models.Config) error {
 
 // Find config. It always has id=1.
 func (t *Configs) Find() *models.Config {
-	var result models.Config
+	result := &models.Config{}
 
 	query := func(db *storm.DB) {
 		//db.Find(&result, 1)
@@ -45,5 +45,5 @@ func (t *Configs) Find() *models.Config {
 		return nil
 	}
 
-	return &result
+	return result
 }
