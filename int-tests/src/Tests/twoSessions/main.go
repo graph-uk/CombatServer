@@ -64,7 +64,6 @@ func main() {
 	defer worker.Cmd.Process.Kill()
 
 	// log.Println(env)
-	// panic(`env`)
 
 	//Check server's output
 	//server.WaitingForStdOutContains(`config.json is not found. Default config will be created`, 10*time.Second)
@@ -72,7 +71,7 @@ func main() {
 	server.WaitingForStdOutContains(`Created:  _data/sessions`, 10*time.Second)
 	server.WaitingForStdOutContains(`TestFail -InternalIP=192.168.1.1`, 40*time.Second)
 	server.WaitingForStdOutContains(`TestSuccess -InternalIP=192.168.1.1`, 40*time.Second)
-	server.WaitingForStdOutContains(`Try status: Failed`, 200*time.Second)
+	server.WaitingForStdOutContains(`Try status: Failed`, 60*time.Second)
 
 	//Check worker's output
 	worker.WaitingForStdOutContains(`CaseRunning TestSuccess -InternalIP=192.168.1.1`, 2*time.Minute)
@@ -89,13 +88,18 @@ func main() {
 	client.WaitingForStdOutContains(`Case exploring`, time.Minute)
 	client.WaitingForStdOutContains(` - Processing`, 40*time.Second)
 	client.WaitingForStdOutContains(`Processed 0 of 5 tests`, 40*time.Second)
-	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
+	client.WaitingForStdOutContains(`Processed 5 of 5 tests`, 400*time.Second)
+	client.WaitingForStdOutContains(`Time of testing`, 40*time.Second)
 	//return
-	//panic(`test`)
+
+	// time.Sleep(5 * time.Second)
+	// panic(`created`)
 
 	cli.DeleteFailTrigger(`testSuccessOrFailure.txt`)
 	client = cli.StartCmd(cli.Pwd()+`/../../Tests_shared/malibuTestsExample/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
 	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
+
+	//panic(`test`)
 
 	log.Println(`The test finished succeed.`)
 

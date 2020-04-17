@@ -32,8 +32,8 @@ func postSession(filename string, params string, targetUrl string) (string, erro
 		return "", err
 	}
 
-	if resp.StatusCode > 200 {
-		return "", fmt.Errorf("Incorrect request status: %d", resp.StatusCode)
+	if resp.StatusCode != http.StatusCreated {
+		return "", fmt.Errorf("Incorrect response status: %d", resp.StatusCode)
 	}
 	return string(responseBody), nil
 }

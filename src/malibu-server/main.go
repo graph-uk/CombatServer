@@ -17,11 +17,7 @@ func main() {
 
 	config := utils.GetApplicationConfig()
 
-	err := repo.Apply()
-
-	if err != nil {
-		panic(err)
-	}
+	repo.Apply()
 
 	malibuServer := &server.MalibuServer{}
 
@@ -29,7 +25,7 @@ func main() {
 		sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
 	}
 
-	err = malibuServer.Start(config)
+	err := malibuServer.Start(config)
 	if err != nil {
 		fmt.Println("Cannot serve")
 		fmt.Println(err.Error())

@@ -8,9 +8,9 @@ import (
 
 // Session sdf
 type Session struct {
-	ID          string `gorm:"primary_key,type:varchar(20)"`
-	Arguments   string `gorm:"size:500"`
+	ID          string `storm:"id"`
+	Arguments   string
 	Status      status.Status
-	Error       string `gorm:"size:1000"`
+	Error       string
 	DateCreated time.Time
 }

@@ -4,7 +4,7 @@ import (
 	"malibu-server/data"
 	"malibu-server/data/models"
 
-	"github.com/jinzhu/gorm"
+	"github.com/asdine/storm"
 )
 
 // Configs repository
@@ -14,8 +14,8 @@ type Configs struct {
 
 // Create ...
 func (t *Configs) Create(config *models.Config) error {
-	query := func(db *gorm.DB) {
-		db.Create(config)
+	query := func(db *storm.DB) {
+		check(db.Save(config))
 	}
 
 	return t.context.Execute(query)
@@ -23,8 +23,8 @@ func (t *Configs) Create(config *models.Config) error {
 
 // Update record
 func (t *Configs) Update(config *models.Config) error {
-	query := func(db *gorm.DB) {
-		db.Save(config)
+	query := func(db *storm.DB) {
+		check(db.Save(config))
 	}
 
 	return t.context.Execute(query)
@@ -32,10 +32,11 @@ func (t *Configs) Update(config *models.Config) error {
 
 // Find config. It always has id=1.
 func (t *Configs) Find() *models.Config {
-	var result models.Config
+	result := &models.Config{}
 
-	query := func(db *gorm.DB) {
-		db.Find(&result, 1)
+	query := func(db *storm.DB) {
+		//db.Find(&result, 1)
+		check(db.One(`ID`, 1, result))
 	}
 
 	error := t.context.Execute(query)
@@ -44,5 +45,5 @@ func (t *Configs) Find() *models.Config {
 		return nil
 	}
 
-	return &result
+	return result
 }

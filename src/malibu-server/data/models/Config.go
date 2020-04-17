@@ -6,7 +6,7 @@ import (
 
 // Config model
 type Config struct {
-	ID                  int `gorm:"primary_key"`
+	ID                  int `storm:"id,increment"`
 	MuteTimestamp       time.Time
 	NotificationEnabled bool
 }
