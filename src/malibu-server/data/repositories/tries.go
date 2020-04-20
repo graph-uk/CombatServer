@@ -192,14 +192,14 @@ func (t *Tries) FindLastSuccessfulTry(caseID int) *models.Try {
 		checkIgnore404(db.One(`ID`, caseID, casee))
 
 		cases := &[]models.Case{}
-		checkIgnore404(db.Find(`CommandLine`, casee.CommandLine, &cases))
+		checkIgnore404(db.Find(`CommandLine`, casee.CommandLine, cases))
 
 		ids := []int{}
 		for _, curCase := range *cases {
 			ids = append(ids, curCase.ID)
 		}
 
-		checkIgnore404(db.Select(q.In(`ID`, ids)).OrderBy(`ID`).Reverse().First(try))
+		checkIgnore404(db.Select(q.And(q.In(`CaseID`, ids), q.Eq(`ExitStatus`, `0`))).OrderBy(`ID`).Reverse().First(try))
 	}
 
 	error := t.context.Execute(query)
