@@ -71,6 +71,8 @@ func (t *MalibuServer) Start(config *utils.Config) error {
 	e.Renderer = renderer
 	e.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", assetHandler)))
 	e.Static("/tries", "./_data/tries")
+	e.Static("/tries-succ", "./_data/tries-succ")
+
 	//e.Use(middleware.Logger())
 
 	e.GET("/sessions/", sessions.Index)
