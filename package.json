@@ -37,6 +37,8 @@
     "mingw64-win": "0.0.1",
     "packr-win": "0.0.1",
     "malibu-win": "0.0.1",
+  },
+  "optionalDependencies":{
     "boltdbweb-win": "0.0.1"
   },
   "babel": {
