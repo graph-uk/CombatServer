@@ -48,9 +48,6 @@ func parseTemplates() (*template.Template, error) {
 // Start web server
 func (t *MalibuServer) Start(config *utils.Config) error {
 
-	//run migrations
-	//processMigrations(db)
-
 	go TimeoutWatcher(config)
 
 	templates, _ := parseTemplates()
@@ -71,6 +68,8 @@ func (t *MalibuServer) Start(config *utils.Config) error {
 	e.Renderer = renderer
 	e.GET("/assets/*", echo.WrapHandler(http.StripPrefix("/assets/", assetHandler)))
 	e.Static("/tries", "./_data/tries")
+	e.Static("/tries-succ", "./_data/tries-succ")
+
 	//e.Use(middleware.Logger())
 
 	e.GET("/sessions/", sessions.Index)

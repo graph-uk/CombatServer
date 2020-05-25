@@ -3,10 +3,14 @@ package repositories
 import (
 	"fmt"
 	"io/ioutil"
+
+	//	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/asdine/storm/q"
 
@@ -21,6 +25,8 @@ import (
 const triesPathTemplate = "_data/tries/%d"
 const triesArchivePathTemplate = "_data/tries/%d/archived.zip"
 const triesUnarchivedPathTemplate = "_data/tries/%d/_"
+const triesArtifactsPathTemplate = "_data/tries/%d/_/out"
+const triesSuccessfullTemplate = "_data/tries-succ/%s"
 
 // Tries repository
 type Tries struct {
@@ -51,8 +57,11 @@ func (t *Tries) Create(try *models.Try, content []byte) error {
 	}
 
 	utils.Unzip(archivedPath, unarchivedPath)
-	err = t.setCaseStatus(try)
-	return err
+	if try.ExitStatus == `0` {
+		go t.SaveSuccessfullTry(try)
+	}
+
+	return t.setCaseStatus(try)
 }
 
 func (t *Tries) setCaseStatus(try *models.Try) error {
@@ -208,4 +217,71 @@ func (t *Tries) FindLastSuccessfulTry(caseID int) *models.Try {
 		return nil
 	}
 	return try
+}
+
+func fileExists(filename string) bool {
+	_, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return true
+}
+
+func (t *Tries) FindRawCaseSuccessSteps(caseCLIHash string) []string {
+	var result []string
+
+	//unarchivedPath := fmt.Sprintf(triesUnarchivedPathTemplate, tryID)
+	files, err := ioutil.ReadDir(fmt.Sprintf(triesSuccessfullTemplate, caseCLIHash))
+
+	if err != nil {
+		fmt.Println(err.Error())
+		return result
+	}
+
+	resultMap := make(map[string]bool)
+
+	for _, file := range files {
+		filename := path.Base(file.Name())
+
+		if strings.Contains(filename, `SeleniumSessionID`) {
+			continue
+		}
+
+		extension := filepath.Ext(filename)
+
+		entry := filename[0 : len(filename)-len(extension)]
+
+		if _, value := resultMap[entry]; !value {
+			resultMap[entry] = true
+			result = append(result, entry)
+		}
+	}
+
+	return result
+}
+
+///--Storing last successfull tries separately
+func (t *Tries) SaveSuccessfullTry(try *models.Try) {
+	casesRepo := &Cases{}
+	ccase := casesRepo.Find(try.CaseID)
+
+	path := fmt.Sprintf(triesSuccessfullTemplate, ccase.GetCmdHash())
+	if fileExists(path) {
+		timestampSucc := strconv.Itoa(int(time.Now().UnixNano()))
+		newPath := fmt.Sprintf(triesSuccessfullTemplate, `old`+timestampSucc+ccase.GetCmdHash())
+		check(os.Rename(path, newPath))
+	}
+	check(os.MkdirAll(path, 0666))
+	trypath := fmt.Sprintf(triesArtifactsPathTemplate, try.ID)
+	check(utils.CopyDirectory(trypath, path))
+	check(ioutil.WriteFile(path+`.txt`, []byte(try.Output), 0666))
+}
+
+func ReadSuccessfullTryOutput(caseCMDHash string) string {
+	path := fmt.Sprintf(triesSuccessfullTemplate, caseCMDHash)
+	bytes, err := ioutil.ReadFile(path + `.txt`)
+	if err != nil {
+		return ``
+	}
+	return string(bytes)
 }

@@ -71,6 +71,25 @@ func getSteps(try *models.Try) []sessions.TryStepItem {
 	return steps
 }
 
+func getCaseLastSuccessfulTrySteps(ccase *models.Case) []sessions.TryStepItem {
+	steps := []sessions.TryStepItem{}
+
+	triesRepo := &repositories.Tries{}
+	rawSteps := triesRepo.FindRawCaseSuccessSteps(ccase.GetCmdHash())
+
+	for _, step := range rawSteps {
+		stepUrlBuff, _ := ioutil.ReadFile(fmt.Sprintf("./_data/tries-succ/%s/%s.txt", ccase.GetCmdHash(), step))
+
+		steps = append(steps, sessions.TryStepItem{
+			Image:  fmt.Sprintf("/tries-succ/%s/%s.png", ccase.GetCmdHash(), step),
+			Source: fmt.Sprintf("/tries-succ/%s/%s.html", ccase.GetCmdHash(), step),
+			URL:    string(stepUrlBuff),
+		})
+	}
+
+	return steps
+}
+
 func getCasesJSON(sessionID string) string {
 	model := map[string]sessions.CaseItem{}
 	triesRepo := &repositories.Tries{}
@@ -101,11 +120,14 @@ func getCasesJSON(sessionID string) string {
 			}
 		}
 
-		lastSuccessfulRun := triesRepo.FindLastSuccessfulTry(sessionCase.ID)
-
+		//lastSuccessfulRun := triesRepo.FindLastSuccessfulTry(sessionCase.ID)
 		lastSuccessfulRunTryItem := sessions.TryItem{}
-		lastSuccessfulRunTryItem.Output = lastSuccessfulRun.Output
-		lastSuccessfulRunTryItem.Steps = getSteps(lastSuccessfulRun)
+		//lastSuccessfulRunTryItem.Output = lastSuccessfulRun.Output
+		//lastSuccessfulRunTryItem.Steps = getSteps(lastSuccessfulRun)
+		lastSuccessfulRunTryItem.Steps = getCaseLastSuccessfulTrySteps(&sessionCase)
+
+		lastSuccessfulRunTryItem.Output = repositories.ReadSuccessfullTryOutput(sessionCase.GetCmdHash())
+		//ioutil.ReadFile(sessionCase.GetCmdHash())
 
 		model[id] = sessions.CaseItem{
 			Status:            strings.ToLower(sessionCase.Status.String()),
