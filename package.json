@@ -31,15 +31,15 @@
     "babel-minify": "^0.4.3",
     "less": "^3.8.0",
     "less-watch-compiler": "^1.11.3",
-    "uglifycss": "0.0.29",
+    "uglifycss": "0.0.29"
+  },
+  "optionalDependencies":{
+    "boltdbweb-win": "0.0.1",
     "go-win": "1.13.8",
     "liteide-win": "0.36.3",
     "mingw64-win": "0.0.1",
     "packr-win": "0.0.1",
     "malibu-win": "0.0.1"
-  },
-  "optionalDependencies":{
-    "boltdbweb-win": "0.0.1"
   },
   "babel": {
     "presets": [
