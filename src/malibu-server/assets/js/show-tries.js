@@ -26,12 +26,10 @@ const renderTriesNavigation = (tries, lastSuccessfulRun, $tryPlaceholder, caseSt
             class: `${NAVIGATION_ITEM_CLASS}`,
 			children: "Last successful run"
         });
-    if (lastSuccessfulRun.steps==null||lastSuccessfulRun.steps.length === 0||caseStatus === "success"){console.log("No successful runs"); currentSliderIndex = null;}else{
-    	lastSuccessfulRunElem.addEventListener('click', ({target}) => showTryDetails(lastSuccessfulRun, $tryPlaceholder, target), false);
-		$buttons.push(lastSuccessfulRunElem);
-		console.log($buttons);
 
-    }
+    $buttons.push(lastSuccessfulRunElem);
+    lastSuccessfulRunElem.addEventListener('click', ({target}) => showTryDetails(lastSuccessfulRun, $tryPlaceholder, target), false);
+
 	return {
 		'$triesNavigation': createTag('div', {class: NAVIGATION_LIST_CLASS, children: [
 			createTag('div', {class: NAVIGATION_TITLE_CLASS, children: 'Logs:'}),

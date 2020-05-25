@@ -13,17 +13,11 @@ import (
 
 func main() {
 	repo := &repositories.Migrations{}
-	sessionsRepo := &repositories.Sessions{}
+	repo.Apply()
 
 	config := utils.GetApplicationConfig()
 
-	repo.Apply()
-
 	malibuServer := &server.MalibuServer{}
-
-	if config.MaxStoredSessions > 0 {
-		sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
-	}
 
 	err := malibuServer.Start(config)
 	if err != nil {

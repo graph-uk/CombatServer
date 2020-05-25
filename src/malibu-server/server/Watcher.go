@@ -2,6 +2,10 @@ package server
 
 import (
 	"fmt"
+	"io/ioutil"
+	"log"
+	"os"
+	"strings"
 	"time"
 
 	"malibu-server/data/models/status"
@@ -41,7 +45,31 @@ func checkCases() {
 func deleteSessionsOutOfRange(config *utils.Config) {
 	sessionsRepo := &repositories.Sessions{}
 	sessionsRepo.DeleteOldSessions(config.MaxStoredSessions)
+}
 
+func deleteSuccessArtifacts() {
+	triesRepo := &repositories.Tries{}
+	allTries := triesRepo.FindAll()
+	for _, curTry := range allTries {
+		if curTry.ExitStatus == `0` {
+			os.RemoveAll(fmt.Sprintf(`_data/tries/%d`, curTry.ID))
+		}
+	}
+}
+
+func deleteOldSuccessfullRuns() {
+	files, err := ioutil.ReadDir(`_data/tries-succ`)
+
+	if err != nil {
+		log.Println(err.Error())
+		return
+	}
+
+	for _, file := range files {
+		if strings.HasPrefix(file.Name(), `old`) {
+			os.RemoveAll(`_data/tries-succ/` + file.Name())
+		}
+	}
 }
 
 // TimeoutWatcher ...
@@ -49,6 +77,8 @@ func TimeoutWatcher(config *utils.Config) {
 	for {
 		checkCases()
 		checkNotificationEnabled(config)
+		deleteSuccessArtifacts()
+		deleteOldSuccessfullRuns()
 		deleteSessionsOutOfRange(config)
 		time.Sleep(10 * time.Second)
 	}

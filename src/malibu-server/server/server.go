@@ -48,9 +48,6 @@ func parseTemplates() (*template.Template, error) {
 // Start web server
 func (t *MalibuServer) Start(config *utils.Config) error {
 
-	//run migrations
-	//processMigrations(db)
-
 	go TimeoutWatcher(config)
 
 	templates, _ := parseTemplates()
