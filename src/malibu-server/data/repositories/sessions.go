@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -59,6 +60,9 @@ func (t *Sessions) Update(session *models.Session) error {
 // UpdateSessionStatus ...
 func (t *Sessions) UpdateSessionStatus(id string) error {
 	session := t.Find(id)
+	if session == nil {
+		return errors.New(`session ` + id + ` not found`)
+	}
 	sessionStatus, failedCases := t.getSessionStatus(session)
 
 	casesRepo := &Cases{t.context}
