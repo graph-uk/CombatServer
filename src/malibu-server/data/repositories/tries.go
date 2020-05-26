@@ -131,7 +131,7 @@ func (t *Tries) FindByCaseID(caseID int) []models.Try {
 	tries := &[]models.Try{}
 
 	query := func(db *storm.DB) {
-		check(db.Find(`CaseID`, caseID, tries))
+		checkIgnore404(db.Find(`CaseID`, caseID, tries))
 	}
 
 	error := t.context.Execute(query)
