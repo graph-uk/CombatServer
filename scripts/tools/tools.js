@@ -44,4 +44,8 @@ module.exports = class Tools {
 	mv(oldPath, newPath) {
 		fs.renameSync(oldPath,newPath)
 	}
+
+	cp(path, newPath) {
+		fs.copyFileSync(path,newPath)
+	}
 }
