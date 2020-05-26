@@ -19,3 +19,6 @@ _data
 /int-tests/src/Tests/twoSessions/worker
 *.sl3
 *.db
+/src/malibu/malibu
+/src/malibu-client/malibu-client
+/src/malibu-worker/malibu-worker
