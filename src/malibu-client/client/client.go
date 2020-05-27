@@ -129,7 +129,6 @@ func (t *MalibuClient) GetSessionResult(sessionID string) int {
 		if err != nil {
 			fmt.Println(err.Error())
 		}
-		fmt.Println(sessionStatusJSON)
 		var finished bool
 		finished, countOfErrors, err = t.printSessionStatusByJSON(sessionStatusJSON)
 		if err == nil {
