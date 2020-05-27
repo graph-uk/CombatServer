@@ -122,7 +122,7 @@ func (t *Sessions) FindAll() []models.Session {
 	sessions := &[]models.Session{}
 
 	query := func(db *storm.DB) {
-		check(db.All(sessions))
+		check(db.All(sessions, storm.Reverse()))
 	}
 
 	error := t.context.Execute(query)
