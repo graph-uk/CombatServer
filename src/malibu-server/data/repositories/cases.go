@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"math/rand"
 	"time"
 
 	"github.com/asdine/storm/q"
@@ -131,13 +132,16 @@ func (t *Cases) StopCurrentCases() error {
 
 // AcquireFreeJob case by is not in progress and not finished
 func (t *Cases) AcquireFreeJob() *models.Case {
+	pendingJobs := []models.Case{}
 	result := &models.Case{}
 	session := &models.Session{}
 
 	query := func(db *storm.DB) {
-		// Where is string because of shitty storm which can't filter by false :-(
-		checkIgnore404(db.One(`Status`, status.Pending, result))
-		if result.ID > 0 {
+		checkIgnore404(db.Find(`Status`, status.Pending, &pendingJobs))
+		if len(pendingJobs) > 0 {
+			rand.Seed(time.Now().Unix())
+			result = &pendingJobs[rand.Intn(len(pendingJobs))]
+
 			result.Status = status.Processing
 			result.DateStarted = time.Now()
 			check(db.Save(result))
