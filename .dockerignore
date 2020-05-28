@@ -1,0 +1,9 @@
+.git
+/pkg
+#/tests
+/node_modules
+#/node_modules/go-win
+#/node_modules/liteide-win
+#/src/dback/dback-snapshots/*
+#*.tar
+*.exe
