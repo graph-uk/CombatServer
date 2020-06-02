@@ -45,16 +45,13 @@ func (t *Test) LoadTagsAndParams() error {
 	// get test's params in JSON
 	rootTestsPath, _ := os.Getwd()
 	rootTestsPath += string(os.PathSeparator) + ".." + string(os.PathSeparator) + ".."
-	cmd := exec.Command("go", "run", t.directory+"/"+t.name+`/`+"main.go", "paramsJSON")
+	cmd := exec.Command("go", "run", t.directory+`/`+t.name+`/`+"main.go", "paramsJSON")
 	cmd.Env = t.addToGOPath(rootTestsPath)
 	var out, outErr bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &outErr
-	log.Println(cmd.Run())
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//println("LoadTagsAndParams: " + out.String())
+	cmd.Run()
+
 	var TestParams UnmarshaledTestParams
 	if err := json.Unmarshal(out.Bytes(), &TestParams); err != nil {
 		log.Println("Cannot parse json for test: " + t.name)

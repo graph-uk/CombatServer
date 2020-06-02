@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
@@ -210,8 +211,11 @@ func copyFile(src, dst string) error {
 	return out.Close()
 }
 
-func CopyFile(src, dst string) {
+func CopyFile(src, dst string, exec bool) {
 	check(copyFile(src, dst))
+	if exec && runtime.GOOS == "linux" {
+		check(os.Chmod(dst, 0777))
+	}
 }
 
 func check(err error) {

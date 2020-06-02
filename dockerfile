@@ -1,41 +1,19 @@
-FROM golang:1.13.7
+FROM golang:1.13.7 as builder
 WORKDIR /go
 RUN PATH=$PATH:~/go/bin &&\
 	apt-get update &&\
 	curl -sL https://deb.nodesource.com/setup_10.x | bash -&&\
 	apt-get install -y nodejs
 COPY . /go
-RUN npm install
+RUN npm install &&\
+	chmod +x ./node_modules/packr-win-lin/packr &&\
+	chmod +x ./node_modules/malibu-win-lin/malibu
 RUN npm run iter
-#	npm install
-#	mkdir -p /go/src/github.com/graph-uk &&\
-#	cd /go/src/github.com/graph-uk &&\
-#	git clone https://github.com/graph-uk/malibu-server.git &&\
-#	go get -u github.com/gobuffalo/packr/packr &&\
-#	apt-get update &&\
-#	curl -sL https://deb.nodesource.com/setup_10.x | bash -&&\
-#	apt-get install -y nodejs &&\
-#	cd /go/src/github.com/graph-uk/malibu-server &&\
-#	GOPATH=$GOPATH:/go/src/github.com/graph-uk/malibu-server &&\
-#	npm install &&\
 
-#	npm run build-assets &&\
-#	cd /go/src/github.com/graph-uk/malibu-server/src/malibu && go build &&\
-#	go install &&\
-#	cp /go/bin/malibu . &&\
+FROM golang:1.13.7 as prod
+COPY --from=builder /go/src/malibu-server/assets/_/dist/malibu/malibu /bin/malibu
+COPY --from=builder /go/int-tests/src/Tests/twoSessions/server/malibu-server /bin/malibu-server
 
-#	cd /go/src/github.com/graph-uk/malibu-server/src/malibu-client && go build &&\
-#	cd /go/src/github.com/graph-uk/malibu-server/src/malibu-worker && go build &&\
-
-#	cd /go/src/github.com/graph-uk/malibu-server/src/malibu && GOOS=windows GOARCH=amd64 go build &&\
-#	cd /go/src/github.com/graph-uk/malibu-server/src/malibu-client && GOOS=windows GOARCH=amd64 go build &&\
-#	cd /go/src/github.com/graph-uk/malibu-server/src/malibu-worker && GOOS=windows GOARCH=amd64 go build &&\
-
-#	cd /go/src/github.com/graph-uk/malibu-server/src/malibu-server &&\
-#	go get golang.org/x/text/secure/bidirule &&\
-#	npm run copy-client-worker-to-assets &&\
-#	packr build
-
-WORKDIR /go/src/github.com/graph-uk/malibu-server/src/malibu-server
-ENTRYPOINT /go/src/github.com/graph-uk/malibu-server/src/malibu-server/malibu-server
+WORKDIR /malibu-server
+ENTRYPOINT malibu-server
 EXPOSE 3133

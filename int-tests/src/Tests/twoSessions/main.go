@@ -6,12 +6,18 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"runtime"
 	"time"
 )
 
 func main() {
 	theTest := malibutest.NewMalibuTest()
 	log.Println(theTest.Params.HostName.Value)
+
+	exe := `` //executable file extension.
+	if runtime.GOOS == "windows" {
+		exe = `.exe`
+	}
 
 	//Re-create (clear) folders for test binaries
 	cli.RemoveAll(`server`)
@@ -24,21 +30,21 @@ func main() {
 	cli.CreateFailTrigger(`testSuccessOrFailure.txt`)
 
 	//Copy compiled binaries to correspond test folders
-	cli.CopyFile(`../../Tests_shared/target-app-binaries/malibu-server.exe`, `server/malibu-server.exe`)
-	cli.CopyFile(`malibu-server-config.json`, `server/config.json`)
-	cli.CopyFile(`../../Tests_shared/target-app-binaries/malibu-worker.exe`, `worker/malibu-worker.exe`)
-	cli.CopyFile(`../../Tests_shared/target-app-binaries/malibu-client.exe`, `client/malibu-client.exe`)
+	cli.CopyFile(`../../Tests_shared/target-app-binaries/malibu-server`+exe, `server/malibu-server`+exe, true)
+	cli.CopyFile(`malibu-server-config.json`, `server/config.json`, false)
+	cli.CopyFile(`../../Tests_shared/target-app-binaries/malibu-worker`+exe, `worker/malibu-worker`+exe, true)
+	cli.CopyFile(`../../Tests_shared/target-app-binaries/malibu-client`+exe, `client/malibu-client`+exe, true)
 
-	env := cli.EnvRewrite(os.Environ(), `GOPATH`, cli.Pwd()+`/../../Tests_shared/malibuTestsExample`)
+	env := cli.EnvRewrite(os.Environ(), `GOPATH`, cli.Pwd()+`/../../Tests_shared/MalibuTestsExample`)
 	env = cli.EnvRewrite(env, `Path`, cli.Pwd()+`/../../Tests_shared/target-app-binaries`)
 	env = cli.EnvExtend(env, `Path`, cli.Pwd()+`/../../../../node_modules/go-win/bin`)
 
-	//env := cli.EnvRewrite(os.Environ(), `GOPATH`, cli.Pwd()+`/../../Tests_shared/malibuTestsExample`)
+	//env := cli.EnvRewrite(os.Environ(), `GOPATH`, cli.Pwd()+`/../../Tests_shared/MalibuTestsExample`)
 	//log.Println(env)
 	//return
 
 	server := cli.StartCmd(cli.Pwd()+`/server`, &env, `./malibu-server`)
-	client := cli.StartCmd(cli.Pwd()+`/../../Tests_shared/malibuTestsExample/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	client := cli.StartCmd(cli.Pwd()+`/../../Tests_shared/MalibuTestsExample/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
 	worker := cli.StartCmd(cli.Pwd()+`/worker`, &env, `./malibu-worker`, `http://localhost:3133`)
 
 	defer func() {
@@ -96,7 +102,7 @@ func main() {
 	// panic(`created`)
 
 	cli.DeleteFailTrigger(`testSuccessOrFailure.txt`)
-	client = cli.StartCmd(cli.Pwd()+`/../../Tests_shared/malibuTestsExample/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	client = cli.StartCmd(cli.Pwd()+`/../../Tests_shared/MalibuTestsExample/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
 	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
 
 	//panic(`test`)

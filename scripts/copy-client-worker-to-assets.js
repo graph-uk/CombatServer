@@ -2,7 +2,7 @@ const t = new(require('./tools/tools.js'))
 
 const targetFolder = process.env['REPO']+'/src/malibu-server/assets/_/dist'
 
-//t.rmdir(targetFolder)
+t.rmdir(targetFolder)
 t.mkdir(targetFolder)
 t.mkdir(targetFolder+'/client')
 t.mkdir(targetFolder+'/worker')

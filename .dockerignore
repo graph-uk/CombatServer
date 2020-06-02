@@ -2,6 +2,7 @@
 /pkg
 #/tests
 /node_modules
+/src/malibu-server/assets/_
 #/node_modules/go-win
 #/node_modules/liteide-win
 #/src/dback/dback-snapshots/*
