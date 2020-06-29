@@ -1,0 +1,11 @@
+FROM selenium/standalone-chrome:3.141.59
+USER root
+RUN whoami &&\
+	apt-get update &&\
+	apt-get install -y golang-go dos2unix git
+WORKDIR /worker
+COPY update-worker.sh /worker/
+RUN dos2unix update-worker.sh && mkdir /worker/gopath && chmod -R 777 /worker
+USER seluser
+ENTRYPOINT /bin/bash -c "/worker/update-worker.sh"
+EXPOSE 3133
