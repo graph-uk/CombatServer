@@ -1,0 +1,12 @@
+FROM selenium/standalone-chrome:3.141.59
+USER root
+RUN whoami &&\
+	apt-get update &&\
+	apt-get install -y golang-go dos2unix git php php-curl
+WORKDIR /worker
+COPY update-worker.sh /worker/
+COPY php.ini /etc/php/7.2/cli/php.ini
+RUN dos2unix update-worker.sh && mkdir /worker/gopath && chmod -R 777 /worker
+USER seluser
+#ENTRYPOINT /bin/bash -c "/worker/update-worker.sh"
+ENTRYPOINT /bin/bash -c "/worker/update-worker.sh ${malibu_server_host}"

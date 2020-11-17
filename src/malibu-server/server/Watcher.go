@@ -77,9 +77,9 @@ func TimeoutWatcher(config *utils.Config) {
 	for {
 		checkCases()
 		checkNotificationEnabled(config)
-		deleteSuccessArtifacts()
-		deleteOldSuccessfullRuns()
-		deleteSessionsOutOfRange(config)
+		// deleteSuccessArtifacts()
+		// deleteOldSuccessfullRuns()
+		// deleteSessionsOutOfRange(config)
 		time.Sleep(10 * time.Second)
 	}
 }
