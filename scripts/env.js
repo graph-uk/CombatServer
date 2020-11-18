@@ -14,15 +14,16 @@ module.exports = class Env {
 
         process.env['GOPATH'] = 				process.env['REPO']
         process.env['GOPATH'] +=                sep+process.env['REPO']+'/int-tests'        
-        process.env['GOROOT'] = 				process.env['REPO']+'/node_modules/go-win'
+        if (process.platform === "win32"){
+            process.env['GOROOT'] =                 process.env['REPO']+'/node_modules/go-win'
+        }
 
         process.env['PATH'] += 					sep+process.env['GOPATH']+'/bin'
         process.env['PATH'] += 					sep+process.env['GOROOT']+'/bin'
         process.env['PATH'] += 					sep+process.env['REPO']+'/node_modules/.bin'
-        process.env['PATH'] += 					sep+process.env['REPO']+'/node_modules/liteide-win/bin'
-        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/mingw64-win/bin'
-        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/packr-win'
-        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/malibu-win'
+        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/packr-win-lin'
+        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/malibu-win-lin'
+        process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/liteide-win/bin'
         process.env['PATH'] +=                  sep+process.env['REPO']+'/node_modules/boltdbweb-win'
 
         process.env['ENVISSET'] = 				'TRUE'

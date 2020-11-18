@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sort"
 	"strings"
 
 	"malibu-server/data/models"
@@ -86,12 +87,23 @@ func (t *SessionsFS) extractTestCases(session *models.Session) []models.Case {
 	return nil
 }
 
+func sortCaseArguments(str string) string {
+	arr := strings.Split(str, ` `)
+	testName := arr[0]
+	arr = arr[1:] // cut test name. It should be on first place
+	sort.Strings(arr)
+	str = strings.Join(arr, ` `)
+	return testName + ` ` + str
+}
+
 func parseCasesOutput(session *models.Session, casesOutput bytes.Buffer) []models.Case {
 	// path := fmt.Sprintf(sessionUnarchivedPathTemplate, session.ID)
 	casesParsed := strings.Split(casesOutput.String(), "\n")
 	cases := []models.Case{}
 
 	for _, caseParsed := range casesParsed {
+		caseParsed = strings.TrimSpace(caseParsed)
+		caseParsed = sortCaseArguments(caseParsed)
 		fmt.Println(caseParsed)
 		sessionCaseCode := strings.Split(caseParsed, " ")[0]
 		sessionCaseConfigPath := fmt.Sprintf(sessionCaseConfigPath, session.ID, sessionCaseCode)

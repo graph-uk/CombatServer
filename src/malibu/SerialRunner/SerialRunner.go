@@ -53,6 +53,8 @@ func isAllCasesRunned(testCases []testCase, maxTriesCount int) bool {
 }
 
 func RunCasesSerial(cases [][]string, directory string) int {
+	sl := string(os.PathSeparator)
+
 	maxTriesCount := 3 // hardcoded 3 tries. May be custom values will be provided by CLI
 	fmt.Println("Run cases.")
 	var testCases []testCase
@@ -66,7 +68,7 @@ func RunCasesSerial(cases [][]string, directory string) int {
 		curTestCase.isSucceed = false
 		curTestCase.triesCount = 0
 		curTestCase.command = []string{"run"}
-		curTestCase.command = append(curTestCase.command, directory+"\\"+curTestCase.TestName+"\\main.go")
+		curTestCase.command = append(curTestCase.command, directory+sl+curTestCase.TestName+sl+"main.go")
 		curTestCase.command = append(curTestCase.command, curTestCase.caseParams...)
 		testCases = append(testCases, curTestCase)
 	}

@@ -22,3 +22,5 @@ _data
 /src/malibu/malibu
 /src/malibu-client/malibu-client
 /src/malibu-worker/malibu-worker
+/src/malibu-server/malibu-server
+/pkg
