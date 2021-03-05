@@ -19,7 +19,7 @@
     "build-malibu-server": "node ./scripts/build-server.js",
     "build": "npm run build-assets && node ./scripts/build-client-worker.js && npm run copy-client-worker-to-assets && npm run build-malibu-server",
     "test": "node ./scripts/pass-binaries-to-tests.js && node ./scripts/run-tests.js",
-    "build-docker": "docker build -t malibu-server . && node ./scripts/build-docker-worker.js",    
+    "build-docker": "docker build -t malibu-server . && node ./scripts/build-docker-worker.js",
     "iter": "npm run build && npm run test",
     "start-ide": "node scripts/start-ide.js",
     "db": "node scripts/db.js"

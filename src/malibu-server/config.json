@@ -1,6 +1,6 @@
 {
 	"Port":3133,
-	"CountOfStoredSessions":10,
+	"MaxStoredSessions":1,
 	"ProjectName": "TestProject",
 	"CountOfRetries": 3,
 	"CaseTimeoutSec": 300,

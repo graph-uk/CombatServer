@@ -190,3 +190,11 @@ func (t *Cases) GetFailedCasesCountBySessionID(sessionID string) int {
 
 	return len(*cases)
 }
+
+func (t *Cases) DeleteByID(id int) {
+	query := func(db *storm.DB) {
+		check(db.Delete(`cases`, id))
+	}
+
+	t.context.Execute(query)
+}

@@ -285,3 +285,11 @@ func ReadSuccessfullTryOutput(caseCMDHash string) string {
 	}
 	return string(bytes)
 }
+
+func (t *Tries) DeleteByID(id int) {
+	query := func(db *storm.DB) {
+		check(db.Delete(`tries`, id))
+	}
+
+	t.context.Execute(query)
+}
