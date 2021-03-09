@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"io/ioutil"
+
 	"log"
 	"os"
 	"strconv"
@@ -88,7 +89,7 @@ func deleteSessionsItemsOutOfRange(config *utils.Config) {
 func removeSessionsFoldersOlderThanLast(sessionsFoldersList []string, lastSessionID string) {
 	lastSessionIDInt, err := strconv.Atoi(lastSessionID)
 	if err != nil { //
-		log.Println(`removeSessionsOlderThanLast: lastSessionID cannot be casted to int: "` + lastSessionID + `"`)
+		//log.Println(`removeSessionsOlderThanLast: lastSessionID cannot be casted to int: "` + lastSessionID + `"`)
 		return
 	}
 	for _, curSessionFolder := range sessionsFoldersList {
@@ -98,15 +99,15 @@ func removeSessionsFoldersOlderThanLast(sessionsFoldersList []string, lastSessio
 		}
 		if curSessionIDInt < lastSessionIDInt {
 			//log.Println(`removeSessionsFoldersOlderThanLast ` + fmt.Sprintf(`_data/sessions/%d`, curSessionFolder))
-			os.RemoveAll(fmt.Sprintf(`_data/sessions/%d`, curSessionFolder))
+			os.RemoveAll(fmt.Sprintf(`_data/sessions/%s`, curSessionFolder))
 		}
 	}
 }
 
 func removeZippedTries(files []string) {
 	for _, file := range files {
-		//log.Println(`removeZippedTries ` + fmt.Sprintf(`_data/tries/%d/archived.zip`, file))
-		os.RemoveAll(fmt.Sprintf(`_data/tries/%d/archived.zip`, file))
+		//log.Println(`removeZippedTries ` + fmt.Sprintf(`_data/tries/%s/archived.zip`, file))
+		os.RemoveAll(fmt.Sprintf(`_data/tries/%s/archived.zip`, file))
 	}
 }
 
@@ -160,17 +161,30 @@ func deleteTriesFoldersAndItemsWithNoCaseItem(triesFlodersList []string) {
 	triesRepo := &repositories.Tries{}
 	//	allCases := casesRepo.FindAll()
 	for _, curTryID := range triesFlodersList {
+		//log.Println(`deleteTriesFoldersAndItemsWithNoCaseItem: Try: ` + curTryID)
 		tryIDInt, err := strconv.Atoi(curTryID)
 		if err != nil {
+			//log.Println(`cannot cast to int: ` + curTryID)
 			continue
 		}
 		try := triesRepo.Find(tryIDInt)
 		if try == nil { // the try's item is not found by ID
-			os.RemoveAll(fmt.Sprintf(`_data/tries/%d`, curTryID))
+			//log.Println(`Try item not found in DB: ` + curTryID)
+			os.RemoveAll(fmt.Sprintf(`_data/tries/%s`, curTryID))
+			continue
+		} else {
+			//log.Println(`Try item found in DB:`, curTryID)
 		}
+		if try.ExitStatus == `0` { //remove success tries folder. Last success copy is stored separately
+			os.RemoveAll(fmt.Sprintf(`_data/tries/%s`, curTryID))
+		}
+
 		caseItem := casesRepo.Find(try.CaseID)
 		if caseItem == nil {
+			//log.Println(`Case item not found in DB, for try: ` + curTryID)
 			triesRepo.DeleteByID(tryIDInt)
+		} else {
+			//log.Println(`Case item`, caseItem.ID, ` found in DB, for try:`, curTryID)
 		}
 	}
 }
@@ -180,9 +194,12 @@ func deleteCasesItemsWithNoSessionItem() {
 	sessionsRepo := &repositories.Sessions{}
 	allCases := casesRepo.FindAll()
 	for _, curCase := range allCases {
+		//log.Println(`deleteCasesItemsWithNoSessionItem: Case:`, curCase.ID)
 		session := sessionsRepo.Find(curCase.SessionID)
 		if session == nil {
 			casesRepo.DeleteByID(curCase.ID)
+		} else {
+			//log.Println(`Session item`, session.ID, ` found in DB, for case:`, curCase.ID)
 		}
 	}
 }
@@ -195,8 +212,14 @@ func clearTmpFolder() {
 	}
 	for _, file := range files {
 		if file.IsDir() && strings.HasPrefix(file.Name(), `combatOutput`) {
-			os.RemoveAll(fmt.Sprintf(`/tmp`, file.Name()))
+			os.RemoveAll(fmt.Sprintf(`/tmp/%s`, file.Name()))
 		}
+	}
+}
+
+func removeOldSuccessfulRuns(files []string) {
+	for _, file := range files {
+		os.RemoveAll(fmt.Sprintf(`_data/tries-succ/%s`, file))
 	}
 }
 
@@ -206,12 +229,14 @@ func removeOldData(config *utils.Config) {
 	lastSession := getLastSession()
 	oldSuccessfullRuns := getOldSuccessfulRuns()
 
-	if true {
-		log.Println("sessionsFolder: ", sessionsFlodersList)
-		log.Println("triesFolder: ", triesFlodersList)
-		log.Println("lastSession: ", lastSession)
-		log.Println("oldSuccessfulRuns: ", oldSuccessfullRuns)
-	}
+	// if true {
+	// 	log.Println("sessionsFolder: ", sessionsFlodersList)
+	// 	log.Println("triesFolder: ", triesFlodersList)
+	// 	log.Println("lastSession: ", lastSession)
+	// 	log.Println("oldSuccessfulRuns: ", oldSuccessfullRuns)
+	// }
+
+	removeOldSuccessfulRuns(oldSuccessfullRuns)
 	removeZippedTries(triesFlodersList)
 	removeSessionsFoldersOlderThanLast(sessionsFlodersList, lastSession)
 	deleteSessionsItemsOutOfRange(config)
@@ -227,11 +252,8 @@ func TimeoutWatcher(config *utils.Config) {
 	for {
 		checkCases()
 		checkNotificationEnabled(config)
-		//deleteSuccessArtifacts()
-		// deleteOldSuccessfullRuns()
-		// deleteSessionsOutOfRange(config)
-		//		if curIteration == divider {
 		if curIteration < 0 {
+			//		if true {
 			curIteration = divider
 			removeOldData(config)
 		}

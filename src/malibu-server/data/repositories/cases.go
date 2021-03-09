@@ -97,7 +97,7 @@ func (t *Cases) Find(id int) *models.Case {
 
 	error := t.context.Execute(query)
 
-	if error != nil {
+	if error != nil || result.ID == 0 {
 		return nil
 	}
 
@@ -193,7 +193,7 @@ func (t *Cases) GetFailedCasesCountBySessionID(sessionID string) int {
 
 func (t *Cases) DeleteByID(id int) {
 	query := func(db *storm.DB) {
-		check(db.Delete(`cases`, id))
+		check(db.Delete(`Case`, id))
 	}
 
 	t.context.Execute(query)

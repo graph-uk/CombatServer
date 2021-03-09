@@ -145,7 +145,7 @@ func (t *Sessions) Find(id string) *models.Session {
 
 	error := t.context.Execute(query)
 
-	if error != nil {
+	if error != nil || session.ID == `` {
 		return nil
 	}
 
@@ -163,12 +163,10 @@ func (t *Sessions) FindLast() *models.Session {
 	error := t.context.Execute(query)
 
 	if error != nil {
-		log.Println(`FindLast` + error.Error())
+		log.Println(`FindLastSession` + error.Error())
 
 		return nil
 	}
-
-	log.Println(session)
 
 	return session
 }

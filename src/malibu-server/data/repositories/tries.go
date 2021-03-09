@@ -148,12 +148,12 @@ func (t *Tries) Find(id int) *models.Try {
 	try := &models.Try{}
 
 	query := func(db *storm.DB) {
-		check(db.One(`ID`, id, try))
+		checkIgnore404(db.One(`ID`, id, try))
 	}
 
 	error := t.context.Execute(query)
 
-	if error != nil {
+	if error != nil || try.ID == 0 {
 		return nil
 	}
 
@@ -288,7 +288,7 @@ func ReadSuccessfullTryOutput(caseCMDHash string) string {
 
 func (t *Tries) DeleteByID(id int) {
 	query := func(db *storm.DB) {
-		check(db.Delete(`tries`, id))
+		check(db.Delete(`Try`, id))
 	}
 
 	t.context.Execute(query)
