@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 	"fmt"
+	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -144,7 +145,7 @@ func (t *Sessions) Find(id string) *models.Session {
 
 	error := t.context.Execute(query)
 
-	if error != nil {
+	if error != nil || session.ID == `` {
 		return nil
 	}
 
@@ -162,6 +163,8 @@ func (t *Sessions) FindLast() *models.Session {
 	error := t.context.Execute(query)
 
 	if error != nil {
+		log.Println(`FindLastSession` + error.Error())
+
 		return nil
 	}
 
@@ -169,15 +172,21 @@ func (t *Sessions) FindLast() *models.Session {
 }
 
 // DeleteOldSessions session
-func (t *Sessions) DeleteOldSessions(maxSessionsCount int) error {
-	//var sessions []models.Session
+func (t *Sessions) DeleteOldSessions(maxSessionsCount int) {
 
+	oldSessions := &[]models.Session{}
+	log.Println(`maxSessionsCount ` + strconv.Itoa(maxSessionsCount))
 	query := func(db *storm.DB) {
-		// db.Order("id desc").Limit(math.MaxInt32).Offset(maxSessionsCount).Find(&sessions)
-		// for _, session := range sessions {
-		// 	db.Delete(session)
-		// }
+		checkIgnore404(db.Select().OrderBy(`ID`).Reverse().Skip(maxSessionsCount).Find(oldSessions))
 	}
 
-	return t.context.Execute(query)
+	t.context.Execute(query)
+
+	for _, oldSession := range *oldSessions {
+		//		log.Println(`DeleteOldSessionsItems ` + oldSession.ID)
+		query := func(db *storm.DB) {
+			check(db.DeleteStruct(&oldSession))
+		}
+		t.context.Execute(query)
+	}
 }
