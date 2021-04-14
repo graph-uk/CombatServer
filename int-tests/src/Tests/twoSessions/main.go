@@ -65,9 +65,9 @@ func main() {
 		}
 	}()
 
-	defer server.Cmd.Process.Kill()
 	defer client.Cmd.Process.Kill()
 	defer worker.Cmd.Process.Kill()
+	defer server.Cmd.Process.Kill()
 
 	// log.Println(env)
 
@@ -106,6 +106,9 @@ func main() {
 	client.WaitingForStdOutContains(`Time of testing`, 400*time.Second)
 
 	//panic(`test`)
+
+	client = cli.StartCmd(cli.Pwd()+`/../../Tests_shared/MalibuTestsExampleFailedCompilation/src/Tests`, &env, cli.Pwd()+`/client/malibu-client`, `http://localhost:3133`, `./../..`, `40`, `-InternalIP=192.168.1.1`)
+	client.WaitingForStdOutContains(`TestSuccess\main.go:37:1: syntax error: non-declaration statement outside function body`, 400*time.Second)
 
 	log.Println(`The test finished succeed.`)
 

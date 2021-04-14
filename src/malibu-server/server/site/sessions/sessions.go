@@ -155,10 +155,11 @@ func View(c echo.Context) error {
 	title := session.DateCreated.Format("2006-01-02 15:04:05")
 
 	model := &sessions.View{
-		ProjectName: utils.GetApplicationConfig().ProjectName,
-		Title:       title,
-		Cases:       getCasesJSON(session.ID),
-		SilentTries: utils.GetApplicationConfig().SilentTries,
+		ProjectName:  utils.GetApplicationConfig().ProjectName,
+		Title:        title,
+		Cases:        getCasesJSON(session.ID),
+		SilentTries:  utils.GetApplicationConfig().SilentTries,
+		SessionError: session.Error,
 	}
 
 	return c.Render(http.StatusOK, "sessions/views/view.html", model)

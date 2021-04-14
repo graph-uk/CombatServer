@@ -122,15 +122,18 @@ func (t *MalibuClient) CreateNewSession() (string, error) {
 	return "", nil
 }
 
-func (t *MalibuClient) GetSessionResult(sessionID string) int {
+func (t *MalibuClient) GetSessionResult(sessionID string) (int, string) {
 	countOfErrors := 1
+	sessionError := `Unexpected session error`
 	for {
 		sessionStatusJSON, err := t.getSessionStatusJSON(sessionID)
 		if err != nil {
 			fmt.Println(err.Error())
 		}
+		//		fmt.Println(`*******************************` + sessionStatusJSON)
 		var finished bool
-		finished, countOfErrors, err = t.printSessionStatusByJSON(sessionStatusJSON)
+		finished, countOfErrors, err, sessionError = t.printSessionStatusByJSON(sessionStatusJSON)
+		//		fmt.Println(`*******************************`, finished, countOfErrors, err)
 		if err == nil {
 			if finished {
 				break
@@ -150,6 +153,9 @@ func (t *MalibuClient) GetSessionResult(sessionID string) int {
 	r := regexp.MustCompile(`\.\d*s$`)
 	timeShortStr := r.ReplaceAllString(timeLongStr, "s")
 
-	fmt.Println("Time of testing: " + timeShortStr)
-	return countOfErrors
+	fmt.Println("\r\nTime of testing: " + timeShortStr)
+	if sessionError != `` {
+		fmt.Println("Session error:", sessionError)
+	}
+	return countOfErrors, sessionError
 }
