@@ -23,5 +23,9 @@ func main() {
 		os.Exit(1)
 	}
 
-	os.Exit(client.GetSessionResult(sessionID))
+	testsErrorsCount, sessionError := client.GetSessionResult(sessionID)
+	if sessionError != `` {
+		os.Exit(1)
+	}
+	os.Exit(testsErrorsCount)
 }

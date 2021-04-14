@@ -32,7 +32,7 @@ func (t *MalibuClient) getSessionStatusJSON(sessionID string) (string, error) {
 	return string(body), nil
 }
 
-func (t *MalibuClient) printSessionStatusByJSON(sessionStatusJSON string) (bool, int, error) {
+func (t *MalibuClient) printSessionStatusByJSON(sessionStatusJSON string) (bool, int, error, string) {
 	msg := ""
 	var sessionStatus SessionStatus
 	err := json.Unmarshal([]byte(sessionStatusJSON), &sessionStatus)
@@ -47,7 +47,7 @@ func (t *MalibuClient) printSessionStatusByJSON(sessionStatusJSON string) (bool,
 		} else {
 			fmt.Print(`.`)
 		}
-		return false, 1, err
+		return false, 1, err, "cannot parse session status json"
 	}
 
 	casesFailed := []string{}
@@ -67,7 +67,7 @@ func (t *MalibuClient) printSessionStatusByJSON(sessionStatusJSON string) (bool,
 			}
 		}
 
-		return true, len(casesFailed), nil
+		return true, len(casesFailed), nil, sessionStatus.SessionError
 	}
 
 	if sessionStatus.CasesCount == 0 {
@@ -82,5 +82,6 @@ func (t *MalibuClient) printSessionStatusByJSON(sessionStatusJSON string) (bool,
 		fmt.Print(".")
 	}
 
-	return false, len(casesFailed), nil
+	//	return false, len(casesFailed), nil
+	return false, len(casesFailed), nil, sessionStatus.SessionError
 }

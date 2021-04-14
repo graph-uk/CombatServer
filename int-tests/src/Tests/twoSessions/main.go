@@ -65,9 +65,10 @@ func main() {
 		}
 	}()
 
-	defer server.Cmd.Process.Kill()
 	defer client.Cmd.Process.Kill()
 	defer worker.Cmd.Process.Kill()
+	return
+	defer server.Cmd.Process.Kill()
 
 	// log.Println(env)
 
