@@ -82,7 +82,7 @@ func (t *SessionsFS) extractTestCases(session *models.Session) []models.Case {
 	}
 
 	session.Status = status.Failed
-	session.Error = err.Error()
+	session.Error = err.Error() + "\r\n+" + output.String()
 	sessionRepo.Update(session)
 	return nil
 }
