@@ -24,3 +24,5 @@ _data
 /src/malibu-worker/malibu-worker
 /src/malibu-server/malibu-server
 /pkg
+/src/malibu-server/assets/_/index.css
+/src/malibu-server/assets/_/index.js

@@ -2,6 +2,7 @@ package tries
 
 import (
 	"encoding/base64"
+	"html"
 	"net/http"
 	"regexp"
 	"strconv"
@@ -50,7 +51,7 @@ func Post(c echo.Context) error {
 	try := &models.Try{
 		CaseID:     caseID,
 		ExitStatus: model.ExitStatus,
-		Output:     model.Output}
+		Output:     html.EscapeString(model.Output)}
 
 	tryContent, err := base64.StdEncoding.DecodeString(model.Content)
 
